@@ -36,22 +36,27 @@
                     break;
 
                 case '+':
-                    token.Type = TokenType.Plus;
+                    token.Type = TokenType.Operator;
                     _text.MoveNext();
                     break;
 
                 case '-':
-                    token.Type = TokenType.Minus;
+                    token.Type = TokenType.Operator;
                     _text.MoveNext();
                     break;
 
                 case '/':
-                    token.Type = TokenType.Slash;
+                    token.Type = TokenType.Operator;
                     _text.MoveNext();
                     break;
 
                 case '*':
-                    token.Type = TokenType.Asterisk;
+                    token.Type = TokenType.Operator;
+                    _text.MoveNext();
+                    break;
+
+                case '^':
+                    token.Type = TokenType.Operator;
                     _text.MoveNext();
                     break;
 

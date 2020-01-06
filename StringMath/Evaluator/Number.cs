@@ -18,6 +18,12 @@
         public static implicit operator Number(decimal num)
             => new Number(num);
 
+        public static explicit operator double(Number num)
+            => (double)num.Value;
+
+        public static explicit operator Number(double num)
+            => new Number((decimal)num);
+
         public static Number operator +(Number a, Number b)
             => a.Value + b.Value;
         public static Number operator -(Number a, Number b)

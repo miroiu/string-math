@@ -14,10 +14,7 @@
         CloseCurly,
 
         // Operators
-        Plus,
-        Minus,
-        Asterisk,
-        Slash,
+        Operator,
         Exclamation
     }
 }

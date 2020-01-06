@@ -27,8 +27,8 @@ namespace StringMath.Tests
 
         [Test]
         [TestCase("1", new[] { TokenType.Number })]
-        [TestCase("1+2", new[] { TokenType.Number, TokenType.Plus, TokenType.Number })]
-        [TestCase("-1 * 3.5", new[] { TokenType.Minus, TokenType.Number, TokenType.Asterisk, TokenType.Number })]
+        [TestCase("1+2", new[] { TokenType.Number, TokenType.Operator, TokenType.Number })]
+        [TestCase("-1 * 3.5", new[] { TokenType.Operator, TokenType.Number, TokenType.Operator, TokenType.Number })]
         public void TestCorrectSyntax(string input, TokenType[] expected)
         {
             var source = new SourceText(input);

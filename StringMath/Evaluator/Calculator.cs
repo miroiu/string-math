@@ -21,6 +21,7 @@ namespace StringMath
             ["-"] = (a, b) => a - b,
             ["*"] = (a, b) => a * b,
             ["/"] = (a, b) => a / b,
+            ["^"] = (a, b) => (Number)Math.Pow((double)a, (double)b),
         };
 
         private static readonly Dictionary<string, Func<Number, Number>> _unaryEvaluators = new Dictionary<string, Func<Number, Number>>

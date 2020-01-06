@@ -19,12 +19,10 @@
         {
             if (left == default)
             {
-                if (IsUnaryOperator(Current.Type))
+                if (IsUnaryOperator(Current.Text))
                 {
                     var operatorToken = Take();
-                    var operatorType = GetUnaryOperatorType(operatorToken);
-
-                    left = new UnaryExpression(operatorType, ParseBinaryExpression(left, OperatorPrecedence.Prefix));
+                    left = new UnaryExpression(operatorToken.Text, ParseBinaryExpression(left, OperatorPrecedence.Prefix));
                 }
                 else
                 {
@@ -40,7 +38,7 @@
 
             while (!IsEndOfStatement())
             {
-                if (IsBinaryOperator(Current.Type))
+                if (IsBinaryOperator(Current.Text))
                 {
                     var precedence = GetBinaryOperatorPrecedence(Current);
                     if (parentPrecedence >= precedence)
@@ -49,8 +47,7 @@
                     }
 
                     var operatorToken = Take();
-                    var operatorType = GetBinaryOperatorType(operatorToken);
-                    left = new BinaryExpression(left, operatorType, ParseBinaryExpression(parentPrecedence: precedence));
+                    left = new BinaryExpression(left, operatorToken.Text, ParseBinaryExpression(parentPrecedence: precedence));
                 }
                 else
                 {
@@ -91,76 +88,46 @@
 
         public static OperatorPrecedence GetBinaryOperatorPrecedence(Token token)
         {
-            switch (token.Type)
+            switch (token.Text)
             {
-                case TokenType.Plus:
-                case TokenType.Minus:
+                case "+":
+                case "-":
                     return OperatorPrecedence.Addition;
 
-                case TokenType.Asterisk:
-                case TokenType.Slash:
+                case "*":
+                case "/":
                     return OperatorPrecedence.Multiplication;
+
+                case "^":
+                    return OperatorPrecedence.Power;
             }
 
             throw new LangException($"'{token.Type}' is not an operator.");
         }
 
-        public static string GetUnaryOperatorType(Token token)
-        {
-            switch (token.Type)
-            {
-                case TokenType.Exclamation:
-                    return "!";
-
-                case TokenType.Minus:
-                    return "-";
-            }
-
-            throw new LangException($"'{token.Type}' is not an unary operator.");
-        }
-
-        public static string GetBinaryOperatorType(Token token)
-        {
-            switch (token.Type)
-            {
-                case TokenType.Plus:
-                    return "+";
-
-                case TokenType.Minus:
-                    return "-";
-
-                case TokenType.Asterisk:
-                    return "*";
-
-                case TokenType.Slash:
-                    return "/";
-            }
-
-            throw new LangException($"{token.Type} is not a binary operator.");
-        }
-
-        public static bool IsUnaryOperator(TokenType type)
+        public static bool IsUnaryOperator(string type)
         {
             switch (type)
             {
-                case TokenType.Exclamation:
+                case "!":
                     return true;
 
-                case TokenType.Minus:
+                case "-":
                     return true;
             }
 
             return false;
         }
 
-        public static bool IsBinaryOperator(TokenType type)
+        public static bool IsBinaryOperator(string type)
         {
             switch (type)
             {
-                case TokenType.Plus:
-                case TokenType.Minus:
-                case TokenType.Asterisk:
-                case TokenType.Slash:
+                case "+":
+                case "-":
+                case "*":
+                case "/":
+                case "^":
                     return true;
             }
 
