@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace StringMath
+﻿namespace StringMath
 {
     internal class Parser
     {
@@ -10,9 +7,7 @@ namespace StringMath
         public Token Current { get; private set; }
 
         public Parser(Lexer lexer)
-        {
-            _lexer = lexer;
-        }
+            => _lexer = lexer;
 
         public Expression Parse()
         {
@@ -24,7 +19,6 @@ namespace StringMath
         {
             if (left == default)
             {
-                // No need for unary parslet
                 if (IsUnaryOperator(Current.Type))
                 {
                     var operatorToken = Take();
