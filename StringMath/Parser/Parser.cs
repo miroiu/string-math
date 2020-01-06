@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace SCLang
+namespace StringMath
 {
     internal class Parser
     {

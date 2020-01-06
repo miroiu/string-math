@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace SCLang
+namespace StringMath
 {
     internal struct Token : IEquatable<Token>
     {

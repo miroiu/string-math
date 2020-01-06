@@ -1,4 +1,4 @@
-﻿namespace SCLang
+﻿namespace StringMath
 {
     internal abstract class Expression
     {

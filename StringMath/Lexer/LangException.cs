@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace SCLang
+namespace StringMath
 {
     public class LangException : Exception
     {

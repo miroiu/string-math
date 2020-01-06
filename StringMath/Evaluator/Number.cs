@@ -1,4 +1,4 @@
-﻿namespace SCLang
+﻿namespace StringMath
 {
     public class Number
     {
@@ -11,5 +11,8 @@
 
         public static Number Parse(string value)
             => new Number(decimal.Parse(value));
+
+        public static explicit operator decimal(Number num)
+            => num.Value;
     }
 }

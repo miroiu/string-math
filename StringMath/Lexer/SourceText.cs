@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 
-namespace SCLang
+namespace StringMath
 {
     internal class SourceText : IEnumerator<char>
     {

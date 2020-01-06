@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
-namespace SCLang
+[assembly: InternalsVisibleTo("StringMath.Tests")]
+namespace StringMath
 {
-    public static class SCMath
+    public static class Math
     {
         private static readonly Dictionary<Type, Func<IMathContext, Expression>> _evaluators = new Dictionary<Type, Func<IMathContext, Expression>>
         {
