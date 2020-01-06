@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace StringMath
 {
@@ -14,7 +15,10 @@ namespace StringMath
         }
 
         public Expression Parse()
-            => ParseBinaryExpression();
+        {
+            Current = _lexer.Lex();
+            return ParseBinaryExpression();
+        }
 
         private Expression ParseBinaryExpression(Expression left = default, OperatorPrecedence parentPrecedence = OperatorPrecedence.None)
         {
@@ -31,6 +35,12 @@ namespace StringMath
                 else
                 {
                     left = ParsePrimaryExpression();
+
+                    if (Current.Type == TokenType.Exclamation)
+                    {
+                        var operatorToken = Take();
+                        left = new UnaryExpression(operatorToken.Text, left);
+                    }
                 }
             }
 
@@ -62,13 +72,27 @@ namespace StringMath
             switch (Current.Type)
             {
                 case TokenType.Number:
-                    return new NumberExpression(Current.Text);
+                    return new ConstantExpression(Take().Text);
 
                 case TokenType.Identifier:
-                    return new ReplacementExpression(Current.Text);
+                    return new ReplacementExpression(Take().Text);
+
+                case TokenType.OpenParen:
+                    return ParseGroupingExpression();
             }
 
             throw new LangException($"Unexpected token '{Current.Text}'.");
+        }
+
+        private Expression ParseGroupingExpression()
+        {
+            Take();
+
+            var expr = ParseBinaryExpression();
+
+            Match(TokenType.CloseParen);
+
+            return new GroupingExpression(expr);
         }
 
         public static OperatorPrecedence GetBinaryOperatorPrecedence(Token token)

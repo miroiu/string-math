@@ -1,10 +1,10 @@
 ﻿namespace StringMath
 {
-    internal class NumberExpression : Expression
+    internal class ConstantExpression : Expression
     {
         public string Value { get; }
 
-        public NumberExpression(string value)
+        public ConstantExpression(string value)
         {
             Value = value;
         }
