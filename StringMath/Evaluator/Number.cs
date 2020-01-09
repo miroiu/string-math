@@ -36,10 +36,20 @@
         public static Number operator -(Number a)
             => -a.Value;
 
+        #region Equality
+
         public static bool operator ==(Number a, decimal b)
             => a.Value == b;
 
         public static bool operator !=(Number a, decimal b)
             => a.Value != b;
+
+        public static bool operator >(Number a, Number b)
+            => a.Value > b.Value;
+
+        public static bool operator <(Number a, Number b)
+            => a.Value < b.Value;
+
+        #endregion
     }
 }

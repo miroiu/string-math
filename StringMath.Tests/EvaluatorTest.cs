@@ -25,5 +25,21 @@ namespace StringMath.Tests
         {
             Assert.AreEqual(expected, (decimal)Calculator.Evaluate(input, new Replacement("a", replacement), new Replacement("b", 2)));
         }
+
+        [SetUp]
+        public void Setup()
+        {
+            Calculator.AddUnaryOperator("abs", a => a > 0 ? a : -a);
+            Calculator.AddBinaryOperator("max", (a, b) => a > b ? a : b);
+        }
+
+        [Test]
+        [TestCase("abs-5", 5)]
+        [TestCase("abs(-1)", 1)]
+        [TestCase("3max2", 3)]
+        public void CustomOperators(string input, decimal expected)
+        {
+            Assert.AreEqual(expected, (decimal)Calculator.Evaluate(input));
+        }
     }
 }

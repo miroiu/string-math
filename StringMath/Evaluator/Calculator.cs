@@ -26,7 +26,7 @@ namespace StringMath
         };
 
         public static Number Evaluate(string expression)
-            => Evaluate(expression);
+            => Evaluate(expression, default);
 
         public static Number Evaluate(string expression, params Replacement[] replacements)
         {
