@@ -1,6 +1,6 @@
 # String Math
 Calculates the value of a math expression from a string.
-Supports variables.
+Supports variables and user defined operators.
 
 ```csharp
 // Simple expression
