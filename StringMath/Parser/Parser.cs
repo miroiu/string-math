@@ -3,11 +3,15 @@
     internal class Parser
     {
         private readonly Lexer _lexer;
+        private readonly MathContext _mathContext;
 
         public Token Current { get; private set; }
 
-        public Parser(Lexer lexer)
-            => _lexer = lexer;
+        public Parser(Lexer lexer, MathContext mathContext)
+        {
+            _lexer = lexer;
+            _mathContext = mathContext;
+        }
 
         public Expression Parse()
         {
@@ -19,7 +23,7 @@
         {
             if (left == default)
             {
-                if (IsUnaryOperator(Current.Text))
+                if (_mathContext.IsUnaryOperator(Current.Text))
                 {
                     var operatorToken = Take();
                     left = new UnaryExpression(operatorToken.Text, ParseBinaryExpression(left, OperatorPrecedence.Prefix));
@@ -38,9 +42,9 @@
 
             while (!IsEndOfStatement())
             {
-                if (IsBinaryOperator(Current.Text))
+                if (_mathContext.IsBinaryOperator(Current.Text))
                 {
-                    var precedence = GetBinaryOperatorPrecedence(Current);
+                    var precedence = _mathContext.GetBinaryOperatorPrecedence(Current.Text);
                     if (parentPrecedence >= precedence)
                     {
                         return left;
@@ -86,55 +90,6 @@
             return new GroupingExpression(expr);
         }
 
-        public static OperatorPrecedence GetBinaryOperatorPrecedence(Token token)
-        {
-            switch (token.Text)
-            {
-                case "+":
-                case "-":
-                    return OperatorPrecedence.Addition;
-
-                case "*":
-                case "/":
-                    return OperatorPrecedence.Multiplication;
-
-                case "^":
-                    return OperatorPrecedence.Power;
-            }
-
-            throw new LangException($"'{token.Type}' is not an operator.");
-        }
-
-        public static bool IsUnaryOperator(string type)
-        {
-            switch (type)
-            {
-                case "!":
-                    return true;
-
-                case "-":
-                    return true;
-            }
-
-            return false;
-        }
-
-        public static bool IsBinaryOperator(string type)
-        {
-            switch (type)
-            {
-                case "+":
-                case "-":
-                case "*":
-                case "/":
-                case "^":
-                    return true;
-            }
-
-            return false;
-        }
-
-
         public Token Match(TokenType tokenType)
         {
             if (Current.Type == tokenType)
@@ -150,14 +105,6 @@
             var previous = Current;
             Current = _lexer.Lex();
             return previous;
-        }
-
-        public void Ensure(TokenType type)
-        {
-            if (Current.Type != type)
-            {
-                throw new LangException($"Expected {type} but found {Current.Type}.");
-            }
         }
 
         public bool IsEndOfStatement()

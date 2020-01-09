@@ -1,12 +1,14 @@
-﻿namespace StringMath
+﻿using System;
+
+namespace StringMath
 {
     internal class NumberExpression : Expression
     {
         public NumberExpression(Number number)
-        {
-            Value = number;
-        }
+            => Value = number;
 
         public Number Value { get; }
+
+        public override Type Type => typeof(NumberExpression);
     }
 }

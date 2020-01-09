@@ -1,4 +1,6 @@
-﻿namespace StringMath
+﻿using System;
+
+namespace StringMath
 {
     internal class BinaryExpression : Expression
     {
@@ -12,5 +14,7 @@
         public Expression Left { get; }
         public string OperatorType { get; }
         public Expression Right { get; }
+
+        public override Type Type => typeof(BinaryExpression);
     }
 }

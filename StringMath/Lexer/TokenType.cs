@@ -10,8 +10,6 @@
         // Separators
         OpenParen,
         CloseParen,
-        OpenCurly,
-        CloseCurly,
 
         // Operators
         Operator,

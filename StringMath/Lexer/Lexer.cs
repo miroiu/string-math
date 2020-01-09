@@ -3,9 +3,13 @@
     internal partial class Lexer
     {
         private readonly SourceText _text;
+        private readonly MathContext _mathContext;
 
-        public Lexer(SourceText text)
-            => _text = text;
+        public Lexer(SourceText text, MathContext mathContext)
+        {
+            _text = text;
+            _mathContext = mathContext;
+        }
 
         public Token Lex()
         {
@@ -35,31 +39,6 @@
                     token.Text = ReadNumber(_text);
                     break;
 
-                case '+':
-                    token.Type = TokenType.Operator;
-                    _text.MoveNext();
-                    break;
-
-                case '-':
-                    token.Type = TokenType.Operator;
-                    _text.MoveNext();
-                    break;
-
-                case '/':
-                    token.Type = TokenType.Operator;
-                    _text.MoveNext();
-                    break;
-
-                case '*':
-                    token.Type = TokenType.Operator;
-                    _text.MoveNext();
-                    break;
-
-                case '^':
-                    token.Type = TokenType.Operator;
-                    _text.MoveNext();
-                    break;
-
                 case '(':
                     token.Type = TokenType.OpenParen;
                     _text.MoveNext();
@@ -71,7 +50,7 @@
                     break;
 
                 case '{':
-                    token.Type = TokenType.OpenCurly;
+                    token.Type = TokenType.Identifier;
                     token.Text = ReadIdentifier(_text);
                     break;
 
@@ -91,7 +70,22 @@
                     return Lex();
 
                 default:
-                    throw new LangException($"Unexpected character {_text.Current}");
+                    if (_mathContext.Operators.Contains(_text.Current.ToString()))
+                    {
+                        token.Type = TokenType.Operator;
+                        _text.MoveNext();
+                    }
+                    else if (char.IsLetter(_text.Current))
+                    {
+                        string operatorName = ReadOperatorName(_text);
+                        token.Type = TokenType.Operator;
+                        token.Text = operatorName;
+                    }
+                    else
+                    {
+                        throw new LangException($"Unexpected character '{_text.Current}'");
+                    }
+                    break;
             }
 
             return token;

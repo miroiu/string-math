@@ -7,17 +7,13 @@ namespace StringMath
         private string ReadIdentifier(SourceText stream)
         {
             StringBuilder builder = new StringBuilder(12);
+            stream.MoveNext();
 
             while (stream.Current != '}')
             {
                 if (!char.IsLetter(stream.Current))
                 {
-                    if (stream.Current != '}')
-                    {
-                        throw new LangException($"Expected '}}' but found {stream.Current}");
-                    }
-
-                    break;
+                    throw new LangException($"Expected '}}' but found {stream.Current}");
                 }
 
                 builder.Append(stream.Current);
@@ -26,7 +22,20 @@ namespace StringMath
 
             var text = builder.ToString();
             stream.MoveNext();
+            return text;
+        }
 
+        private string ReadOperatorName(SourceText stream)
+        {
+            StringBuilder builder = new StringBuilder(8);
+
+            while (char.IsLetter(stream.Current))
+            {
+                builder.Append(stream.Current);
+                stream.MoveNext();
+            }
+
+            var text = builder.ToString();
             return text;
         }
 

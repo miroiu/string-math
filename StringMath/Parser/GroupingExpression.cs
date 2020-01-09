@@ -1,4 +1,6 @@
-﻿namespace StringMath
+﻿using System;
+
+namespace StringMath
 {
     internal class GroupingExpression : Expression
     {
@@ -6,5 +8,7 @@
             => Inner = inner;
 
         public Expression Inner { get; }
+
+        public override Type Type => typeof(GroupingExpression);
     }
 }

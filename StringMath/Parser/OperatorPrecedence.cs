@@ -1,11 +1,11 @@
 ﻿namespace StringMath
 {
-    internal enum OperatorPrecedence
+    public enum OperatorPrecedence
     {
         None = -1,
-        Addition = 3,
-        Multiplication = 4,
-        Power = 5,
-        Prefix = 6
+        Addition = 0,
+        Multiplication = 1,
+        Power = 2,
+        Prefix = 3
     }
 }

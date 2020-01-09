@@ -1,4 +1,6 @@
-﻿namespace StringMath
+﻿using System;
+
+namespace StringMath
 {
     internal class UnaryExpression : Expression
     {
@@ -10,5 +12,6 @@
 
         public string OperatorType { get; }
         public Expression Operand { get; }
+        public override Type Type => typeof(UnaryExpression);
     }
 }
