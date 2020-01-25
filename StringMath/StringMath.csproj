@@ -6,11 +6,12 @@
     <Authors>Miroiu Emanuel</Authors>
     <Company />
     <Description>Calculates the value of a math expression from a string. Supports variables and user defined operators.</Description>
-    <Copyright>Miroiu Emanuel 2020</Copyright>
+    <Copyright>© Miroiu Emanuel © 2020</Copyright>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/miroiu/string-math</PackageProjectUrl>
     <RepositoryUrl>https://github.com/miroiu/string-math</RepositoryUrl>
-    <PackageTags>expression-evaluator calculator</PackageTags>
+    <PackageTags>expression-evaluator calculator string-math math string-calculator</PackageTags>
+    <Version>1.0.1</Version>
   </PropertyGroup>
 
 </Project>

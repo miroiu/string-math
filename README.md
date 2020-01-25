@@ -4,16 +4,16 @@ Supports variables and user defined operators.
 
 ```csharp
 // Simple expression
-Number result = Calculator.Evaluate("1 * (2 - 3) ^ 2"); // 1
+decimal result = Calculator.Evaluate("1 * (2 - 3) ^ 2"); // 1
 
 // Variables
-Number result = Calculator.Evaluate("{a} + 2 * {b}", new Replacement("a", 2), new Replacement("b", 1)); // 4
+decimal result = Calculator.Evaluate("{a} + 2 * {b}", new Replacement("a", 2), new Replacement("b", 1)); // 4
 
-// Custom operators
-Calculator.AddUnaryOperator("abs", a => a > 0 ? a : -a);
-Calculator.AddBinaryOperator("max", (a, b) => a > b ? a : b);
+// Adding custom operators
+Calculator.AddOperator("abs", a => a > 0 ? a : -a);
+Calculator.AddOperator("max", (a, b) => a > b ? a : b);
 
 // Using custom operators
-Number result = Calculator.Evaluate("abs -5");  // 5
-Number result = Calculator.Evaluate("3 max 4"); // 4
+decimal result = Calculator.Evaluate("abs -5"); // 5
+decimal result = Calculator.Evaluate("3 max 4"); // 4
 ```
