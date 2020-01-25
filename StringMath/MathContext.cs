@@ -6,8 +6,8 @@ namespace StringMath
     internal class MathContext
     {
         private readonly Dictionary<string, OperatorPrecedence> _binaryPrecedence = new Dictionary<string, OperatorPrecedence>();
-        private readonly Dictionary<string, Func<Number, Number, Number>> _binaryEvaluators = new Dictionary<string, Func<Number, Number, Number>>();
-        private readonly Dictionary<string, Func<Number, Number>> _unaryEvaluators = new Dictionary<string, Func<Number, Number>>();
+        private readonly Dictionary<string, Func<decimal, decimal, decimal>> _binaryEvaluators = new Dictionary<string, Func<decimal, decimal, decimal>>();
+        private readonly Dictionary<string, Func<decimal, decimal>> _unaryEvaluators = new Dictionary<string, Func<decimal, decimal>>();
 
         internal HashSet<string> Operators = new HashSet<string>
         {
@@ -20,7 +20,7 @@ namespace StringMath
             AddBinaryOperator("-", (a, b) => a - b, OperatorPrecedence.Addition);
             AddBinaryOperator("*", (a, b) => a * b, OperatorPrecedence.Multiplication);
             AddBinaryOperator("/", (a, b) => a / b, OperatorPrecedence.Multiplication);
-            AddBinaryOperator("^", (a, b) => (Number)Math.Pow((double)a, (double)b), OperatorPrecedence.Power);
+            AddBinaryOperator("^", (a, b) => (decimal)Math.Pow((double)a, (double)b), OperatorPrecedence.Power);
             AddBinaryOperator("%", (a, b) => (decimal)a % (decimal)b, OperatorPrecedence.Multiplication);
             AddUnaryOperator("-", a => -a);
             AddUnaryOperator("!", a => ComputeFactorial(a));
@@ -35,23 +35,23 @@ namespace StringMath
         public OperatorPrecedence GetBinaryOperatorPrecedence(string operatorName)
             => _binaryPrecedence[operatorName];
 
-        public void AddBinaryOperator(string operatorName, Func<Number, Number, Number> operation, OperatorPrecedence precedence = OperatorPrecedence.Power)
+        public void AddBinaryOperator(string operatorName, Func<decimal, decimal, decimal> operation, OperatorPrecedence precedence = OperatorPrecedence.Power)
         {
             _binaryEvaluators[operatorName] = operation;
             _binaryPrecedence[operatorName] = precedence;
             Operators.Add(operatorName);
         }
 
-        public void AddUnaryOperator(string operatorName, Func<Number, Number> operation)
+        public void AddUnaryOperator(string operatorName, Func<decimal, decimal> operation)
         {
             _unaryEvaluators[operatorName] = operation;
             Operators.Add(operatorName);
         }
 
-        public Number EvaluateBinary(string op, Number a, Number b)
+        public decimal EvaluateBinary(string op, decimal a, decimal b)
             => _binaryEvaluators[op](a, b);
 
-        public Number EvaluateUnary(string op, Number a)
+        public decimal EvaluateUnary(string op, decimal a)
             => _unaryEvaluators[op](a);
 
         #region Factorial
@@ -87,10 +87,8 @@ namespace StringMath
             [27] = 1.0888869e+28m
         };
 
-        private static Number ComputeFactorial(Number num)
+        private static decimal ComputeFactorial(decimal value)
         {
-            decimal value = num.Value;
-
             if (value > 27)
             {
                 throw new InvalidOperationException("Result cannot be represented on less than 16 bytes.");

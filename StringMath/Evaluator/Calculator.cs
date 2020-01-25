@@ -10,10 +10,10 @@ namespace StringMath
     {
         internal static MathContext MathContext { get; } = new MathContext();
 
-        public static void AddBinaryOperator(string operatorName, Func<Number, Number, Number> operation)
+        public static void AddBinaryOperator(string operatorName, Func<decimal, decimal, decimal> operation)
             => MathContext.AddBinaryOperator(operatorName, operation);
 
-        public static void AddUnaryOperator(string operatorName, Func<Number, Number> operation)
+        public static void AddUnaryOperator(string operatorName, Func<decimal, decimal> operation)
             => MathContext.AddUnaryOperator(operatorName, operation);
 
         private static readonly Dictionary<Type, Func<Expression, Replacement[], Expression>> _expressionEvaluators = new Dictionary<Type, Func<Expression, Replacement[], Expression>>
@@ -25,10 +25,10 @@ namespace StringMath
             [typeof(ReplacementExpression)] = EvaluateReplacementExpression
         };
 
-        public static Number Evaluate(string expression)
+        public static decimal Evaluate(string expression)
             => Evaluate(expression, default);
 
-        public static Number Evaluate(string expression, params Replacement[] replacements)
+        public static decimal Evaluate(string expression, params Replacement[] replacements)
         {
             SourceText text = new SourceText(expression);
             Lexer lex = new Lexer(text, MathContext);
@@ -52,7 +52,7 @@ namespace StringMath
         private static Expression EvaluateConstantExpression(Expression arg, Replacement[] replacements)
         {
             var constant = (ConstantExpression)arg;
-            return new NumberExpression(Number.Parse(constant.Value));
+            return new NumberExpression(decimal.Parse(constant.Value));
         }
 
         private static Expression EvaluateGroupingExpression(Expression arg, Replacement[] replacements)

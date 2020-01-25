@@ -4,10 +4,10 @@ namespace StringMath
 {
     internal class NumberExpression : Expression
     {
-        public NumberExpression(Number number)
+        public NumberExpression(decimal number)
             => Value = number;
 
-        public Number Value { get; }
+        public decimal Value { get; }
 
         public override Type Type => typeof(NumberExpression);
     }

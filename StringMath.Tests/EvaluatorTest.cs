@@ -13,7 +13,7 @@ namespace StringMath.Tests
         [TestCase("2^3", 8)]
         public void TestEvaluationResult(string input, decimal expected)
         {
-            Assert.AreEqual(expected, (decimal)Calculator.Evaluate(input));
+            Assert.AreEqual(expected, Calculator.Evaluate(input));
         }
 
         [Test]
@@ -23,7 +23,7 @@ namespace StringMath.Tests
         [TestCase("{b}+3*{a}", 3, 11)]
         public void ReplacementEvaluationResult(string input, decimal replacement, decimal expected)
         {
-            Assert.AreEqual(expected, (decimal)Calculator.Evaluate(input, new Replacement("a", replacement), new Replacement("b", 2)));
+            Assert.AreEqual(expected, Calculator.Evaluate(input, new Replacement("a", replacement), new Replacement("b", 2)));
         }
 
         [SetUp]
@@ -39,7 +39,7 @@ namespace StringMath.Tests
         [TestCase("3max2", 3)]
         public void CustomOperators(string input, decimal expected)
         {
-            Assert.AreEqual(expected, (decimal)Calculator.Evaluate(input));
+            Assert.AreEqual(expected, Calculator.Evaluate(input));
         }
     }
 }

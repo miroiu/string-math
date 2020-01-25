@@ -2,13 +2,13 @@
 {
     public class Replacement
     {
-        public Replacement(string identifier, Number value)
+        public Replacement(string identifier, decimal value)
         {
             Identifier = identifier;
             Value = value;
         }
 
         public string Identifier { get; }
-        public Number Value { get; }
+        public decimal Value { get; }
     }
 }
