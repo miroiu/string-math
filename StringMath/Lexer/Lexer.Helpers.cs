@@ -2,7 +2,7 @@
 
 namespace StringMath
 {
-    internal partial class Lexer
+    internal sealed partial class Lexer
     {
         private string ReadIdentifier(SourceText stream)
         {
@@ -13,7 +13,7 @@ namespace StringMath
             {
                 if (!char.IsLetter(stream.Current))
                 {
-                    throw new LangException($"Expected '}}' but found {stream.Current}");
+                    throw new LangException($"Expected '}}' but found '{stream.Current}'");
                 }
 
                 builder.Append(stream.Current);
@@ -57,7 +57,7 @@ namespace StringMath
                     }
                     else
                     {
-                        throw new LangException($"Invalid number format.");
+                        throw new LangException($"Invalid number format: {builder.ToString()}.");
                     }
                 }
                 else if (char.IsDigit(stream.Current))
@@ -73,7 +73,7 @@ namespace StringMath
 
             if (stream.Peek(-1) == '.')
             {
-                throw new LangException($"Invalid number format.");
+                throw new LangException($"Invalid number format: {builder.ToString()}.");
             }
 
             return builder.ToString();

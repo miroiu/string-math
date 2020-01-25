@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace StringMath
 {
-    internal class SourceText : IEnumerator<char>
+    internal sealed class SourceText : IEnumerator<char>
     {
         public string Text { get; }
 

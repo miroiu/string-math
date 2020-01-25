@@ -13,5 +13,23 @@ namespace StringMath.Tests
             Array.Copy(arr, 0, result, 0, arr.Length - 1);
             return result;
         }
+
+        public static Token[] GetTokens(this string input, MathContext context)
+        {
+            var sourceText = new SourceText(input);
+            var lexer = new Lexer(sourceText, context);
+
+            var tokens = new List<Token>();
+            Token t = lexer.Lex();
+            tokens.Add(t);
+
+            while (t.Type != TokenType.EndOfCode)
+            {
+                t = lexer.Lex();
+                tokens.Add(t);
+            }
+
+            return tokens.RemoveLast();
+        }
     }
 }

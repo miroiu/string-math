@@ -2,15 +2,15 @@
 
 namespace StringMath
 {
-    internal class UnaryExpression : Expression
+    internal sealed class UnaryExpression : Expression
     {
         public UnaryExpression(string operatorName, Expression operand)
         {
-            OperatorType = operatorName;
+            OperatorName = operatorName;
             Operand = operand;
         }
 
-        public string OperatorType { get; }
+        public string OperatorName { get; }
         public Expression Operand { get; }
         public override Type Type => typeof(UnaryExpression);
     }

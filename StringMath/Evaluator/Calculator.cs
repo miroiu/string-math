@@ -10,10 +10,10 @@ namespace StringMath
     {
         internal static MathContext MathContext { get; } = new MathContext();
 
-        public static void AddBinaryOperator(string operatorName, Func<decimal, decimal, decimal> operation)
+        public static void AddOperator(string operatorName, Func<decimal, decimal, decimal> operation)
             => MathContext.AddBinaryOperator(operatorName, operation);
 
-        public static void AddUnaryOperator(string operatorName, Func<decimal, decimal> operation)
+        public static void AddOperator(string operatorName, Func<decimal, decimal> operation)
             => MathContext.AddUnaryOperator(operatorName, operation);
 
         private static readonly Dictionary<Type, Func<Expression, Replacement[], Expression>> _expressionEvaluators = new Dictionary<Type, Func<Expression, Replacement[], Expression>>
@@ -50,23 +50,17 @@ namespace StringMath
         }
 
         private static Expression EvaluateConstantExpression(Expression arg, Replacement[] replacements)
-        {
-            var constant = (ConstantExpression)arg;
-            return new NumberExpression(decimal.Parse(constant.Value));
-        }
+            => new NumberExpression(decimal.Parse(((ConstantExpression)arg).Value));
 
         private static Expression EvaluateGroupingExpression(Expression arg, Replacement[] replacements)
-        {
-            var grouping = (GroupingExpression)arg;
-            return grouping.Inner;
-        }
+            => ((GroupingExpression)arg).Inner;
 
         private static Expression EvaluateUnaryExpression(Expression arg, Replacement[] replacements)
         {
             var unary = (UnaryExpression)arg;
             var value = (NumberExpression)Reduce(unary.Operand, replacements);
 
-            var result = MathContext.EvaluateUnary(unary.OperatorType, value.Value);
+            var result = MathContext.EvaluateUnary(unary.OperatorName, value.Value);
             return new NumberExpression(result);
         }
 
@@ -76,7 +70,7 @@ namespace StringMath
             var left = (NumberExpression)Reduce(binary.Left, replacements);
             var right = (NumberExpression)Reduce(binary.Right, replacements);
 
-            var result = MathContext.EvaluateBinary(binary.OperatorType, left.Value, right.Value);
+            var result = MathContext.EvaluateBinary(binary.OperatorName, left.Value, right.Value);
             return new NumberExpression(result);
         }
 

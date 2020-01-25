@@ -2,7 +2,7 @@
 
 namespace StringMath
 {
-    internal class NumberExpression : Expression
+    internal sealed class NumberExpression : Expression
     {
         public NumberExpression(decimal number)
             => Value = number;

@@ -2,7 +2,7 @@
 
 namespace StringMath
 {
-    internal class GroupingExpression : Expression
+    internal sealed class GroupingExpression : Expression
     {
         public GroupingExpression(Expression inner)
             => Inner = inner;

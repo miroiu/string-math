@@ -1,11 +1,10 @@
 ﻿namespace StringMath
 {
-    internal class Parser
+    internal sealed class Parser
     {
         private readonly Lexer _lexer;
         private readonly MathContext _mathContext;
-
-        public Token Current { get; private set; }
+        private Token _currentToken;
 
         public Parser(Lexer lexer, MathContext mathContext)
         {
@@ -15,7 +14,7 @@
 
         public Expression Parse()
         {
-            Current = _lexer.Lex();
+            _currentToken = _lexer.Lex();
             return ParseBinaryExpression();
         }
 
@@ -23,7 +22,7 @@
         {
             if (left == default)
             {
-                if (_mathContext.IsUnaryOperator(Current.Text))
+                if (_mathContext.IsUnaryOperator(_currentToken.Text))
                 {
                     var operatorToken = Take();
                     left = new UnaryExpression(operatorToken.Text, ParseBinaryExpression(left, OperatorPrecedence.Prefix));
@@ -32,7 +31,7 @@
                 {
                     left = ParsePrimaryExpression();
 
-                    if (Current.Type == TokenType.Exclamation)
+                    if (_currentToken.Type == TokenType.Exclamation)
                     {
                         var operatorToken = Take();
                         left = new UnaryExpression(operatorToken.Text, left);
@@ -42,9 +41,9 @@
 
             while (!IsEndOfStatement())
             {
-                if (_mathContext.IsBinaryOperator(Current.Text))
+                if (_mathContext.IsBinaryOperator(_currentToken.Text))
                 {
-                    var precedence = _mathContext.GetBinaryOperatorPrecedence(Current.Text);
+                    var precedence = _mathContext.GetBinaryOperatorPrecedence(_currentToken.Text);
                     if (parentPrecedence >= precedence)
                     {
                         return left;
@@ -64,7 +63,7 @@
 
         public Expression ParsePrimaryExpression()
         {
-            switch (Current.Type)
+            switch (_currentToken.Type)
             {
                 case TokenType.Number:
                     return new ConstantExpression(Take().Text);
@@ -76,7 +75,7 @@
                     return ParseGroupingExpression();
             }
 
-            throw new LangException($"Unexpected token '{Current.Text}'.");
+            throw new LangException($"Unexpected token '{_currentToken.Text}'.");
         }
 
         private Expression ParseGroupingExpression()
@@ -92,22 +91,22 @@
 
         public Token Match(TokenType tokenType)
         {
-            if (Current.Type == tokenType)
+            if (_currentToken.Type == tokenType)
             {
                 return Take();
             }
 
-            throw new LangException($"Expected {tokenType} but found {Current.Type}.");
+            throw new LangException($"Expected '{tokenType}' but found '{_currentToken.Type}'.");
         }
 
         public Token Take()
         {
-            var previous = Current;
-            Current = _lexer.Lex();
+            var previous = _currentToken;
+            _currentToken = _lexer.Lex();
             return previous;
         }
 
         public bool IsEndOfStatement()
-            => Current.Type == TokenType.EndOfCode;
+            => _currentToken.Type == TokenType.EndOfCode;
     }
 }

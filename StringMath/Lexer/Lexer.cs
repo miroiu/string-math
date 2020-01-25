@@ -1,6 +1,6 @@
 ﻿namespace StringMath
 {
-    internal partial class Lexer
+    internal sealed partial class Lexer
     {
         private readonly SourceText _text;
         private readonly MathContext _mathContext;
@@ -21,10 +21,6 @@
 
             switch (_text.Current)
             {
-                case '\0':
-                    token.Type = TokenType.EndOfCode;
-                    break;
-
                 case '0':
                 case '1':
                 case '2':
@@ -69,8 +65,12 @@
                     _text.MoveNext();
                     return Lex();
 
+                case '\0':
+                    token.Type = TokenType.EndOfCode;
+                    break;
+
                 default:
-                    if (_mathContext.Operators.Contains(_text.Current.ToString()))
+                    if (_mathContext.IsOperator(_text.Current.ToString()))
                     {
                         token.Type = TokenType.Operator;
                         _text.MoveNext();

@@ -5,14 +5,10 @@ namespace StringMath
 {
     internal class MathContext
     {
-        private readonly Dictionary<string, OperatorPrecedence> _binaryPrecedence = new Dictionary<string, OperatorPrecedence>();
         private readonly Dictionary<string, Func<decimal, decimal, decimal>> _binaryEvaluators = new Dictionary<string, Func<decimal, decimal, decimal>>();
         private readonly Dictionary<string, Func<decimal, decimal>> _unaryEvaluators = new Dictionary<string, Func<decimal, decimal>>();
-
-        internal HashSet<string> Operators = new HashSet<string>
-        {
-            "+", "-", "*", "/", "^", "%", /*"!" // factorial is a special operator */
-        };
+        private readonly Dictionary<string, OperatorPrecedence> _binaryPrecedence = new Dictionary<string, OperatorPrecedence>();
+        private readonly HashSet<string> _operators = new HashSet<string>();
 
         public MathContext()
         {
@@ -21,7 +17,7 @@ namespace StringMath
             AddBinaryOperator("*", (a, b) => a * b, OperatorPrecedence.Multiplication);
             AddBinaryOperator("/", (a, b) => a / b, OperatorPrecedence.Multiplication);
             AddBinaryOperator("^", (a, b) => (decimal)Math.Pow((double)a, (double)b), OperatorPrecedence.Power);
-            AddBinaryOperator("%", (a, b) => (decimal)a % (decimal)b, OperatorPrecedence.Multiplication);
+            AddBinaryOperator("%", (a, b) => a % b, OperatorPrecedence.Multiplication);
             AddUnaryOperator("-", a => -a);
             AddUnaryOperator("!", a => ComputeFactorial(a));
         }
@@ -32,6 +28,9 @@ namespace StringMath
         public bool IsBinaryOperator(string operatorName)
             => _binaryEvaluators.ContainsKey(operatorName);
 
+        public bool IsOperator(string operatorName)
+            => _operators.Contains(operatorName);
+
         public OperatorPrecedence GetBinaryOperatorPrecedence(string operatorName)
             => _binaryPrecedence[operatorName];
 
@@ -39,13 +38,13 @@ namespace StringMath
         {
             _binaryEvaluators[operatorName] = operation;
             _binaryPrecedence[operatorName] = precedence;
-            Operators.Add(operatorName);
+            _operators.Add(operatorName);
         }
 
         public void AddUnaryOperator(string operatorName, Func<decimal, decimal> operation)
         {
             _unaryEvaluators[operatorName] = operation;
-            Operators.Add(operatorName);
+            _operators.Add(operatorName);
         }
 
         public decimal EvaluateBinary(string op, decimal a, decimal b)
@@ -91,11 +90,11 @@ namespace StringMath
         {
             if (value > 27)
             {
-                throw new InvalidOperationException("Result cannot be represented on less than 16 bytes.");
+                throw new InvalidOperationException("Result is too big.");
             }
             else if (value < 0)
             {
-                throw new InvalidOperationException("Factorial input is negative.");
+                throw new ArgumentException("Value is negative.");
             }
 
             return _factorials[value];

@@ -2,7 +2,7 @@
 
 namespace StringMath
 {
-    internal class ReplacementExpression : Expression
+    internal sealed class ReplacementExpression : Expression
     {
         public ReplacementExpression(string name)
             => Name = name;
