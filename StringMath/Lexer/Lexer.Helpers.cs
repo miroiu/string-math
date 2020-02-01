@@ -39,6 +39,19 @@ namespace StringMath
             return text;
         }
 
+        private string ReadOperator(SourceText stream)
+        {
+            StringBuilder builder = new StringBuilder(3);
+
+            while (!_invalidOperatorCharacters.Contains(stream.Current))
+            {
+                builder.Append(stream.Current);
+                stream.MoveNext();
+            }
+
+            return builder.ToString();
+        }
+
         private string ReadNumber(SourceText stream)
         {
             StringBuilder builder = new StringBuilder(8);

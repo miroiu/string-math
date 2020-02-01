@@ -1,9 +1,17 @@
-﻿namespace StringMath
+﻿using System.Collections.Generic;
+
+namespace StringMath
 {
     internal sealed partial class Lexer
     {
         private readonly SourceText _text;
         private readonly MathContext _mathContext;
+
+        // Can not create custom operators using these characters
+        private readonly HashSet<char> _invalidOperatorCharacters = new HashSet<char>
+        {
+            '(', ')', '{', '}', '!', ' ', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '\t', '\r', '\n', '\0'
+        };
 
         public Lexer(SourceText text, MathContext mathContext)
         {
@@ -70,12 +78,7 @@
                     break;
 
                 default:
-                    if (_mathContext.IsOperator(_text.Current.ToString()))
-                    {
-                        token.Type = TokenType.Operator;
-                        _text.MoveNext();
-                    }
-                    else if (char.IsLetter(_text.Current))
+                    if (char.IsLetter(_text.Current))
                     {
                         string operatorName = ReadOperatorName(_text);
                         token.Type = TokenType.Operator;
@@ -83,7 +86,16 @@
                     }
                     else
                     {
-                        throw new LangException($"Unexpected character '{_text.Current}'");
+                        var op = ReadOperator(_text);
+                        if (_mathContext.IsOperator(op))
+                        {
+                            token.Text = op;
+                            token.Type = TokenType.Operator;
+                        }
+                        else
+                        {
+                            throw new LangException($"'{op}' is not an operator.");
+                        }
                     }
                     break;
             }

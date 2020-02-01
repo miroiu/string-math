@@ -8,7 +8,6 @@ namespace StringMath
             => Inner = inner;
 
         public Expression Inner { get; }
-
         public override Type Type => typeof(GroupingExpression);
     }
 }

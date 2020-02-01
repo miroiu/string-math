@@ -3,23 +3,36 @@ using System.Collections.Generic;
 
 namespace StringMath
 {
-    internal class MathContext
+    internal sealed class MathContext
     {
         private readonly Dictionary<string, Func<decimal, decimal, decimal>> _binaryEvaluators = new Dictionary<string, Func<decimal, decimal, decimal>>();
         private readonly Dictionary<string, Func<decimal, decimal>> _unaryEvaluators = new Dictionary<string, Func<decimal, decimal>>();
-        private readonly Dictionary<string, OperatorPrecedence> _binaryPrecedence = new Dictionary<string, OperatorPrecedence>();
+        private readonly Dictionary<string, Precedence> _binaryPrecedence = new Dictionary<string, Precedence>();
         private readonly HashSet<string> _operators = new HashSet<string>();
 
         public MathContext()
         {
-            AddBinaryOperator("+", (a, b) => a + b, OperatorPrecedence.Addition);
-            AddBinaryOperator("-", (a, b) => a - b, OperatorPrecedence.Addition);
-            AddBinaryOperator("*", (a, b) => a * b, OperatorPrecedence.Multiplication);
-            AddBinaryOperator("/", (a, b) => a / b, OperatorPrecedence.Multiplication);
-            AddBinaryOperator("^", (a, b) => (decimal)Math.Pow((double)a, (double)b), OperatorPrecedence.Power);
-            AddBinaryOperator("%", (a, b) => a % b, OperatorPrecedence.Multiplication);
+            AddBinaryOperator("+", (a, b) => a + b, Precedence.Addition);
+            AddBinaryOperator("-", (a, b) => a - b, Precedence.Addition);
+            AddBinaryOperator("*", (a, b) => a * b, Precedence.Multiplication);
+            AddBinaryOperator("/", (a, b) => a / b, Precedence.Multiplication);
+            AddBinaryOperator("%", (a, b) => a % b, Precedence.Multiplication);
+            AddBinaryOperator("^", (a, b) => (decimal)Math.Pow((double)a, (double)b), Precedence.Power);
+            AddBinaryOperator("log", (a, b) => (decimal)Math.Log((double)a, (double)b), Precedence.Logarithmic);
+            AddBinaryOperator("max", (a, b) => Math.Max(a, b), Precedence.UserDefined);
+            AddBinaryOperator("min", (a, b) => Math.Min(a, b), Precedence.UserDefined);
+
             AddUnaryOperator("-", a => -a);
             AddUnaryOperator("!", a => ComputeFactorial(a));
+            AddUnaryOperator("sqrt", a => (decimal)Math.Sqrt((double)a));
+            AddUnaryOperator("sin", a => (decimal)Math.Sin((double)a));
+            AddUnaryOperator("cos", a => (decimal)Math.Cos((double)a));
+            AddUnaryOperator("tan", a => (decimal)Math.Tan((double)a));
+            AddUnaryOperator("ceil", a => Math.Ceiling(a));
+            AddUnaryOperator("floor", a => Math.Floor(a));
+            AddUnaryOperator("round", a => Math.Round(a));
+            AddUnaryOperator("exp", a => (decimal)Math.Exp((double)a));
+            AddUnaryOperator("abs", a => Math.Abs(a));
         }
 
         public bool IsUnaryOperator(string operatorName)
@@ -31,13 +44,13 @@ namespace StringMath
         public bool IsOperator(string operatorName)
             => _operators.Contains(operatorName);
 
-        public OperatorPrecedence GetBinaryOperatorPrecedence(string operatorName)
+        public Precedence GetBinaryOperatorPrecedence(string operatorName)
             => _binaryPrecedence[operatorName];
 
-        public void AddBinaryOperator(string operatorName, Func<decimal, decimal, decimal> operation, OperatorPrecedence precedence = OperatorPrecedence.Power)
+        public void AddBinaryOperator(string operatorName, Func<decimal, decimal, decimal> operation, Precedence precedence = default)
         {
             _binaryEvaluators[operatorName] = operation;
-            _binaryPrecedence[operatorName] = precedence;
+            _binaryPrecedence[operatorName] = precedence ?? Precedence.Logarithmic;
             _operators.Add(operatorName);
         }
 

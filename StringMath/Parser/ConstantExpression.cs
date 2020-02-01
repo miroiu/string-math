@@ -8,7 +8,6 @@ namespace StringMath
             => Value = value;
 
         public string Value { get; }
-
         public override Type Type => typeof(ConstantExpression);
     }
 }

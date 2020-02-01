@@ -5,13 +5,22 @@
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Authors>Miroiu Emanuel</Authors>
     <Company />
-    <Description>Calculates the value of a math expression from a string. Supports variables and user defined operators.</Description>
-    <Copyright>© Miroiu Emanuel © 2020</Copyright>
+    <Description>Calculates the value of a math expression from a string returning a decimal.
+Supports variables and user defined operators.</Description>
+    <Copyright>2020 Miroiu Emanuel</Copyright>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/miroiu/string-math</PackageProjectUrl>
     <RepositoryUrl>https://github.com/miroiu/string-math</RepositoryUrl>
-    <PackageTags>expression-evaluator calculator string-math math string-calculator</PackageTags>
-    <Version>1.0.1</Version>
+    <PackageTags>expression-evaluator calculator string-math math string-calculator user-defined-operators operators custom-operators</PackageTags>
+    <Version>2.0.0</Version>
+    <PackageReleaseNotes>Create an instance of a Calculator with custom operators and variables or use the static class SMath.
+Specify the operator's precedence when creating a new one or overwriting an existing one. 
+Create custom operators using both letters or different characters than letters.
+Added more default operators.
+Added default replacements for Calculator instances (PI, E).
+The Replacement's api was changed to use a Replacements collection instead of an array of Replacement objects.</PackageReleaseNotes>
+    <AssemblyVersion>2.0.0.0</AssemblyVersion>
+    <PackageLicenseFile></PackageLicenseFile>
   </PropertyGroup>
 
 </Project>

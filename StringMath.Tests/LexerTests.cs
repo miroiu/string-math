@@ -13,6 +13,7 @@ namespace StringMath.Tests
         {
             _context = new MathContext();
             _context.AddBinaryOperator("pow", default);
+            _context.AddBinaryOperator("<<<", default);
         }
 
         [Test]
@@ -22,6 +23,7 @@ namespace StringMath.Tests
         [TestCase("2 pow 3", new[] { TokenType.Number, TokenType.Operator, TokenType.Number })]
         [TestCase("{a} + 2", new[] { TokenType.Identifier, TokenType.Operator, TokenType.Number })]
         [TestCase("(-1) + 2", new[] { TokenType.OpenParen, TokenType.Operator, TokenType.Number, TokenType.CloseParen, TokenType.Operator, TokenType.Number })]
+        [TestCase("<<<", new[] { TokenType.Operator })]
         public void TestCorrectSyntax(string input, TokenType[] expected)
         {
             Assert.AreEqual(expected, input.GetTokens(_context).Select(t => t.Type).ToArray());

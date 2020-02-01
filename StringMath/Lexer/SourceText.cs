@@ -6,17 +6,13 @@ namespace StringMath
     internal sealed class SourceText : IEnumerator<char>
     {
         public string Text { get; }
-
         public int Position { get; private set; }
-        public int Length => Text.Length;
+        public char Current => Text[Position];
+        object IEnumerator.Current => Current;
 
         // The string terminator is used by the lexer to produce EndOfCode tokens
         public SourceText(string source)
             => Text = $"{source}\0";
-
-        public char Current => Text[Position];
-
-        object IEnumerator.Current => Current;
 
         public bool MoveNext()
         {

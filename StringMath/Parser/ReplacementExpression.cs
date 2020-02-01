@@ -8,7 +8,6 @@ namespace StringMath
             => Name = name;
 
         public string Name { get; }
-
         public override Type Type => typeof(ReplacementExpression);
     }
 }

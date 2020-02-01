@@ -18,14 +18,14 @@
             return ParseBinaryExpression();
         }
 
-        private Expression ParseBinaryExpression(Expression left = default, OperatorPrecedence parentPrecedence = OperatorPrecedence.None)
+        private Expression ParseBinaryExpression(Expression left = default, Precedence parentPrecedence = default)
         {
             if (left == default)
             {
                 if (_mathContext.IsUnaryOperator(_currentToken.Text))
                 {
                     var operatorToken = Take();
-                    left = new UnaryExpression(operatorToken.Text, ParseBinaryExpression(left, OperatorPrecedence.Prefix));
+                    left = new UnaryExpression(operatorToken.Text, ParseBinaryExpression(left, Precedence.Prefix));
                 }
                 else
                 {
@@ -83,7 +83,6 @@
             Take();
 
             var expr = ParseBinaryExpression();
-
             Match(TokenType.CloseParen);
 
             return new GroupingExpression(expr);
@@ -96,7 +95,7 @@
                 return Take();
             }
 
-            throw new LangException($"Expected '{tokenType}' but found '{_currentToken.Type}'.");
+            throw new LangException($"Expected '{GetString(tokenType)}' but found '{_currentToken.Text}'.");
         }
 
         public Token Take()
@@ -108,5 +107,34 @@
 
         public bool IsEndOfStatement()
             => _currentToken.Type == TokenType.EndOfCode;
+
+        private string GetString(TokenType tokenType)
+        {
+            switch (tokenType)
+            {
+                case TokenType.Identifier:
+                    return "variable";
+
+                case TokenType.Number:
+                    return "number";
+
+                case TokenType.Operator:
+                    return "operator";
+
+                case TokenType.EndOfCode:
+                    return "\0";
+
+                case TokenType.OpenParen:
+                    return "(";
+
+                case TokenType.CloseParen:
+                    return ")";
+
+                case TokenType.Exclamation:
+                    return "!";
+            }
+
+            return tokenType.ToString();
+        }
     }
 }
