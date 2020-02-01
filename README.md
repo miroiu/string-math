@@ -23,7 +23,6 @@ Replacements variables = new Replacements
 	["a"] = 5,
 	["PI"] = 3.1415926535897931
 };
-variables["a"] = 0;
 
 Calculator myCalculator = new Calculator(variables);
 
