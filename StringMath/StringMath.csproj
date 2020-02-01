@@ -15,9 +15,9 @@ Supports variables and user defined operators.</Description>
     <Version>2.0.0</Version>
     <PackageReleaseNotes>Create an instance of a Calculator with custom operators and variables or use the static class SMath.
 Specify the operator's precedence when creating a new one or overwriting an existing one. 
-Create custom operators using both letters or different characters than letters.
+Create custom operators using both letters and different characters than letters.
 Added more default operators.
-Added default replacements for Calculator instances (PI, E).
+Added variables for Calculator instances (PI, E).
 The Replacement's api was changed to use a Replacements collection instead of an array of Replacement objects.</PackageReleaseNotes>
     <AssemblyVersion>2.0.0.0</AssemblyVersion>
     <PackageLicenseFile></PackageLicenseFile>
