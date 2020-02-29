@@ -1,4 +1,4 @@
-# String Math
+# String Math [![NuGet](https://img.shields.io/nuget/v/StringMath?style=flat-square)](https://www.nuget.org/packages/StringMath/)
 Calculates the value of a math expression from a string returning a decimal.
 Supports variables and user defined operators.
 
