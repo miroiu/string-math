@@ -1,10 +1,15 @@
-﻿namespace StringMath
+﻿using System.Collections.Generic;
+
+namespace StringMath
 {
     internal sealed class Parser
     {
         private readonly Lexer _lexer;
         private readonly MathContext _mathContext;
         private Token _currentToken;
+        private readonly HashSet<string> _replacements = new HashSet<string>();
+
+        public IReadOnlyCollection<string> Replacements => _replacements;
 
         public Parser(Lexer lexer, MathContext mathContext)
         {
@@ -69,7 +74,9 @@
                     return new ConstantExpression(Take().Text);
 
                 case TokenType.Identifier:
-                    return new ReplacementExpression(Take().Text);
+                    var rep = new ReplacementExpression(Take().Text);
+                    _replacements.Add(rep.Name);
+                    return rep;
 
                 case TokenType.OpenParen:
                     return ParseGroupingExpression();

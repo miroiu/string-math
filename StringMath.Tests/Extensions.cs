@@ -31,5 +31,17 @@ namespace StringMath.Tests
 
             return tokens.RemoveLast();
         }
+
+        public static IReadOnlyCollection<string> GetReplacements(this string input, MathContext context)
+        {
+            var sourceText = new SourceText(input);
+            var lexer = new Lexer(sourceText, context);
+            var parser = new Parser(lexer, context);
+
+            // This populates the replacements collection
+            parser.Parse();
+
+            return parser.Replacements;
+        }
     }
 }

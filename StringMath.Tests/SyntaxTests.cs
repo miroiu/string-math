@@ -26,7 +26,16 @@ namespace StringMath.Tests
         [TestCase("<<<", new[] { TokenType.Operator })]
         public void TestCorrectSyntax(string input, TokenType[] expected)
         {
-            Assert.AreEqual(expected, input.GetTokens(_context).Select(t => t.Type).ToArray());
+            Assert.That(input.GetTokens(_context).Select(t => t.Type), Is.EquivalentTo(expected));
+        }
+
+        [Test]
+        [TestCase("{a}", new[] { "a" })]
+        [TestCase("2 * {a} - {PI}", new[] { "a", "PI" })]
+        [TestCase("({a} - 5) * 4 + {E}", new[] { "a", "E" })]
+        public void TestCorrectReplacements(string input, string[] expected)
+        {
+            Assert.That(input.GetReplacements(_context), Is.EquivalentTo(expected));
         }
     }
 }
