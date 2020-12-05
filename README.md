@@ -52,3 +52,31 @@ decimal result2 = myCalculator.Evaluate(op); // 6
 decimal result = SMath.Evaluate("1 + 1"); // 2
 decimal result = SMath.Evaluate("1 + {myVar}", new Replacements { ["myVar"] = 1 }); // 2
 ```
+
+#### Binary operators
+```csharp
++ (addition)
+- (subtraction)
+* (multiplication)
+/ (division)
+% (remainder)
+^ (power)
+log (logarithm)
+max (maximum)
+min (minimum)
+```
+
+#### Unary operators
+```csharp
+- (negation)
+! (factorial)
+sqrt (square root)
+sin (sinus)
+cos (cosinus)
+tan (tangent)
+ceil (ceiling)
+floor (floor)
+round (rounding)
+exp (e raised to power)
+abs (absolute)
+```
