@@ -1,4 +1,4 @@
-# String Math [![NuGet](https://img.shields.io/nuget/v/StringMath?style=flat-square)](https://www.nuget.org/packages/StringMath/)
+# String Math [![NuGet](https://img.shields.io/nuget/v/StringMath?style=flat-square&logo=nuget)](https://www.nuget.org/packages/StringMath/) [![Downloads](https://img.shields.io/nuget/dt/StringMath?label=downloads&style=flat-square&logo=nuget)](https://www.nuget.org/packages/StringMath) ![.NET](https://img.shields.io/static/v1?label=%20&message=standard%202.0&color=5C2D91&style=flat-square&logo=.net)
 Calculates the value of a math expression from a string returning a decimal.
 Supports variables and user defined operators.
 
@@ -30,7 +30,7 @@ Calculator myCalculator = new Calculator(variables); // default variables collec
 // Replacing or creating variables
 myCalculator.Replace("a", 2);
 myCalculator.Replace("b", 1); // new syntax: myCalculator["b"] = 1;
-decimal result = calculator.Evaluate("{a} + 2 * {b} + {PI}"); // 7.1415926535897931
+decimal result = myCalculator.Evaluate("{a} + 2 * {b} + {PI}"); // 7.1415926535897931
 ```
 
 ### Creating and reusing operations
