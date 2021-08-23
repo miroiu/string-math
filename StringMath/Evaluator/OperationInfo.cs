@@ -4,15 +4,15 @@ namespace StringMath
 {
     public class OperationInfo
     {
-        internal OperationInfo(Expression root, string expression, IReadOnlyCollection<string> replacements)
+        internal OperationInfo(Expression root, string expression, IReadOnlyCollection<string> variables)
         {
             Root = root;
             Expression = expression;
-            Replacements = replacements;
+            Variables = variables;
         }
 
         internal Expression Root { get; }
         public string Expression { get; }
-        public IReadOnlyCollection<string> Replacements { get; }
+        public IReadOnlyCollection<string> Variables { get; }
     }
 }

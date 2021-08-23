@@ -44,9 +44,9 @@ namespace StringMath.Tests
         [TestCase("({a})", 3, 3)]
         [TestCase("{PI}", Math.PI, Math.PI)]
         [TestCase("{E}", Math.E, Math.E)]
-        public void ReplacementEvaluationResult(string input, double replacement, double expected)
+        public void VariableEvaluationResult(string input, double variable, double expected)
         {
-            _calculator.Replace("a", replacement);
+            _calculator.Replace("a", variable);
             _calculator.Replace("b", 2);
 
             Assert.AreEqual(expected, _calculator.Evaluate(input));
@@ -77,7 +77,7 @@ namespace StringMath.Tests
 
             var op = _calculator.CreateOperation(input);
 
-            Assert.That(op.Replacements, Is.EquivalentTo(new[] { "a" }));
+            Assert.That(op.Variables, Is.EquivalentTo(new[] { "a" }));
             Assert.AreEqual(input, op.Expression);
 
             Assert.AreEqual(expected, _calculator.Evaluate(input));
@@ -93,13 +93,13 @@ namespace StringMath.Tests
         [TestCase("2*{a}+2*{a}", 3, 12)]
         [TestCase("{b}+3*{a}", 3, 11)]
         [TestCase("({a})", 3, 3)]
-        public void StaticReplacementEvaluationResult(string input, double replacement, double expected)
+        public void StaticVariableEvaluationResult(string input, double variable, double expected)
         {
             SMath.Replace("b", 2);
 
-            Assert.AreEqual(expected, SMath.Evaluate(input, new Replacements
+            Assert.AreEqual(expected, SMath.Evaluate(input, new VariablesCollection
             {
-                ["a"] = replacement
+                ["a"] = variable
             }));
         }
     }

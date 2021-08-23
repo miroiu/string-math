@@ -43,11 +43,11 @@ namespace StringMath
         /// Evaluates a mathematical expression that contains variables and returns a double value.
         /// </summary>
         /// <param name="expression">The math expression to evaluate.</param>
-        /// <param name="replacements">The variables to be replaced with their values.</param>
+        /// <param name="variables">The variables to be replaced with their values.</param>
         /// <returns>The result as a double value.</returns>
-        public static double Evaluate(string expression, Replacements replacements)
+        public static double Evaluate(string expression, VariablesCollection variables)
         {
-            foreach (KeyValuePair<string, double> repl in replacements)
+            foreach (KeyValuePair<string, double> repl in variables)
             {
                 _calculator.Replace(repl.Key, repl.Value);
             }

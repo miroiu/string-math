@@ -5,16 +5,16 @@ namespace StringMath
     public class Calculator
     {
         private readonly MathContext _mathContext = new MathContext();
-        private readonly Replacements _replacements;
+        private readonly VariablesCollection _variables;
 
         private static Reducer Reducer { get; } = new Reducer();
 
         /// <summary>
         /// Create an instance of a Calculator which has it's own operators and variable definitions.
         /// </summary>
-        /// <param name="replacements"></param>
-        public Calculator(Replacements replacements = default)
-            => _replacements = replacements ?? new Replacements
+        /// <param name="variables"></param>
+        public Calculator(VariablesCollection variables = default)
+            => _variables = variables ?? new VariablesCollection
             {
                 ["PI"] = Math.PI,
                 ["E"] = Math.E
@@ -53,7 +53,7 @@ namespace StringMath
             Lexer lex = new Lexer(text, _mathContext);
             Parser parse = new Parser(lex, _mathContext);
 
-            return Reducer.Reduce<ResultExpression>(parse.Parse(), _mathContext, _replacements).Value;
+            return Reducer.Reduce<ResultExpression>(parse.Parse(), _mathContext, _variables).Value;
         }
 
         /// <summary>
@@ -63,7 +63,7 @@ namespace StringMath
         /// <returns>The result as a double value.</returns>
         public double Evaluate(OperationInfo operation)
         {
-            return Reducer.Reduce<ResultExpression>(operation.Root, _mathContext, _replacements).Value;
+            return Reducer.Reduce<ResultExpression>(operation.Root, _mathContext, _variables).Value;
         }
 
         /// <summary>
@@ -78,7 +78,7 @@ namespace StringMath
             Parser parser = new Parser(lexer, _mathContext);
             Expression root = parser.Parse();
 
-            return new OperationInfo(root, expression, parser.Replacements);
+            return new OperationInfo(root, expression, parser.Variables);
         }
 
         /// <summary>
@@ -88,18 +88,18 @@ namespace StringMath
         /// <param name="value">The new value.</param>
         public void Replace(string name, double value)
         {
-            _replacements[name] = value;
+            _variables[name] = value;
         }
 
         /// <summary>
         /// Gets or sets the value of a variable.
         /// </summary>
-        /// <param name="replacement">Name of the variable.</param>
+        /// <param name="variable">Name of the variable.</param>
         /// <returns>Value of the variable.</returns>
-        public double this[string replacement]
+        public double this[string variable]
         {
-            get => _replacements[replacement];
-            set => _replacements[replacement] = value;
+            get => _variables[variable];
+            set => _variables[variable] = value;
         }
     }
 }

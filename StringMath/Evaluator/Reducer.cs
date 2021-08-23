@@ -6,7 +6,7 @@ namespace StringMath
     internal sealed class Reducer
     {
         private readonly Dictionary<Type, Func<Expression, Expression>> _expressionEvaluators;
-        private Dictionary<string, double> _replacements;
+        private Dictionary<string, double> _variables;
         private MathContext _context;
 
         public Reducer()
@@ -17,14 +17,14 @@ namespace StringMath
                 [typeof(UnaryExpression)] = EvaluateUnaryExpression,
                 [typeof(ConstantExpression)] = EvaluateConstantExpression,
                 [typeof(GroupingExpression)] = EvaluateGroupingExpression,
-                [typeof(ReplacementExpression)] = EvaluateReplacementExpression
+                [typeof(VariableExpression)] = EvaluateVariableExpression
             };
         }
 
-        public T Reduce<T>(Expression expression, MathContext context, Dictionary<string, double> replacements) where T : Expression
+        public T Reduce<T>(Expression expression, MathContext context, Dictionary<string, double> variables) where T : Expression
         {
             _context = context;
-            _replacements = replacements ?? new Dictionary<string, double>();
+            _variables = variables ?? new Dictionary<string, double>();
             return Reduce<T>(expression);
         }
 
@@ -69,12 +69,12 @@ namespace StringMath
             return new ResultExpression(result);
         }
 
-        private Expression EvaluateReplacementExpression(Expression expr)
+        private Expression EvaluateVariableExpression(Expression expr)
         {
-            ReplacementExpression replacement = (ReplacementExpression)expr;
-            return _replacements.TryGetValue(replacement.Name, out double value)
+            VariableExpression variable = (VariableExpression)expr;
+            return _variables.TryGetValue(variable.Name, out double value)
                 ? new ResultExpression(value)
-                : throw new LangException($"A value was not supplied for variable '{replacement.Name}'.");
+                : throw new LangException($"A value was not supplied for variable '{variable.Name}'.");
         }
 
         #endregion

@@ -32,16 +32,16 @@ namespace StringMath.Tests
             return tokens.RemoveLast();
         }
 
-        public static IReadOnlyCollection<string> GetReplacements(this string input, MathContext context)
+        public static IReadOnlyCollection<string> GetVariables(this string input, MathContext context)
         {
             SourceText sourceText = new SourceText(input);
             Lexer lexer = new Lexer(sourceText, context);
             Parser parser = new Parser(lexer, context);
 
-            // This populates the replacements collection
+            // This populates the variables collection
             parser.Parse();
 
-            return parser.Replacements;
+            return parser.Variables;
         }
     }
 }

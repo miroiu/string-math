@@ -7,9 +7,9 @@ namespace StringMath
         private readonly Lexer _lexer;
         private readonly MathContext _mathContext;
         private Token _currentToken;
-        private readonly HashSet<string> _replacements = new HashSet<string>();
+        private readonly HashSet<string> _variables = new HashSet<string>();
 
-        public IReadOnlyCollection<string> Replacements => _replacements;
+        public IReadOnlyCollection<string> Variables => _variables;
 
         public Parser(Lexer lexer, MathContext mathContext)
         {
@@ -74,8 +74,8 @@ namespace StringMath
                     return new ConstantExpression(Take().Text);
 
                 case TokenType.Identifier:
-                    ReplacementExpression rep = new ReplacementExpression(Take().Text);
-                    _replacements.Add(rep.Name);
+                    VariableExpression rep = new VariableExpression(Take().Text);
+                    _variables.Add(rep.Name);
                     return rep;
 
                 case TokenType.OpenParen:

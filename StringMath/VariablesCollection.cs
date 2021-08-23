@@ -2,7 +2,7 @@
 
 namespace StringMath
 {
-    public class Replacements : Dictionary<string, double>
+    public class VariablesCollection : Dictionary<string, double>
     {
         /// <summary>
         /// Overwrites the value of a variable.

@@ -33,9 +33,9 @@ namespace StringMath.Tests
         [TestCase("{a}", new[] { "a" })]
         [TestCase("2 * {a} - {PI}", new[] { "a", "PI" })]
         [TestCase("({a} - 5) * 4 + {E}", new[] { "a", "E" })]
-        public void TestCorrectReplacements(string input, string[] expected)
+        public void TestCorrectVariables(string input, string[] expected)
         {
-            Assert.That(input.GetReplacements(_context), Is.EquivalentTo(expected));
+            Assert.That(input.GetVariables(_context), Is.EquivalentTo(expected));
         }
     }
 }
