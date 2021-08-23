@@ -6,7 +6,7 @@ namespace StringMath.Tests
     [TestFixture]
     internal class CalculatorTests
     {
-        private Calculator _calculator;
+        private ICalculator _calculator;
 
         [OneTimeSetUp]
         public void Setup()

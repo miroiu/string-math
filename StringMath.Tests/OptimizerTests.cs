@@ -5,14 +5,14 @@ namespace StringMath.Tests
     [TestFixture]
     internal class OptimizerTests
     {
-        private MathContext _context;
-        private Reducer _reducer;
+        private IMathContext _context;
+        private IExpressionReducer _reducer;
 
         [OneTimeSetUp]
         public void Setup()
         {
             _context = new MathContext();
-            _reducer = new Reducer();
+            _reducer = new ExpressionReducer();
         }
 
         [Test]
@@ -28,10 +28,10 @@ namespace StringMath.Tests
         [TestCase("3! + 5! + {a}", "126 + {a}")]
         public void TestCorrectOptimizing(string input, string expected)
         {
-            SourceText sourceText = new SourceText(input);
-            Lexer lexer = new Lexer(sourceText, _context);
-            Parser parser = new Parser(lexer, _context);
-            Optimizer optimizer = new Optimizer(_reducer, _context);
+            ISourceText sourceText = new SourceText(input);
+            ILexer lexer = new Lexer(sourceText, _context);
+            IParser parser = new Parser(lexer, _context);
+            IExpressionOptimizer optimizer = new ExpressionOptimizer(_reducer, _context);
 
             Expression parsedExpr = parser.Parse();
             Expression optimizedExpr = optimizer.Optimize(parsedExpr);

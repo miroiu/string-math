@@ -1,14 +1,17 @@
-﻿using System.Collections.Generic;
-
-namespace StringMath
+﻿namespace StringMath
 {
-    internal class Optimizer
+    internal interface IExpressionOptimizer
     {
-        private readonly Reducer _reducer;
-        private readonly MathContext _context;
-        private readonly Dictionary<string, double> _variables = new Dictionary<string, double>();
+        Expression Optimize(Expression root);
+    }
 
-        public Optimizer(Reducer reducer, MathContext mathContext)
+    internal class ExpressionOptimizer : IExpressionOptimizer
+    {
+        private readonly IExpressionReducer _reducer;
+        private readonly IMathContext _context;
+        private readonly IVariablesCollection _variables = new VariablesCollection();
+
+        public ExpressionOptimizer(IExpressionReducer reducer, IMathContext mathContext)
         {
             _reducer = reducer;
             _context = mathContext;

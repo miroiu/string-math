@@ -5,7 +5,7 @@ namespace StringMath
 {
     public static class SMath
     {
-        private static readonly Calculator _calculator = new Calculator();
+        private static readonly ICalculator _calculator = new Calculator();
 
         /// <summary>
         /// Add a new binary operator or overwrite an existing operator's logic. 

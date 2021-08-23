@@ -6,7 +6,7 @@ namespace StringMath.Tests
     [TestFixture]
     internal class LexerTests
     {
-        private MathContext _context;
+        private IMathContext _context;
 
         [OneTimeSetUp]
         public void Setup()

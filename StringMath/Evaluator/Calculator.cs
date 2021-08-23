@@ -2,18 +2,30 @@
 
 namespace StringMath
 {
-    public class Calculator
+    public interface ICalculator
     {
-        private readonly MathContext _mathContext = new MathContext();
-        private readonly VariablesCollection _variables;
+        double this[string variable] { get; set; }
 
-        private static Reducer Reducer { get; } = new Reducer();
+        void AddOperator(string operatorName, Func<double, double, double> operation, Precedence precedence = null);
+        void AddOperator(string operatorName, Func<double, double> operation);
+        OperationInfo CreateOperation(string expression);
+        double Evaluate(OperationInfo operation);
+        double Evaluate(string expression);
+        void Replace(string name, double value);
+    }
+
+    public class Calculator : ICalculator
+    {
+        private readonly IMathContext _mathContext = new MathContext();
+        private readonly IVariablesCollection _variables;
+
+        private static IExpressionReducer Reducer { get; } = new ExpressionReducer();
 
         /// <summary>
         /// Create an instance of a Calculator which has it's own operators and variable definitions.
         /// </summary>
         /// <param name="variables"></param>
-        public Calculator(VariablesCollection variables = default)
+        public Calculator(IVariablesCollection variables = default)
             => _variables = variables ?? new VariablesCollection
             {
                 ["PI"] = Math.PI,
@@ -49,9 +61,9 @@ namespace StringMath
         /// <returns>The result as a double value.</returns>
         public double Evaluate(string expression)
         {
-            SourceText text = new SourceText(expression);
-            Lexer lex = new Lexer(text, _mathContext);
-            Parser parse = new Parser(lex, _mathContext);
+            ISourceText text = new SourceText(expression);
+            ILexer lex = new Lexer(text, _mathContext);
+            IParser parse = new Parser(lex, _mathContext);
 
             return Reducer.Reduce<ValueExpression>(parse.Parse(), _mathContext, _variables).Value;
         }
@@ -73,10 +85,10 @@ namespace StringMath
         /// <returns>The result as a double value.</returns>
         public OperationInfo CreateOperation(string expression)
         {
-            SourceText text = new SourceText(expression);
-            Lexer lexer = new Lexer(text, _mathContext);
-            Parser parser = new Parser(lexer, _mathContext);
-            Optimizer optimizer = new Optimizer(Reducer, _mathContext);
+            ISourceText text = new SourceText(expression);
+            ILexer lexer = new Lexer(text, _mathContext);
+            IParser parser = new Parser(lexer, _mathContext);
+            IExpressionOptimizer optimizer = new ExpressionOptimizer(Reducer, _mathContext);
             Expression root = parser.Parse();
             Expression optimized = optimizer.Optimize(root);
 
@@ -90,7 +102,7 @@ namespace StringMath
         /// <param name="value">The new value.</param>
         public void Replace(string name, double value)
         {
-            _variables[name] = value;
+            _variables.Set(name, value);
         }
 
         /// <summary>
@@ -100,8 +112,8 @@ namespace StringMath
         /// <returns>Value of the variable.</returns>
         public double this[string variable]
         {
-            get => _variables[variable];
-            set => _variables[variable] = value;
+            get => _variables.Get(variable);
+            set => _variables.Set(variable, value);
         }
     }
 }

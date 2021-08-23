@@ -2,10 +2,15 @@
 
 namespace StringMath
 {
-    internal sealed partial class Lexer
+    internal interface ILexer
     {
-        private readonly SourceText _text;
-        private readonly MathContext _mathContext;
+        Token Lex();
+    }
+
+    internal sealed partial class Lexer : ILexer
+    {
+        private readonly ISourceText _text;
+        private readonly IMathContext _mathContext;
 
         // Can not create custom operators using these characters
         private readonly HashSet<char> _invalidOperatorCharacters = new HashSet<char>
@@ -13,7 +18,7 @@ namespace StringMath
             '(', ')', '{', '}', '!', ' ', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '\t', '\r', '\n', '\0'
         };
 
-        public Lexer(SourceText text, MathContext mathContext)
+        public Lexer(ISourceText text, IMathContext mathContext)
         {
             _text = text;
             _mathContext = mathContext;

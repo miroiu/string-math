@@ -3,13 +3,18 @@ using System.Collections.Generic;
 
 namespace StringMath
 {
-    internal sealed class Reducer
+    internal interface IExpressionReducer
+    {
+        T Reduce<T>(Expression expression, IMathContext context, IVariablesCollection variables) where T : Expression;
+    }
+
+    internal sealed class ExpressionReducer : IExpressionReducer
     {
         private readonly Dictionary<Type, Func<Expression, Expression>> _expressionEvaluators;
-        private Dictionary<string, double> _variables;
-        private MathContext _context;
+        private IVariablesCollection _variables;
+        private IMathContext _context;
 
-        public Reducer()
+        public ExpressionReducer()
         {
             _expressionEvaluators = new Dictionary<Type, Func<Expression, Expression>>
             {
@@ -21,10 +26,10 @@ namespace StringMath
             };
         }
 
-        public T Reduce<T>(Expression expression, MathContext context, Dictionary<string, double> variables) where T : Expression
+        public T Reduce<T>(Expression expression, IMathContext context, IVariablesCollection variables) where T : Expression
         {
             _context = context;
-            _variables = variables ?? new Dictionary<string, double>();
+            _variables = variables ?? new VariablesCollection();
             return Reduce<T>(expression);
         }
 

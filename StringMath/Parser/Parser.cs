@@ -2,16 +2,22 @@
 
 namespace StringMath
 {
-    internal sealed class Parser
+    internal interface IParser
     {
-        private readonly Lexer _lexer;
-        private readonly MathContext _mathContext;
+        IReadOnlyCollection<string> Variables { get; }
+        Expression Parse();
+    }
+
+    internal sealed class Parser : IParser
+    {
+        private readonly ILexer _lexer;
+        private readonly IMathContext _mathContext;
         private Token _currentToken;
         private readonly HashSet<string> _variables = new HashSet<string>();
 
         public IReadOnlyCollection<string> Variables => _variables;
 
-        public Parser(Lexer lexer, MathContext mathContext)
+        public Parser(ILexer lexer, IMathContext mathContext)
         {
             _lexer = lexer;
             _mathContext = mathContext;

@@ -3,7 +3,19 @@ using System.Collections.Generic;
 
 namespace StringMath
 {
-    internal sealed class MathContext
+    internal interface IMathContext
+    {
+        void AddBinaryOperator(string operatorName, Func<double, double, double> operation, Precedence precedence = null);
+        void AddUnaryOperator(string operatorName, Func<double, double> operation);
+        double EvaluateBinary(string op, double a, double b);
+        double EvaluateUnary(string op, double a);
+        Precedence GetBinaryOperatorPrecedence(string operatorName);
+        bool IsBinaryOperator(string operatorName);
+        bool IsOperator(string operatorName);
+        bool IsUnaryOperator(string operatorName);
+    }
+
+    internal sealed class MathContext : IMathContext
     {
         private readonly Dictionary<string, Func<double, double, double>> _binaryEvaluators = new Dictionary<string, Func<double, double, double>>();
         private readonly Dictionary<string, Func<double, double>> _unaryEvaluators = new Dictionary<string, Func<double, double>>();
@@ -257,13 +269,13 @@ namespace StringMath
 
         private static double ComputeFactorial(double value)
         {
-            if (value > 27)
+            if (value > 170)
             {
                 throw new InvalidOperationException("Result is too big.");
             }
             else if (value < 0)
             {
-                throw new ArgumentException("Value is negative.");
+                throw new ArgumentException("Value cannot be negative.");
             }
 
             return _factorials[value];

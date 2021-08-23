@@ -5,7 +5,7 @@ namespace StringMath.Tests
     [TestFixture]
     internal class ParserTests
     {
-        private MathContext _context;
+        private IMathContext _context;
 
         [OneTimeSetUp]
         public void Setup()
@@ -24,9 +24,9 @@ namespace StringMath.Tests
         [TestCase("!2", "2!")]
         public void TestCorrectParsing(string input, string expected)
         {
-            SourceText sourceText = new SourceText(input);
-            Lexer lexer = new Lexer(sourceText, _context);
-            Parser parser = new Parser(lexer, _context);
+            ISourceText sourceText = new SourceText(input);
+            ILexer lexer = new Lexer(sourceText, _context);
+            IParser parser = new Parser(lexer, _context);
 
             Expression result = parser.Parse();
             string actual = result.ToString();
@@ -65,9 +65,9 @@ namespace StringMath.Tests
         [TestCase("*{a}")]
         public void TestCorrectParsingBadExpression(string input)
         {
-            SourceText sourceText = new SourceText(input);
-            Lexer lexer = new Lexer(sourceText, _context);
-            Parser parser = new Parser(lexer, _context);
+            ISourceText sourceText = new SourceText(input);
+            ILexer lexer = new Lexer(sourceText, _context);
+            IParser parser = new Parser(lexer, _context);
 
             Assert.Throws<LangException>(() => parser.Parse());
         }

@@ -14,10 +14,10 @@ namespace StringMath.Tests
             return result;
         }
 
-        public static Token[] GetTokens(this string input, MathContext context)
+        public static Token[] GetTokens(this string input, IMathContext context)
         {
-            SourceText sourceText = new SourceText(input);
-            Lexer lexer = new Lexer(sourceText, context);
+            ISourceText sourceText = new SourceText(input);
+            ILexer lexer = new Lexer(sourceText, context);
 
             List<Token> tokens = new List<Token>();
             Token t = lexer.Lex();
@@ -32,11 +32,11 @@ namespace StringMath.Tests
             return tokens.RemoveLast();
         }
 
-        public static IReadOnlyCollection<string> GetVariables(this string input, MathContext context)
+        public static IReadOnlyCollection<string> GetVariables(this string input, IMathContext context)
         {
-            SourceText sourceText = new SourceText(input);
-            Lexer lexer = new Lexer(sourceText, context);
-            Parser parser = new Parser(lexer, context);
+            ISourceText sourceText = new SourceText(input);
+            ILexer lexer = new Lexer(sourceText, context);
+            IParser parser = new Parser(lexer, context);
 
             // This populates the variables collection
             parser.Parse();

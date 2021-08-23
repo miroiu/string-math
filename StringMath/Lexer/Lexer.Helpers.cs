@@ -4,7 +4,7 @@ namespace StringMath
 {
     internal sealed partial class Lexer
     {
-        private string ReadIdentifier(SourceText stream)
+        private string ReadIdentifier(ISourceText stream)
         {
             StringBuilder builder = new StringBuilder(12);
             stream.MoveNext();
@@ -26,7 +26,7 @@ namespace StringMath
             return string.IsNullOrWhiteSpace(text) ? throw new LangException($"Variable name cannot be empty.") : text;
         }
 
-        private string ReadOperatorName(SourceText stream)
+        private string ReadOperatorName(ISourceText stream)
         {
             StringBuilder builder = new StringBuilder(8);
 
@@ -40,7 +40,7 @@ namespace StringMath
             return text;
         }
 
-        private string ReadOperator(SourceText stream)
+        private string ReadOperator(ISourceText stream)
         {
             StringBuilder builder = new StringBuilder(3);
 
@@ -53,7 +53,7 @@ namespace StringMath
             return builder.ToString();
         }
 
-        private string ReadNumber(SourceText stream)
+        private string ReadNumber(ISourceText stream)
         {
             StringBuilder builder = new StringBuilder(8);
             bool hasDot = false;
@@ -88,7 +88,7 @@ namespace StringMath
             return stream.Peek(-1) == '.' ? throw new LangException($"Invalid number format: {builder}.") : builder.ToString();
         }
 
-        private void ReadWhiteSpace(SourceText stream)
+        private void ReadWhiteSpace(ISourceText stream)
         {
             while (char.IsWhiteSpace(stream.Current) && stream.MoveNext()) ;
         }
