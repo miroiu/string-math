@@ -15,9 +15,10 @@ namespace StringMath.Tests
 
             _calculator.AddOperator("abs", a => a > 0 ? a : -a);
             _calculator.AddOperator("x", (a, b) => a * b);
-            _calculator.AddOperator("<<", (a, b) => (decimal)Math.ScaleB((double)a, (int)b));
-            _calculator.AddOperator("<>", (a, b) => decimal.Parse($"{a}{b}"), Precedence.Prefix);
-            _calculator.AddOperator("e", (a, b) => decimal.Parse($"{a}e{b}"), Precedence.Power);
+            _calculator.AddOperator("<<", (a, b) => Math.ScaleB(a, (int)b));
+            _calculator.AddOperator("<>", (a, b) => double.Parse($"{a}{b}"), Precedence.Prefix);
+            _calculator.AddOperator("e", (a, b) => double.Parse($"{a}e{b}"), Precedence.Power);
+            _calculator.AddOperator("sind", a => Math.Sin(a * (Math.PI / 180)));
         }
 
         [Test]
@@ -28,8 +29,9 @@ namespace StringMath.Tests
         [TestCase("2 ^ 3", 8)]
         [TestCase("1 + 16 log 2", 5)]
         [TestCase("1 + sqrt 4", 3)]
+        [TestCase("sind(90) + sind 30", 1.5)]
         [TestCase("((1 + 1) + ((1 + 1) + (((1) + 1)) + 1))", 7)]
-        public void TestEvaluationResult(string input, decimal expected)
+        public void TestEvaluationResult(string input, double expected)
         {
             Assert.AreEqual(expected, _calculator.Evaluate(input));
         }
@@ -42,7 +44,7 @@ namespace StringMath.Tests
         [TestCase("({a})", 3, 3)]
         [TestCase("{PI}", Math.PI, Math.PI)]
         [TestCase("{E}", Math.E, Math.E)]
-        public void ReplacementEvaluationResult(string input, decimal replacement, decimal expected)
+        public void ReplacementEvaluationResult(string input, double replacement, double expected)
         {
             _calculator.Replace("a", replacement);
             _calculator.Replace("b", 2);
@@ -57,7 +59,7 @@ namespace StringMath.Tests
         [TestCase("2 x\r\n 5", 10)]
         [TestCase("3 << 2", 12)]
         [TestCase("-3 <> 2", -32)]
-        public void CustomOperators(string input, decimal expected)
+        public void CustomOperators(string input, double expected)
         {
             Assert.AreEqual(expected, _calculator.Evaluate(input));
         }
@@ -69,7 +71,7 @@ namespace StringMath.Tests
         [TestCase("2 x\r\n {a}", 5, 10)]
         [TestCase("{a} << {a}", 3, 24)]
         [TestCase("-3 <> {a}", 2, -32)]
-        public void CacheOperations(string input, decimal repl, decimal expected)
+        public void CacheOperations(string input, double repl, double expected)
         {
             _calculator["a"] = repl;
 
@@ -91,7 +93,7 @@ namespace StringMath.Tests
         [TestCase("2*{a}+2*{a}", 3, 12)]
         [TestCase("{b}+3*{a}", 3, 11)]
         [TestCase("({a})", 3, 3)]
-        public void StaticReplacementEvaluationResult(string input, decimal replacement, decimal expected)
+        public void StaticReplacementEvaluationResult(string input, double replacement, double expected)
         {
             SMath.Replace("b", 2);
 

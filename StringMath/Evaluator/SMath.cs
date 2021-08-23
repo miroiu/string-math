@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace StringMath
 {
@@ -12,8 +13,10 @@ namespace StringMath
         /// <param name="operatorName">The operator's string representation.</param>
         /// <param name="operation">The operation to execute for this operator.</param>
         /// <param name="precedence">Logarithmic precedence by default.</param>
-        public static void AddOperator(string operatorName, Func<decimal, decimal, decimal> operation, Precedence precedence = default)
-            => _calculator.AddOperator(operatorName, operation, precedence);
+        public static void AddOperator(string operatorName, Func<double, double, double> operation, Precedence precedence = default)
+        {
+            _calculator.AddOperator(operatorName, operation, precedence);
+        }
 
         /// <summary>
         /// Add a new unary operator or overwrite an existing operator's logic. 
@@ -21,26 +24,30 @@ namespace StringMath
         /// </summary>
         /// <param name="operatorName">The operator's string representation.</param>
         /// <param name="operation">The operation to execute for this operator.</param>
-        public static void AddOperator(string operatorName, Func<decimal, decimal> operation)
-            => _calculator.AddOperator(operatorName, operation);
+        public static void AddOperator(string operatorName, Func<double, double> operation)
+        {
+            _calculator.AddOperator(operatorName, operation);
+        }
 
         /// <summary>
-        /// Evaluates a mathematical expression and returns a decimal value.
+        /// Evaluates a mathematical expression and returns a double value.
         /// </summary>
         /// <param name="expression">The math expression to evaluate.</param>
-        /// <returns>The result as a decimal value.</returns>
-        public static decimal Evaluate(string expression)
-            => _calculator.Evaluate(expression);
+        /// <returns>The result as a double value.</returns>
+        public static double Evaluate(string expression)
+        {
+            return _calculator.Evaluate(expression);
+        }
 
         /// <summary>
-        /// Evaluates a mathematical expression that contains variables and returns a decimal value.
+        /// Evaluates a mathematical expression that contains variables and returns a double value.
         /// </summary>
         /// <param name="expression">The math expression to evaluate.</param>
         /// <param name="replacements">The variables to be replaced with their values.</param>
-        /// <returns>The result as a decimal value.</returns>
-        public static decimal Evaluate(string expression, Replacements replacements)
+        /// <returns>The result as a double value.</returns>
+        public static double Evaluate(string expression, Replacements replacements)
         {
-            foreach (var repl in replacements)
+            foreach (KeyValuePair<string, double> repl in replacements)
             {
                 _calculator.Replace(repl.Key, repl.Value);
             }
@@ -52,24 +59,30 @@ namespace StringMath
         /// Evaluates a cached mathematical expression.
         /// </summary>
         /// <param name="operation">The math expression to evaluate.</param>
-        /// <returns>The result as a decimal value.</returns>
-        public static decimal Evaluate(OperationInfo operation)
-            => _calculator.Evaluate(operation);
+        /// <returns>The result as a double value.</returns>
+        public static double Evaluate(OperationInfo operation)
+        {
+            return _calculator.Evaluate(operation);
+        }
 
         /// <summary>
         /// Creates an operation that can be evaluated later.
         /// </summary>
         /// <param name="expression">The math expression to evaluate.</param>
-        /// <returns>The result as a decimal value.</returns>
+        /// <returns>The result as a double value.</returns>
         public static OperationInfo CreateOperation(string expression)
-            => _calculator.CreateOperation(expression);
+        {
+            return _calculator.CreateOperation(expression);
+        }
 
         /// <summary>
         /// Replaces the value of a variable.
         /// </summary>
         /// <param name="name">The variable's name.</param>
         /// <param name="value">The new value.</param>
-        public static void Replace(string name, decimal value)
-            => _calculator.Replace(name, value);
+        public static void Replace(string name, double value)
+        {
+            _calculator.Replace(name, value);
+        }
     }
 }

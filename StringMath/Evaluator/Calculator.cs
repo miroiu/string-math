@@ -16,8 +16,8 @@ namespace StringMath
         public Calculator(Replacements replacements = default)
             => _replacements = replacements ?? new Replacements
             {
-                ["PI"] = (decimal)Math.PI,
-                ["E"] = (decimal)Math.E
+                ["PI"] = Math.PI,
+                ["E"] = Math.E
             };
 
         /// <summary>
@@ -26,8 +26,10 @@ namespace StringMath
         /// <param name="operatorName">The operator's string representation.</param>
         /// <param name="operation">The operation to execute for this operator.</param>
         /// <param name="precedence">Logarithmic precedence by default.</param>
-        public void AddOperator(string operatorName, Func<decimal, decimal, decimal> operation, Precedence precedence = default)
-            => _mathContext.AddBinaryOperator(operatorName, operation, precedence);
+        public void AddOperator(string operatorName, Func<double, double, double> operation, Precedence precedence = default)
+        {
+            _mathContext.AddBinaryOperator(operatorName, operation, precedence);
+        }
 
         /// <summary>
         /// Add a new unary operator or overwrite an existing operator's logic. 
@@ -35,15 +37,17 @@ namespace StringMath
         /// </summary>
         /// <param name="operatorName">The operator's string representation.</param>
         /// <param name="operation">The operation to execute for this operator.</param>
-        public void AddOperator(string operatorName, Func<decimal, decimal> operation)
-            => _mathContext.AddUnaryOperator(operatorName, operation);
+        public void AddOperator(string operatorName, Func<double, double> operation)
+        {
+            _mathContext.AddUnaryOperator(operatorName, operation);
+        }
 
         /// <summary>
-        /// Evaluates a mathematical expression which can contain variables and returns a decimal value.
+        /// Evaluates a mathematical expression which can contain variables and returns a double value.
         /// </summary>
         /// <param name="expression">The math expression to evaluate.</param>
-        /// <returns>The result as a decimal value.</returns>
-        public decimal Evaluate(string expression)
+        /// <returns>The result as a double value.</returns>
+        public double Evaluate(string expression)
         {
             SourceText text = new SourceText(expression);
             Lexer lex = new Lexer(text, _mathContext);
@@ -56,15 +60,17 @@ namespace StringMath
         /// Evaluates a cached mathematical expression.
         /// </summary>
         /// <param name="operation">The math expression to evaluate.</param>
-        /// <returns>The result as a decimal value.</returns>
-        public decimal Evaluate(OperationInfo operation)
-            => Reducer.Reduce<ResultExpression>(operation.Root, _mathContext, _replacements).Value;
+        /// <returns>The result as a double value.</returns>
+        public double Evaluate(OperationInfo operation)
+        {
+            return Reducer.Reduce<ResultExpression>(operation.Root, _mathContext, _replacements).Value;
+        }
 
         /// <summary>
         /// Creates an operation that can be evaluated later.
         /// </summary>
         /// <param name="expression">The math expression to evaluate.</param>
-        /// <returns>The result as a decimal value.</returns>
+        /// <returns>The result as a double value.</returns>
         public OperationInfo CreateOperation(string expression)
         {
             SourceText text = new SourceText(expression);
@@ -80,15 +86,17 @@ namespace StringMath
         /// </summary>
         /// <param name="name">The variable's name.</param>
         /// <param name="value">The new value.</param>
-        public void Replace(string name, decimal value)
-            => _replacements[name] = value;
+        public void Replace(string name, double value)
+        {
+            _replacements[name] = value;
+        }
 
         /// <summary>
         /// Gets or sets the value of a variable.
         /// </summary>
         /// <param name="replacement">Name of the variable.</param>
         /// <returns>Value of the variable.</returns>
-        public decimal this[string replacement]
+        public double this[string replacement]
         {
             get => _replacements[replacement];
             set => _replacements[replacement] = value;

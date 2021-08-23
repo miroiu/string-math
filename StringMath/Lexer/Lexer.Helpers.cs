@@ -20,8 +20,8 @@ namespace StringMath
                 stream.MoveNext();
             }
 
-            var text = builder.ToString();
             stream.MoveNext();
+            string text = builder.ToString();
             return text;
         }
 
@@ -35,7 +35,7 @@ namespace StringMath
                 stream.MoveNext();
             }
 
-            var text = builder.ToString();
+            string text = builder.ToString();
             return text;
         }
 
@@ -84,12 +84,7 @@ namespace StringMath
                 }
             }
 
-            if (stream.Peek(-1) == '.')
-            {
-                throw new LangException($"Invalid number format: {builder.ToString()}.");
-            }
-
-            return builder.ToString();
+            return stream.Peek(-1) == '.' ? throw new LangException($"Invalid number format: {builder}.") : builder.ToString();
         }
 
         private void ReadWhiteSpace(SourceText stream)

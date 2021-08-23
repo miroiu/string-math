@@ -86,7 +86,7 @@ namespace StringMath
                     }
                     else
                     {
-                        var op = ReadOperator(_text);
+                        string op = ReadOperator(_text);
                         if (_mathContext.IsOperator(op))
                         {
                             token.Text = op;

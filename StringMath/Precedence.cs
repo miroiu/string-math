@@ -24,12 +24,18 @@ namespace StringMath
             => new Precedence(precedence);
 
         public bool Equals(Precedence other)
-            => other != default && other._value == _value;
+        {
+            return other != default && other._value == _value;
+        }
 
         public override bool Equals(object obj)
-            => Equals(obj as Precedence);
+        {
+            return Equals(obj as Precedence);
+        }
 
         public override int GetHashCode()
-            => _value.GetHashCode();
+        {
+            return _value.GetHashCode();
+        }
     }
 }

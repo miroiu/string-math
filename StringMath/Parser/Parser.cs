@@ -29,7 +29,7 @@ namespace StringMath
             {
                 if (_mathContext.IsUnaryOperator(_currentToken.Text))
                 {
-                    var operatorToken = Take();
+                    Token operatorToken = Take();
                     left = new UnaryExpression(operatorToken.Text, ParseBinaryExpression(left, Precedence.Prefix));
                 }
                 else
@@ -38,7 +38,7 @@ namespace StringMath
 
                     if (_currentToken.Type == TokenType.Exclamation)
                     {
-                        var operatorToken = Take();
+                        Token operatorToken = Take();
                         left = new UnaryExpression(operatorToken.Text, left);
                     }
                 }
@@ -48,13 +48,13 @@ namespace StringMath
             {
                 if (_mathContext.IsBinaryOperator(_currentToken.Text))
                 {
-                    var precedence = _mathContext.GetBinaryOperatorPrecedence(_currentToken.Text);
+                    Precedence precedence = _mathContext.GetBinaryOperatorPrecedence(_currentToken.Text);
                     if (parentPrecedence >= precedence)
                     {
                         return left;
                     }
 
-                    var operatorToken = Take();
+                    Token operatorToken = Take();
                     left = new BinaryExpression(left, operatorToken.Text, ParseBinaryExpression(parentPrecedence: precedence));
                 }
                 else
@@ -74,22 +74,23 @@ namespace StringMath
                     return new ConstantExpression(Take().Text);
 
                 case TokenType.Identifier:
-                    var rep = new ReplacementExpression(Take().Text);
+                    ReplacementExpression rep = new ReplacementExpression(Take().Text);
                     _replacements.Add(rep.Name);
                     return rep;
 
                 case TokenType.OpenParen:
                     return ParseGroupingExpression();
-            }
 
-            throw new LangException($"Unexpected token '{_currentToken.Text}'.");
+                default:
+                    throw new LangException($"Unexpected token '{_currentToken.Text}'.");
+            }
         }
 
         private Expression ParseGroupingExpression()
         {
             Take();
 
-            var expr = ParseBinaryExpression();
+            Expression expr = ParseBinaryExpression();
             Match(TokenType.CloseParen);
 
             return new GroupingExpression(expr);
@@ -97,51 +98,36 @@ namespace StringMath
 
         public Token Match(TokenType tokenType)
         {
-            if (_currentToken.Type == tokenType)
-            {
-                return Take();
-            }
-
-            throw new LangException($"Expected '{GetString(tokenType)}' but found '{_currentToken.Text}'.");
+            return _currentToken.Type == tokenType
+                ? Take()
+                : throw new LangException($"Expected '{GetString(tokenType)}' but found '{_currentToken.Text}'.");
         }
 
         public Token Take()
         {
-            var previous = _currentToken;
+            Token previous = _currentToken;
             _currentToken = _lexer.Lex();
             return previous;
         }
 
         public bool IsEndOfStatement()
-            => _currentToken.Type == TokenType.EndOfCode;
+        {
+            return _currentToken.Type == TokenType.EndOfCode;
+        }
 
         private string GetString(TokenType tokenType)
         {
-            switch (tokenType)
+            return tokenType switch
             {
-                case TokenType.Identifier:
-                    return "variable";
-
-                case TokenType.Number:
-                    return "number";
-
-                case TokenType.Operator:
-                    return "operator";
-
-                case TokenType.EndOfCode:
-                    return "\0";
-
-                case TokenType.OpenParen:
-                    return "(";
-
-                case TokenType.CloseParen:
-                    return ")";
-
-                case TokenType.Exclamation:
-                    return "!";
-            }
-
-            return tokenType.ToString();
+                TokenType.Identifier => "variable",
+                TokenType.Number => "number",
+                TokenType.Operator => "operator",
+                TokenType.EndOfCode => "\0",
+                TokenType.OpenParen => "(",
+                TokenType.CloseParen => ")",
+                TokenType.Exclamation => "!",
+                _ => tokenType.ToString(),
+            };
         }
     }
 }

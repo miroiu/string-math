@@ -27,20 +27,20 @@ namespace StringMath
 
         public char Peek(int count = 1)
         {
-            var location = Position + count;
+            int location = Position + count;
 
-            if (location < Text.Length && location >= 0)
-            {
-                return Text[location];
-            }
-
-            return '\0';
+            char result = location < Text.Length && location >= 0 ? Text[location] : '\0';
+            return result;
         }
 
         public void Reset()
-            => Position = 0;
+        {
+            Position = 0;
+        }
 
         public void Dispose()
-            => Reset();
+        {
+            Reset();
+        }
     }
 }

@@ -7,5 +7,13 @@ namespace StringMath
         public LangException(string message) : base(message)
         {
         }
+
+        public LangException()
+        {
+        }
+
+        public LangException(string message, Exception innerException) : base(message, innerException)
+        {
+        }
     }
 }

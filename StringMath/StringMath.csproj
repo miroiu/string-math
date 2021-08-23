@@ -1,23 +1,25 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>netstandard2.1</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Authors>Miroiu Emanuel</Authors>
     <Company />
-    <Description>Calculates the value of a math expression from a string returning a decimal.
+    <Description>Calculates the value of a math expression from a string returning a double.
 Supports variables, user defined operators and reusable operations.</Description>
     <Copyright>2020 Miroiu Emanuel</Copyright>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/miroiu/string-math</PackageProjectUrl>
     <RepositoryUrl>https://github.com/miroiu/string-math</RepositoryUrl>
     <PackageTags>expression-evaluator calculator string-math math string-calculator user-defined-operators operators custom-operators</PackageTags>
-    <Version>2.1.0</Version>
-    <PackageReleaseNotes>Added the ability to reuse operations. 
-var op = SMath.CreateOperation("2 + {a}");
-var result = SMath.Evaluate(op);</PackageReleaseNotes>
-    <AssemblyVersion>2.1.0.0</AssemblyVersion>
+    <Version>3.0.0</Version>
+    <PackageReleaseNotes>Changed result from decimal to double</PackageReleaseNotes>
+    <AssemblyVersion>3.0.0.0</AssemblyVersion>
     <PackageLicenseFile></PackageLicenseFile>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\.editorconfig" Link=".editorconfig" />
+  </ItemGroup>
 
 </Project>

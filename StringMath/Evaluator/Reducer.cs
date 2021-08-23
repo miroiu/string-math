@@ -6,7 +6,7 @@ namespace StringMath
     internal sealed class Reducer
     {
         private readonly Dictionary<Type, Func<Expression, Expression>> _expressionEvaluators;
-        private Dictionary<string, decimal> _replacements;
+        private Dictionary<string, double> _replacements;
         private MathContext _context;
 
         public Reducer()
@@ -21,10 +21,10 @@ namespace StringMath
             };
         }
 
-        public T Reduce<T>(Expression expression, MathContext context, Dictionary<string, decimal> replacements) where T : Expression
+        public T Reduce<T>(Expression expression, MathContext context, Dictionary<string, double> replacements) where T : Expression
         {
             _context = context;
-            _replacements = replacements ?? new Dictionary<string, decimal>();
+            _replacements = replacements ?? new Dictionary<string, double>();
             return Reduce<T>(expression);
         }
 
@@ -41,39 +41,40 @@ namespace StringMath
         }
 
         private Expression EvaluateConstantExpression(Expression arg)
-            => new ResultExpression(decimal.Parse(((ConstantExpression)arg).Value));
+        {
+            return new ResultExpression(double.Parse(((ConstantExpression)arg).Value));
+        }
 
         private Expression EvaluateGroupingExpression(Expression arg)
-            => ((GroupingExpression)arg).Inner;
+        {
+            return ((GroupingExpression)arg).Inner;
+        }
 
         private Expression EvaluateUnaryExpression(Expression arg)
         {
-            var unary = (UnaryExpression)arg;
-            var value = Reduce<ResultExpression>(unary.Operand);
+            UnaryExpression unary = (UnaryExpression)arg;
+            ResultExpression value = Reduce<ResultExpression>(unary.Operand);
 
-            var result = _context.EvaluateUnary(unary.OperatorName, value.Value);
+            double result = _context.EvaluateUnary(unary.OperatorName, value.Value);
             return new ResultExpression(result);
         }
 
         private Expression EvaluateBinaryExpression(Expression expr)
         {
-            var binary = (BinaryExpression)expr;
-            var left = Reduce<ResultExpression>(binary.Left);
-            var right = Reduce<ResultExpression>(binary.Right);
+            BinaryExpression binary = (BinaryExpression)expr;
+            ResultExpression left = Reduce<ResultExpression>(binary.Left);
+            ResultExpression right = Reduce<ResultExpression>(binary.Right);
 
-            var result = _context.EvaluateBinary(binary.OperatorName, left.Value, right.Value);
+            double result = _context.EvaluateBinary(binary.OperatorName, left.Value, right.Value);
             return new ResultExpression(result);
         }
 
         private Expression EvaluateReplacementExpression(Expression expr)
         {
-            var replacement = (ReplacementExpression)expr;
-            if (_replacements.TryGetValue(replacement.Name, out decimal value))
-            {
-                return new ResultExpression(value);
-            }
-
-            throw new LangException($"A value was not supplied for variable '{replacement.Name}'.");
+            ReplacementExpression replacement = (ReplacementExpression)expr;
+            return _replacements.TryGetValue(replacement.Name, out double value)
+                ? new ResultExpression(value)
+                : throw new LangException($"A value was not supplied for variable '{replacement.Name}'.");
         }
 
         #endregion
