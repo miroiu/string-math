@@ -20,7 +20,9 @@ namespace StringMath
         public Expression Parse()
         {
             _currentToken = _lexer.Lex();
-            return ParseBinaryExpression();
+            Expression result = ParseBinaryExpression();
+            Match(TokenType.EndOfCode);
+            return result;
         }
 
         private Expression ParseBinaryExpression(Expression left = default, Precedence parentPrecedence = default)

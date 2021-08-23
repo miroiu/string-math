@@ -22,7 +22,8 @@ namespace StringMath
 
             stream.MoveNext();
             string text = builder.ToString();
-            return text;
+
+            return string.IsNullOrWhiteSpace(text) ? throw new LangException($"Variable name cannot be empty.") : text;
         }
 
         private string ReadOperatorName(SourceText stream)
@@ -70,7 +71,7 @@ namespace StringMath
                     }
                     else
                     {
-                        throw new LangException($"Invalid number format: {builder.ToString()}.");
+                        throw new LangException($"Invalid number format: {builder}.");
                     }
                 }
                 else if (char.IsDigit(stream.Current))

@@ -32,5 +32,20 @@ namespace StringMath.Tests
 
             Assert.AreEqual(expected, actual);
         }
+
+        [Test]
+        [TestCase("1 2 * 2")]
+        [TestCase("1 * 2 {a}")]
+        [TestCase("1 * {}")]
+        [TestCase("{}")]
+        [TestCase("{a}{b}")]
+        public void TestCorrectParsingBadExpression(string input)
+        {
+            SourceText sourceText = new SourceText(input);
+            Lexer lexer = new Lexer(sourceText, _context);
+            Parser parser = new Parser(lexer, _context);
+
+            Assert.Throws<LangException>(() => parser.Parse());
+        }
     }
 }

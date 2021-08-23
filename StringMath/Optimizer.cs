@@ -41,7 +41,7 @@ namespace StringMath
 
                 return new BinaryExpression(leftExpr, binaryExpr.OperatorName, rightExpr);
             }
-            
+
             if (root is UnaryExpression unaryExpr)
             {
                 Expression operandExpr = Optimize(unaryExpr.Operand);

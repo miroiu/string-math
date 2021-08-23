@@ -32,12 +32,7 @@ namespace StringMath
 
         private T Reduce<T>(Expression expression)
         {
-            if (expression is T expected)
-            {
-                return expected;
-            }
-
-            return Reduce<T>(_expressionEvaluators[expression.Type](expression));
+            return expression is T expected ? expected : Reduce<T>(_expressionEvaluators[expression.Type](expression));
         }
 
         private Expression EvaluateConstantExpression(Expression arg)
