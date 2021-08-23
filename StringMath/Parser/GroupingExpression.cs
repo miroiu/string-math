@@ -9,5 +9,10 @@ namespace StringMath
 
         public Expression Inner { get; }
         public override Type Type => typeof(GroupingExpression);
+
+        public override string ToString()
+        {
+            return $"({Inner})";
+        }
     }
 }

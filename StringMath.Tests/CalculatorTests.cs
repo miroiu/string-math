@@ -71,11 +71,15 @@ namespace StringMath.Tests
         [TestCase("2 x\r\n {a}", 5, 10)]
         [TestCase("{a} << {a}", 3, 24)]
         [TestCase("-3 <> {a}", 2, -32)]
-        public void CacheOperations(string input, double repl, double expected)
+        [TestCase("{a}+2", 1, 3)]
+        [TestCase("2*{a}+2", 3, 8)]
+        [TestCase("2*{a}+2*{a}", 3, 12)]
+        [TestCase("({a})", 3, 3)]
+        public void CacheOperationsWithVariables(string input, double repl, double expected)
         {
             _calculator["a"] = repl;
 
-            var op = _calculator.CreateOperation(input);
+            OperationInfo op = _calculator.CreateOperation(input);
 
             Assert.That(op.Variables, Is.EquivalentTo(new[] { "a" }));
             Assert.AreEqual(input, op.Expression);
@@ -85,6 +89,22 @@ namespace StringMath.Tests
 
             _calculator["a"] = 9;
             Assert.AreNotEqual(expected, _calculator.Evaluate(op));
+        }
+
+        [Test]
+        [TestCase("abs -5", 5)]
+        [TestCase("abs(-1)", 1)]
+        [TestCase("3 max 2", 3)]
+        [TestCase("2 x\r\n 5", 10)]
+        [TestCase("3 << 2", 12)]
+        [TestCase("-3 <> 2", -32)]
+        public void CacheOperationsWithoutVariables(string input, double expected)
+        {
+            OperationInfo op = _calculator.CreateOperation(input);
+            Assert.AreEqual(input, op.Expression);
+
+            Assert.AreEqual(expected, _calculator.Evaluate(input));
+            Assert.AreEqual(expected, _calculator.Evaluate(op));
         }
 
         [Test]

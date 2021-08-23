@@ -4,7 +4,7 @@ using System.Linq;
 namespace StringMath.Tests
 {
     [TestFixture]
-    internal class Tests
+    internal class LexerTests
     {
         private MathContext _context;
 
@@ -24,6 +24,7 @@ namespace StringMath.Tests
         [TestCase("{a} + 2", new[] { TokenType.Identifier, TokenType.Operator, TokenType.Number })]
         [TestCase("(-1) + 2", new[] { TokenType.OpenParen, TokenType.Operator, TokenType.Number, TokenType.CloseParen, TokenType.Operator, TokenType.Number })]
         [TestCase("<<<", new[] { TokenType.Operator })]
+        [TestCase("5!", new[] { TokenType.Number, TokenType.Exclamation })]
         public void TestCorrectSyntax(string input, TokenType[] expected)
         {
             Assert.That(input.GetTokens(_context).Select(t => t.Type), Is.EquivalentTo(expected));

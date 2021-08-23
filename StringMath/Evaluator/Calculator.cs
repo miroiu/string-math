@@ -53,7 +53,7 @@ namespace StringMath
             Lexer lex = new Lexer(text, _mathContext);
             Parser parse = new Parser(lex, _mathContext);
 
-            return Reducer.Reduce<ResultExpression>(parse.Parse(), _mathContext, _variables).Value;
+            return Reducer.Reduce<ValueExpression>(parse.Parse(), _mathContext, _variables).Value;
         }
 
         /// <summary>
@@ -63,7 +63,7 @@ namespace StringMath
         /// <returns>The result as a double value.</returns>
         public double Evaluate(OperationInfo operation)
         {
-            return Reducer.Reduce<ResultExpression>(operation.Root, _mathContext, _variables).Value;
+            return Reducer.Reduce<ValueExpression>(operation.Root, _mathContext, _variables).Value;
         }
 
         /// <summary>
@@ -76,9 +76,11 @@ namespace StringMath
             SourceText text = new SourceText(expression);
             Lexer lexer = new Lexer(text, _mathContext);
             Parser parser = new Parser(lexer, _mathContext);
+            Optimizer optimizer = new Optimizer(Reducer, _mathContext);
             Expression root = parser.Parse();
+            Expression optimized = optimizer.Optimize(root);
 
-            return new OperationInfo(root, expression, parser.Variables);
+            return new OperationInfo(optimized, expression, parser.Variables);
         }
 
         /// <summary>

@@ -15,5 +15,10 @@ namespace StringMath
         public string OperatorName { get; }
         public Expression Right { get; }
         public override Type Type => typeof(BinaryExpression);
+
+        public override string ToString()
+        {
+            return $"{Left} {OperatorName} {Right}";
+        }
     }
 }

@@ -9,5 +9,10 @@ namespace StringMath
 
         public string Value { get; }
         public override Type Type => typeof(ConstantExpression);
+
+        public override string ToString()
+        {
+            return Value;
+        }
     }
 }

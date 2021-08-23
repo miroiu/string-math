@@ -42,7 +42,7 @@ namespace StringMath
 
         private Expression EvaluateConstantExpression(Expression arg)
         {
-            return new ResultExpression(double.Parse(((ConstantExpression)arg).Value));
+            return new ValueExpression(double.Parse(((ConstantExpression)arg).Value));
         }
 
         private Expression EvaluateGroupingExpression(Expression arg)
@@ -53,27 +53,27 @@ namespace StringMath
         private Expression EvaluateUnaryExpression(Expression arg)
         {
             UnaryExpression unary = (UnaryExpression)arg;
-            ResultExpression value = Reduce<ResultExpression>(unary.Operand);
+            ValueExpression value = Reduce<ValueExpression>(unary.Operand);
 
             double result = _context.EvaluateUnary(unary.OperatorName, value.Value);
-            return new ResultExpression(result);
+            return new ValueExpression(result);
         }
 
         private Expression EvaluateBinaryExpression(Expression expr)
         {
             BinaryExpression binary = (BinaryExpression)expr;
-            ResultExpression left = Reduce<ResultExpression>(binary.Left);
-            ResultExpression right = Reduce<ResultExpression>(binary.Right);
+            ValueExpression left = Reduce<ValueExpression>(binary.Left);
+            ValueExpression right = Reduce<ValueExpression>(binary.Right);
 
             double result = _context.EvaluateBinary(binary.OperatorName, left.Value, right.Value);
-            return new ResultExpression(result);
+            return new ValueExpression(result);
         }
 
         private Expression EvaluateVariableExpression(Expression expr)
         {
             VariableExpression variable = (VariableExpression)expr;
             return _variables.TryGetValue(variable.Name, out double value)
-                ? new ResultExpression(value)
+                ? new ValueExpression(value)
                 : throw new LangException($"A value was not supplied for variable '{variable.Name}'.");
         }
 

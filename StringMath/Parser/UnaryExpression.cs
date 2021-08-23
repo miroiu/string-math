@@ -13,5 +13,10 @@ namespace StringMath
         public string OperatorName { get; }
         public Expression Operand { get; }
         public override Type Type => typeof(UnaryExpression);
+
+        public override string ToString()
+        {
+            return OperatorName == "!" ? $"{Operand}{OperatorName}" : $"{OperatorName}{Operand}";
+        }
     }
 }
