@@ -6,7 +6,7 @@ namespace StringMath
     {
         private readonly Reducer _reducer;
         private readonly MathContext _context;
-        private readonly Dictionary<string, double> _variables;
+        private readonly Dictionary<string, double> _variables = new Dictionary<string, double>();
 
         public Optimizer(Reducer reducer, MathContext mathContext)
         {

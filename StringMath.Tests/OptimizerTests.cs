@@ -25,7 +25,8 @@ namespace StringMath.Tests
         [TestCase("5! + ({a} / 3)", "120 + {a} / 3")]
         [TestCase("2 + {a} + 3", "2 + {a} + 3")]
         [TestCase("3! + 3 + {a}", "9 + {a}")]
-        public void TestCorrectParsing(string input, string expected)
+        [TestCase("3! + 5! + {a}", "126 + {a}")]
+        public void TestCorrectOptimizing(string input, string expected)
         {
             SourceText sourceText = new SourceText(input);
             Lexer lexer = new Lexer(sourceText, _context);
