@@ -54,7 +54,7 @@ double result = SMath.Evaluate("1 + 1"); // 2
 double result = SMath.Evaluate("1 + {myVar}", new VariablesCollection { ["myVar"] = 1 }); // 2
 ```
 
-#### Binary operators
+#### Default binary operators
 ```csharp
 + (addition)
 - (subtraction)
@@ -67,7 +67,7 @@ max (maximum)
 min (minimum)
 ```
 
-#### Unary operators
+#### Default unary operators
 ```csharp
 - (negation)
 ! (factorial)
