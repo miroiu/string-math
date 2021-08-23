@@ -19,18 +19,18 @@ double result = myCalculator.Evaluate("2 * 3 max 4"); // 8
 ### Creating and using variables
 ```csharp
 // Creating a variables collection
-VariablesCollection variables = new VariablesCollection
+IVariablesCollection variables = new VariablesCollection
 {
 	["a"] = 5,
 	["PI"] = 3.1415926535897931
 };
 
-// default variables collection is optional (can still add variables without a collection)
+// default variables collection is optional
 Calculator myCalculator = new Calculator(variables);
 
 // Replacing or creating variables
 myCalculator.Replace("a", 2);
-myCalculator.Replace("b", 1); // new syntax: myCalculator["b"] = 1;
+myCalculator["b"] = 1;
 double result = myCalculator.Evaluate("{a} + 2 * {b} + {PI}"); // 7.1415926535897931
 ```
 
@@ -42,8 +42,8 @@ myCalculator["a"] = 5;
 OperationInfo op = myCalculator.CreateOperation("2 * {a}");
 double result1 = myCalculator.Evaluate(op); // 10
 
-// Reusing the operation (improves performance)
 myCalculator["a"] = 3;
+// Reusing the operation (improves performance)
 double result2 = myCalculator.Evaluate(op); // 6
 ```
 
