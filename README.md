@@ -19,7 +19,7 @@ double result = myCalculator.Evaluate("2 * 3 max 4"); // 8
 ### Creating and using variables
 ```csharp
 // Creating a variables collection
-Replacements variables = new Replacements
+VariablesCollection variables = new VariablesCollection
 {
 	["a"] = 5,
 	["PI"] = 3.1415926535897931
@@ -51,7 +51,7 @@ double result2 = myCalculator.Evaluate(op); // 6
 ```csharp
 // Same API as a calculator instance except the Evaluate method
 double result = SMath.Evaluate("1 + 1"); // 2
-double result = SMath.Evaluate("1 + {myVar}", new Replacements { ["myVar"] = 1 }); // 2
+double result = SMath.Evaluate("1 + {myVar}", new VariablesCollection { ["myVar"] = 1 }); // 2
 ```
 
 #### Binary operators
