@@ -4,7 +4,7 @@ Supports variables and user defined operators.
 
 ### Creating and using a calculator
 ```csharp
-Calculator myCalculator = new Calculator();
+ICalculator myCalculator = new Calculator();
 double result = myCalculator.Evaluate("1 * (2 - 3) ^ 2"); // 1
 
 // Using custom operators
@@ -18,32 +18,30 @@ double result = myCalculator.Evaluate("2 * 3 max 4"); // 8
 
 ### Creating and using variables
 ```csharp
-// Creating a variables collection
-IVariablesCollection variables = new VariablesCollection
+// Default variables collection is optional
+ICalculator myCalculator = new Calculator(new VariablesCollection
 {
 	["a"] = 5,
 	["PI"] = 3.1415926535897931
-};
+});
 
-// default variables collection is optional
-Calculator myCalculator = new Calculator(variables);
-
-// Replacing or creating variables
-myCalculator.Replace("a", 2);
+// Setting or creating variables
+myCalculator.SetValue("a", 2);
 myCalculator["b"] = 1;
+
 double result = myCalculator.Evaluate("{a} + 2 * {b} + {PI}"); // 7.1415926535897931
 ```
 
 ### Creating and reusing operations
 ```csharp
-myCalculator["a"] = 5;
+myCalculator.SetValue("a", 5);
 
-// Creating operations
+// Creating operations (expression tree is optimized and cached)
 OperationInfo op = myCalculator.CreateOperation("2 * {a}");
 double result1 = myCalculator.Evaluate(op); // 10
 
 myCalculator["a"] = 3;
-// Reusing the operation (improves performance)
+// Reusing the operation (improved performance)
 double result2 = myCalculator.Evaluate(op); // 6
 ```
 
@@ -51,7 +49,8 @@ double result2 = myCalculator.Evaluate(op); // 6
 ```csharp
 // Same API as a calculator instance except the Evaluate method
 double result = SMath.Evaluate("1 + 1"); // 2
-double result = SMath.Evaluate("1 + {myVar}", new VariablesCollection { ["myVar"] = 1 }); // 2
+SMath.SetValues(new VariablesCollection { ["myVar"] = 1 });
+double result = SMath.Evaluate("1 + {myVar}", ); // 2
 ```
 
 #### Default binary operators
