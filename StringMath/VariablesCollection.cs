@@ -2,33 +2,52 @@
 
 namespace StringMath
 {
-    public interface IVariablesCollection
+    /// <summary>A collection of variables.</summary>
+    public interface IVariablesCollection : IEnumerable<string>
     {
-        void Set(string name, double value);
-        double Get(string name);
+        /// <summary>Overwrites the value of a variable.</summary>
+        /// <param name="name">The variable's name.</param>
+        /// <param name="value">The new value.</param>
+        void SetValue(string name, double value);
+
+        /// <summary>Gets the value of the variable.</summary>
+        /// <param name="name">The variable's name.</param>
+        /// <param name="value">The value of the variable.</param>
+        /// <returns><c>true</c> if the variable exists, false otherwise.</returns>
         bool TryGetValue(string name, out double value);
+
+        /// <inheritdoc cref="SetValue(string, double)" />
+        double this[string name] { set; }
+
+        /// <summary>Copies the variables to another collection.</summary>
+        /// <param name="other">The other collection.</param>
+        void CopyTo(IVariablesCollection other);
     }
 
+    /// <inheritdoc />
     public class VariablesCollection : Dictionary<string, double>, IVariablesCollection
     {
-        /// <summary>
-        /// Overwrites the value of a variable.
-        /// </summary>
-        /// <param name="name">The variable's name.</param>
-        /// <param name="value">The variable's value.</param>
-        public new void Add(string name, double value)
+        /// <inheritdoc />
+        public void CopyTo(IVariablesCollection other)
         {
+            other.EnsureNotNull(nameof(other));
+
+            foreach (var kvp in this)
+            {
+                other.SetValue(kvp.Key, kvp.Value);
+            }
+        }
+
+        /// <inheritdoc />
+        public void SetValue(string name, double value)
+        {
+            name.EnsureNotNull(nameof(name));
             base[name] = value;
         }
 
-        public double Get(string name)
+        IEnumerator<string> IEnumerable<string>.GetEnumerator()
         {
-            return base[name];
-        }
-
-        public void Set(string name, double value)
-        {
-            Add(name, value);
+            return Keys.GetEnumerator();
         }
     }
 }

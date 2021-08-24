@@ -31,7 +31,7 @@ namespace StringMath
             return result;
         }
 
-        private Expression ParseBinaryExpression(Expression left = default, Precedence parentPrecedence = default)
+        private Expression ParseBinaryExpression(Expression? left = default, Precedence? parentPrecedence = default)
         {
             if (left == default)
             {

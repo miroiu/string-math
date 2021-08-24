@@ -8,7 +8,7 @@ namespace StringMath.Tests
     {
         private ICalculator _calculator;
 
-        [OneTimeSetUp]
+        [SetUp]
         public void Setup()
         {
             _calculator = new Calculator();
@@ -46,8 +46,8 @@ namespace StringMath.Tests
         [TestCase("{E}", Math.E, Math.E)]
         public void VariableEvaluationResult(string input, double variable, double expected)
         {
-            _calculator.Replace("a", variable);
-            _calculator.Replace("b", 2);
+            _calculator["a"] = variable;
+            _calculator["b"] = 2;
 
             Assert.AreEqual(expected, _calculator.Evaluate(input));
         }
@@ -77,7 +77,7 @@ namespace StringMath.Tests
         [TestCase("({a})", 3, 3)]
         public void CacheOperationsWithVariables(string input, double repl, double expected)
         {
-            _calculator["a"] = repl;
+            _calculator.SetValue("a", repl);
 
             OperationInfo op = _calculator.CreateOperation(input);
 
@@ -87,7 +87,7 @@ namespace StringMath.Tests
             Assert.AreEqual(expected, _calculator.Evaluate(input));
             Assert.AreEqual(expected, _calculator.Evaluate(op));
 
-            _calculator["a"] = 9;
+            _calculator.SetValue("a", 9);
             Assert.AreNotEqual(expected, _calculator.Evaluate(op));
         }
 
@@ -115,12 +115,19 @@ namespace StringMath.Tests
         [TestCase("({a})", 3, 3)]
         public void StaticVariableEvaluationResult(string input, double variable, double expected)
         {
-            SMath.Replace("b", 2);
-
-            Assert.AreEqual(expected, SMath.Evaluate(input, new VariablesCollection
+            SMath.SetValues(new VariablesCollection
             {
+                ["b"] = 2,
                 ["a"] = variable
-            }));
+            });
+            Assert.AreEqual(expected, SMath.Evaluate(input));
+        }
+
+        [Test]
+        [TestCase("{a}+2")]
+        public void TestMissingVariable(string input)
+        {
+            Assert.Throws<LangException>(() => _calculator.Evaluate(input));
         }
     }
 }

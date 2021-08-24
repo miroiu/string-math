@@ -16,6 +16,8 @@ Supports variables, user defined operators and reusable operations.</Description
     <PackageReleaseNotes>Changed result from decimal to double</PackageReleaseNotes>
     <AssemblyVersion>3.0.0.0</AssemblyVersion>
     <PackageLicenseFile></PackageLicenseFile>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>

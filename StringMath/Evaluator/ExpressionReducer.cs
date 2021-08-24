@@ -11,8 +11,8 @@ namespace StringMath
     internal sealed class ExpressionReducer : IExpressionReducer
     {
         private readonly Dictionary<Type, Func<Expression, Expression>> _expressionEvaluators;
-        private IVariablesCollection _variables;
-        private IMathContext _context;
+        private IVariablesCollection _variables = default!;
+        private IMathContext _context = default!;
 
         public ExpressionReducer()
         {

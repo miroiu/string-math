@@ -5,7 +5,7 @@ namespace StringMath
 {
     internal interface IMathContext
     {
-        void AddBinaryOperator(string operatorName, Func<double, double, double> operation, Precedence precedence = null);
+        void AddBinaryOperator(string operatorName, Func<double, double, double> operation, Precedence? precedence = default);
         void AddUnaryOperator(string operatorName, Func<double, double> operation);
         double EvaluateBinary(string op, double a, double b);
         double EvaluateUnary(string op, double a);
@@ -67,10 +67,10 @@ namespace StringMath
             return _binaryPrecedence[operatorName];
         }
 
-        public void AddBinaryOperator(string operatorName, Func<double, double, double> operation, Precedence precedence = default)
+        public void AddBinaryOperator(string operatorName, Func<double, double, double> operation, Precedence? precedence = default)
         {
             _binaryEvaluators[operatorName] = operation;
-            _binaryPrecedence[operatorName] = precedence ?? Precedence.Logarithmic;
+            _binaryPrecedence[operatorName] = precedence ?? Precedence.UserDefined;
             _operators.Add(operatorName);
         }
 
