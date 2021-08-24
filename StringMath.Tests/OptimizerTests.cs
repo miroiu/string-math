@@ -12,7 +12,7 @@ namespace StringMath.Tests
         public void Setup()
         {
             _context = new MathContext();
-            _reducer = new ExpressionReducer();
+            _reducer = new ExpressionReducer(_context, new VariablesCollection());
         }
 
         [Test]

@@ -5,17 +5,23 @@ namespace StringMath
 {
     internal interface IExpressionReducer
     {
-        T Reduce<T>(Expression expression, IMathContext context, IVariablesCollection variables) where T : Expression;
+        T Reduce<T>(Expression expression) where T : Expression;
     }
 
     internal sealed class ExpressionReducer : IExpressionReducer
     {
         private readonly Dictionary<Type, Func<Expression, Expression>> _expressionEvaluators;
-        private IVariablesCollection _variables = default!;
-        private IMathContext _context = default!;
+        private readonly IMathContext _context;
+        private readonly IVariablesCollection _variables;
 
-        public ExpressionReducer()
+        public ExpressionReducer(IMathContext context, IVariablesCollection variables)
         {
+            context.EnsureNotNull(nameof(context));
+            variables.EnsureNotNull(nameof(variables));
+
+            _variables = variables;
+            _context = context;
+
             _expressionEvaluators = new Dictionary<Type, Func<Expression, Expression>>
             {
                 [typeof(BinaryExpression)] = EvaluateBinaryExpression,
@@ -26,55 +32,51 @@ namespace StringMath
             };
         }
 
-        public T Reduce<T>(Expression expression, IMathContext context, IVariablesCollection variables) where T : Expression
-        {
-            _context = context;
-            _variables = variables ?? new VariablesCollection();
-            return Reduce<T>(expression);
-        }
-
-        #region Evaluators
-
-        private T Reduce<T>(Expression expression)
+        public T Reduce<T>(Expression expression) where T : Expression
         {
             return expression is T expected ? expected : Reduce<T>(_expressionEvaluators[expression.Type](expression));
         }
 
+        #region Evaluators
+
         private Expression EvaluateConstantExpression(Expression arg)
         {
-            return new ValueExpression(double.Parse(((ConstantExpression)arg).Value));
+            ConstantExpression constantExpr = ((ConstantExpression)arg);
+            double value = double.Parse(constantExpr.Value);
+            return new ValueExpression(value);
         }
 
         private Expression EvaluateGroupingExpression(Expression arg)
         {
-            return ((GroupingExpression)arg).Inner;
+            GroupingExpression groupingExpr = ((GroupingExpression)arg);
+            return groupingExpr.Inner;
         }
 
         private Expression EvaluateUnaryExpression(Expression arg)
         {
-            UnaryExpression unary = (UnaryExpression)arg;
-            ValueExpression value = Reduce<ValueExpression>(unary.Operand);
+            UnaryExpression unaryExpr = (UnaryExpression)arg;
+            ValueExpression valueExpr = Reduce<ValueExpression>(unaryExpr.Operand);
 
-            double result = _context.EvaluateUnary(unary.OperatorName, value.Value);
+            double result = _context.EvaluateUnary(unaryExpr.OperatorName, valueExpr.Value);
             return new ValueExpression(result);
         }
 
         private Expression EvaluateBinaryExpression(Expression expr)
         {
-            BinaryExpression binary = (BinaryExpression)expr;
-            ValueExpression left = Reduce<ValueExpression>(binary.Left);
-            ValueExpression right = Reduce<ValueExpression>(binary.Right);
+            BinaryExpression binaryExpr = (BinaryExpression)expr;
+            ValueExpression leftExpr = Reduce<ValueExpression>(binaryExpr.Left);
+            ValueExpression rightExpr = Reduce<ValueExpression>(binaryExpr.Right);
 
-            double result = _context.EvaluateBinary(binary.OperatorName, left.Value, right.Value);
+            double result = _context.EvaluateBinary(binaryExpr.OperatorName, leftExpr.Value, rightExpr.Value);
             return new ValueExpression(result);
         }
 
         private Expression EvaluateVariableExpression(Expression expr)
         {
-            VariableExpression variable = (VariableExpression)expr;
-            return _variables.TryGetValue(variable.Name, out double value)
+            VariableExpression variableExpr = (VariableExpression)expr;
+            return _variables.TryGetValue(variableExpr.Name, out double value)
                 ? new ValueExpression(value)
-                : throw new LangException($"A value was not supplied for variable '{variable.Name}'.");
+                : throw new LangException($"A value was not supplied for variable '{variableExpr.Name}'.");
         }
 
         #endregion

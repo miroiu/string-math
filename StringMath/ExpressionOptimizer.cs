@@ -9,7 +9,6 @@
     {
         private readonly IExpressionReducer _reducer;
         private readonly IMathContext _context;
-        private readonly IVariablesCollection _variables = new VariablesCollection();
 
         public ExpressionOptimizer(IExpressionReducer reducer, IMathContext mathContext)
         {
@@ -21,7 +20,7 @@
         {
             if (root is ConstantExpression)
             {
-                ValueExpression valueExpr = _reducer.Reduce<ValueExpression>(root, _context, _variables);
+                ValueExpression valueExpr = _reducer.Reduce<ValueExpression>(root);
                 return valueExpr;
             }
 

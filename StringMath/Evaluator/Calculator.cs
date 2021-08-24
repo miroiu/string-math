@@ -35,13 +35,16 @@ namespace StringMath
     /// <inheritdoc />
     public class Calculator : VariablesCollection, ICalculator
     {
-        private readonly IMathContext _mathContext = new MathContext();
-        private readonly static IExpressionReducer _reducer = new ExpressionReducer();
+        private readonly IMathContext _mathContext;
+        private readonly IExpressionReducer _reducer;
 
         /// <summary>Create an instance of a <see cref="Calculator"/> which has it's own operators and variables.</summary>
         /// <param name="variables">A collection of variables.</param>
         public Calculator(IVariablesCollection? variables = default)
         {
+            _mathContext = new MathContext();
+            _reducer = new ExpressionReducer(_mathContext, this);
+
             this["PI"] = Math.PI;
             this["E"] = Math.E;
 
@@ -75,14 +78,17 @@ namespace StringMath
             ILexer lex = new Lexer(text, _mathContext);
             IParser parse = new Parser(lex, _mathContext);
 
-            return _reducer.Reduce<ValueExpression>(parse.Parse(), _mathContext, this).Value;
+            ValueExpression resultExpr = _reducer.Reduce<ValueExpression>(parse.Parse());
+            return resultExpr.Value;
         }
 
         /// <inheritdoc />
         public double Evaluate(OperationInfo operation)
         {
             operation.EnsureNotNull(nameof(operation));
-            return _reducer.Reduce<ValueExpression>(operation.Root, _mathContext, this).Value;
+
+            ValueExpression resultExpr = _reducer.Reduce<ValueExpression>(operation.Root);
+            return resultExpr.Value;
         }
 
         /// <inheritdoc />
