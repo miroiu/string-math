@@ -1,44 +1,31 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 
 namespace StringMath.Tests
 {
     static class Extensions
     {
-        public static T[] RemoveLast<T>(this IEnumerable<T> collection)
+        public static List<Token> ReadAllTokens(this string input)
         {
-            T[] arr = collection.ToArray();
-            T[] result = new T[arr.Length - 1];
-            Array.Copy(arr, 0, result, 0, arr.Length - 1);
-            return result;
-        }
-
-        public static Token[] GetTokens(this string input, IMathContext context)
-        {
-            ISourceText sourceText = new SourceText(input);
-            ILexer lexer = new Lexer(sourceText, context);
-
+            ITokenizer tokenizer = new Tokenizer(input);
             List<Token> tokens = new List<Token>();
-            Token t = lexer.Lex();
-            tokens.Add(t);
 
-            while (t.Type != TokenType.EndOfCode)
+            Token t;
+            do
             {
-                t = lexer.Lex();
+                t = tokenizer.ReadToken();
                 tokens.Add(t);
             }
+            while (t.Type != TokenType.EndOfCode);
 
-            return tokens.RemoveLast();
+            return tokens;
         }
 
         public static IReadOnlyCollection<string> GetVariables(this string input, IMathContext context)
         {
-            ISourceText sourceText = new SourceText(input);
-            ILexer lexer = new Lexer(sourceText, context);
-            IParser parser = new Parser(lexer, context);
+            ITokenizer tokenzier = new Tokenizer(input);
+            IParser parser = new Parser(tokenzier, context);
 
-            // This populates the variables collection
+            // Populate the variables collection
             parser.Parse();
 
             return parser.Variables;

@@ -11,6 +11,10 @@ namespace StringMath.Tests
         public void Setup()
         {
             _context = new MathContext();
+            _context.AddBinaryOperator("pow", default);
+            _context.AddBinaryOperator("<<<", default);
+            _context.AddBinaryOperator("p>", default);
+            _context.AddBinaryOperator("<a", default);
         }
 
         [Test]
@@ -24,9 +28,8 @@ namespace StringMath.Tests
         [TestCase("!2", "2!")]
         public void TestCorrectParsing(string input, string expected)
         {
-            ISourceText sourceText = new SourceText(input);
-            ILexer lexer = new Lexer(sourceText, _context);
-            IParser parser = new Parser(lexer, _context);
+            ITokenizer tokenizer = new Tokenizer(input);
+            IParser parser = new Parser(tokenizer, _context);
 
             Expression result = parser.Parse();
             string actual = result.ToString();
@@ -53,7 +56,6 @@ namespace StringMath.Tests
         [TestCase("1+2)")]
         [TestCase("1+")]
         [TestCase("1.")]
-        [TestCase(".1")]
         [TestCase("1..1")]
         [TestCase("--1")]
         [TestCase("-+1")]
@@ -65,11 +67,19 @@ namespace StringMath.Tests
         [TestCase("*{a}")]
         public void TestCorrectParsingBadExpression(string input)
         {
-            ISourceText sourceText = new SourceText(input);
-            ILexer lexer = new Lexer(sourceText, _context);
-            IParser parser = new Parser(lexer, _context);
+            ITokenizer tokenizer = new Tokenizer(input);
+            IParser parser = new Parser(tokenizer, _context);
 
             Assert.Throws<LangException>(() => parser.Parse());
+        }
+
+        [Test]
+        [TestCase("{a}", new[] { "a" })]
+        [TestCase("2 * {a} - {PI}", new[] { "a", "PI" })]
+        [TestCase("({a} - 5) * 4 + {E}", new[] { "a", "E" })]
+        public void TestCorrectVariables(string input, string[] expected)
+        {
+            Assert.That(input.GetVariables(_context), Is.EquivalentTo(expected));
         }
     }
 }

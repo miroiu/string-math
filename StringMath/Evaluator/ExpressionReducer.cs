@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 
 namespace StringMath
 {
@@ -42,7 +43,7 @@ namespace StringMath
         private Expression EvaluateConstantExpression(Expression arg)
         {
             ConstantExpression constantExpr = ((ConstantExpression)arg);
-            double value = double.Parse(constantExpr.Value);
+            double value = double.Parse(constantExpr.Value, CultureInfo.InvariantCulture.NumberFormat);
             return new ValueExpression(value);
         }
 
@@ -76,7 +77,7 @@ namespace StringMath
             VariableExpression variableExpr = (VariableExpression)expr;
             return _variables.TryGetValue(variableExpr.Name, out double value)
                 ? new ValueExpression(value)
-                : throw new LangException($"A value was not supplied for variable '{variableExpr.Name}'.");
+                : throw LangException.UnassignedVariable(variableExpr);
         }
 
         #endregion

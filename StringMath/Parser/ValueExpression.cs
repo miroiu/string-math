@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 
 namespace StringMath
 {
@@ -12,7 +13,7 @@ namespace StringMath
 
         public override string ToString()
         {
-            return Value.ToString();
+            return Value.ToString(CultureInfo.InvariantCulture.NumberFormat);
         }
     }
 }

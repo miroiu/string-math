@@ -16,7 +16,7 @@ namespace StringMath
 
         public override string ToString()
         {
-            return OperatorName == "!" ? $"{Operand}{OperatorName}" : $"{OperatorName}{Operand}";
+            return string.Equals(OperatorName, "!", StringComparison.Ordinal) ? $"{Operand}{OperatorName}" : $"{OperatorName}{Operand}";
         }
     }
 }

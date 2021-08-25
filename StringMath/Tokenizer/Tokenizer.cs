@@ -2,29 +2,31 @@
 
 namespace StringMath
 {
-    internal interface ILexer
+    internal interface ITokenizer
     {
-        Token Lex();
+        Token ReadToken();
     }
 
-    internal sealed partial class Lexer : ILexer
+    internal sealed partial class Tokenizer : ITokenizer
     {
         private readonly ISourceText _text;
-        private readonly IMathContext _mathContext;
 
-        // Can not create custom operators using these characters
+        // Excluded characters for custom operators
         private readonly HashSet<char> _invalidOperatorCharacters = new HashSet<char>
         {
-            '(', ')', '{', '}', '!', ' ', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '\t', '\r', '\n', '\0'
+            '(', ')', '{', '}', '!', '.', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '\0'
         };
 
-        public Lexer(ISourceText text, IMathContext mathContext)
+        public Tokenizer(ISourceText text)
         {
             _text = text;
-            _mathContext = mathContext;
         }
 
-        public Token Lex()
+        public Tokenizer(string input) : this(new SourceText(input))
+        {
+        }
+
+        public Token ReadToken()
         {
             Token token = new Token
             {
@@ -34,6 +36,7 @@ namespace StringMath
 
             switch (_text.Current)
             {
+                case '.':
                 case '0':
                 case '1':
                 case '2':
@@ -71,41 +74,30 @@ namespace StringMath
                 case ' ':
                 case '\t':
                     ReadWhiteSpace(_text);
-                    return Lex();
+                    return ReadToken();
 
                 case '\r':
                 case '\n':
                     _text.MoveNext();
-                    return Lex();
+                    return ReadToken();
 
                 case '\0':
                     token.Type = TokenType.EndOfCode;
                     break;
 
                 default:
-                    if (char.IsLetter(_text.Current))
-                    {
-                        string operatorName = ReadOperatorName(_text);
-                        token.Type = TokenType.Operator;
-                        token.Text = operatorName;
-                    }
-                    else
-                    {
-                        string op = ReadOperator(_text);
-                        if (_mathContext.IsOperator(op))
-                        {
-                            token.Text = op;
-                            token.Type = TokenType.Operator;
-                        }
-                        else
-                        {
-                            throw new LangException($"'{op}' is not an operator.");
-                        }
-                    }
+                    string op = ReadOperator(_text);
+                    token.Text = op;
+                    token.Type = TokenType.Operator;
                     break;
             }
 
             return token;
+        }
+
+        public override string ToString()
+        {
+            return _text.ToString();
         }
     }
 }

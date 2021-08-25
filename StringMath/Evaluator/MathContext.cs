@@ -17,10 +17,10 @@ namespace StringMath
 
     internal sealed class MathContext : IMathContext
     {
-        private readonly Dictionary<string, Func<double, double, double>> _binaryEvaluators = new Dictionary<string, Func<double, double, double>>();
-        private readonly Dictionary<string, Func<double, double>> _unaryEvaluators = new Dictionary<string, Func<double, double>>();
-        private readonly Dictionary<string, Precedence> _binaryPrecedence = new Dictionary<string, Precedence>();
-        private readonly HashSet<string> _operators = new HashSet<string>();
+        private readonly Dictionary<string, Func<double, double, double>> _binaryEvaluators = new Dictionary<string, Func<double, double, double>>(StringComparer.Ordinal);
+        private readonly Dictionary<string, Func<double, double>> _unaryEvaluators = new Dictionary<string, Func<double, double>>(StringComparer.Ordinal);
+        private readonly Dictionary<string, Precedence> _binaryPrecedence = new Dictionary<string, Precedence>(StringComparer.Ordinal);
+        private readonly HashSet<string> _operators = new HashSet<string>(StringComparer.Ordinal);
 
         public MathContext()
         {
@@ -273,9 +273,10 @@ namespace StringMath
             {
                 throw new InvalidOperationException("Result is too big.");
             }
-            else if (value < 0)
+
+            if (value < 0)
             {
-                throw new ArgumentException("Value cannot be negative.");
+                throw new ArgumentException("Value cannot be negative.", nameof(value));
             }
 
             return _factorials[value];

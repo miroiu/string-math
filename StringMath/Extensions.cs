@@ -11,5 +11,20 @@ namespace StringMath
                 throw new ArgumentNullException(name);
             }
         }
+
+        public static string ToReadableString(this TokenType tokenType)
+        {
+            return tokenType switch
+            {
+                TokenType.Identifier => "identifier",
+                TokenType.Number => "number",
+                TokenType.Operator => "operator",
+                TokenType.EndOfCode => "[EOC]",
+                TokenType.OpenParen => "(",
+                TokenType.CloseParen => ")",
+                TokenType.Exclamation => "!",
+                _ => tokenType.ToString(),
+            };
+        }
     }
 }

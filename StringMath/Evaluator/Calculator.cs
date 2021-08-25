@@ -74,9 +74,8 @@ namespace StringMath
         {
             expression.EnsureNotNull(nameof(expression));
 
-            ISourceText text = new SourceText(expression);
-            ILexer lex = new Lexer(text, _mathContext);
-            IParser parse = new Parser(lex, _mathContext);
+            ITokenizer tokenizer = new Tokenizer(expression);
+            IParser parse = new Parser(tokenizer, _mathContext);
 
             ValueExpression resultExpr = _reducer.Reduce<ValueExpression>(parse.Parse());
             return resultExpr.Value;
@@ -96,9 +95,8 @@ namespace StringMath
         {
             expression.EnsureNotNull(nameof(expression));
 
-            ISourceText text = new SourceText(expression);
-            ILexer lexer = new Lexer(text, _mathContext);
-            IParser parser = new Parser(lexer, _mathContext);
+            ITokenizer tokenizer = new Tokenizer(expression);
+            IParser parser = new Parser(tokenizer, _mathContext);
             IExpressionOptimizer optimizer = new ExpressionOptimizer(_reducer, _mathContext);
             Expression root = parser.Parse();
             Expression optimized = optimizer.Optimize(root);

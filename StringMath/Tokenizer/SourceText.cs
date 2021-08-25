@@ -16,7 +16,7 @@ namespace StringMath
         public char Current => Text[Position];
         object IEnumerator.Current => Current;
 
-        // The string terminator is used by the lexer to produce EndOfCode tokens
+        // The string terminator is used by the tokenizer to produce EndOfCode tokens
         public SourceText(string source)
             => Text = $"{source}\0";
 
@@ -47,6 +47,11 @@ namespace StringMath
         public void Dispose()
         {
             Reset();
+        }
+
+        public override string ToString()
+        {
+            return $"{Current} :{Position}";
         }
     }
 }

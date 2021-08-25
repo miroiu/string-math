@@ -28,9 +28,8 @@ namespace StringMath.Tests
         [TestCase("3! + 5! + {a}", "126 + {a}")]
         public void TestCorrectOptimizing(string input, string expected)
         {
-            ISourceText sourceText = new SourceText(input);
-            ILexer lexer = new Lexer(sourceText, _context);
-            IParser parser = new Parser(lexer, _context);
+            ITokenizer tokenizer = new Tokenizer(input);
+            IParser parser = new Parser(tokenizer, _context);
             IExpressionOptimizer optimizer = new ExpressionOptimizer(_reducer, _context);
 
             Expression parsedExpr = parser.Parse();

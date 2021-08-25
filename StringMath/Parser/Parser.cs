@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace StringMath
 {
@@ -10,22 +11,22 @@ namespace StringMath
 
     internal sealed class Parser : IParser
     {
-        private readonly ILexer _lexer;
+        private readonly ITokenizer _tokenzier;
         private readonly IMathContext _mathContext;
         private Token _currentToken;
-        private readonly HashSet<string> _variables = new HashSet<string>();
+        private readonly HashSet<string> _variables = new HashSet<string>(StringComparer.Ordinal);
 
         public IReadOnlyCollection<string> Variables => _variables;
 
-        public Parser(ILexer lexer, IMathContext mathContext)
+        public Parser(ITokenizer tokenizer, IMathContext mathContext)
         {
-            _lexer = lexer;
+            _tokenzier = tokenizer;
             _mathContext = mathContext;
         }
 
         public Expression Parse()
         {
-            _currentToken = _lexer.Lex();
+            _currentToken = _tokenzier.ReadToken();
             Expression result = ParseBinaryExpression();
             Match(TokenType.EndOfCode);
             return result;
@@ -90,7 +91,7 @@ namespace StringMath
                     return ParseGroupingExpression();
 
                 default:
-                    throw new LangException($"Unexpected token '{_currentToken.Text}'.");
+                    throw LangException.UnexpectedToken(_currentToken);
             }
         }
 
@@ -108,34 +109,19 @@ namespace StringMath
         {
             return _currentToken.Type == tokenType
                 ? Take()
-                : throw new LangException($"Expected '{GetString(tokenType)}' but found '{_currentToken.Text}'.");
+                : throw LangException.UnexpectedToken(_currentToken, tokenType);
         }
 
         public Token Take()
         {
             Token previous = _currentToken;
-            _currentToken = _lexer.Lex();
+            _currentToken = _tokenzier.ReadToken();
             return previous;
         }
 
         public bool IsEndOfStatement()
         {
             return _currentToken.Type == TokenType.EndOfCode;
-        }
-
-        private string GetString(TokenType tokenType)
-        {
-            return tokenType switch
-            {
-                TokenType.Identifier => "variable",
-                TokenType.Number => "number",
-                TokenType.Operator => "operator",
-                TokenType.EndOfCode => "\0",
-                TokenType.OpenParen => "(",
-                TokenType.CloseParen => ")",
-                TokenType.Exclamation => "!",
-                _ => tokenType.ToString(),
-            };
         }
     }
 }
