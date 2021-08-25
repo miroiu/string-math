@@ -3,7 +3,7 @@
 namespace StringMath
 {
     /// <summary>Base library exception.</summary>
-    public class LangException : Exception
+    public sealed class LangException : Exception
     {
         /// <summary>Available error codes.</summary>
         public enum ErrorCode

@@ -2,8 +2,13 @@
 
 namespace StringMath
 {
+    /// <summary>Helpful extension methods.</summary>
     internal static class Extensions
     {
+        /// <summary>Throws an <see cref="ArgumentNullException"/> if <paramref name="value"/> is null.</summary>
+        /// <typeparam name="T">The parameter's type.</typeparam>
+        /// <param name="value">The parameter's value.</param>
+        /// <param name="name">The parameter's name.</param>
         public static void EnsureNotNull<T>(this T value, string name) where T : class
         {
             if (value == default)
@@ -12,6 +17,9 @@ namespace StringMath
             }
         }
 
+        /// <summary>Converts a token type to a readable string.</summary>
+        /// <param name="tokenType">The token type.</param>
+        /// <returns>A readable string.</returns>
         public static string ToReadableString(this TokenType tokenType)
         {
             return tokenType switch

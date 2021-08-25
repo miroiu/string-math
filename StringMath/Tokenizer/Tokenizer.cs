@@ -2,11 +2,15 @@
 
 namespace StringMath
 {
+    /// <summary>Contract for tokenizers.</summary>
     internal interface ITokenizer
     {
+        /// <summary>Reads the next token in the token stream.</summary>
+        /// <returns>A token.</returns>
         Token ReadToken();
     }
 
+    /// <inheritdoc />
     internal sealed partial class Tokenizer : ITokenizer
     {
         private readonly ISourceText _text;
@@ -17,15 +21,20 @@ namespace StringMath
             '(', ')', '{', '}', '!', '.', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '\0'
         };
 
+        /// <summary>Creates a new instance of the tokenizer.</summary>
+        /// <param name="text">The text to tokenize.</param>
         public Tokenizer(ISourceText text)
         {
             _text = text;
         }
-
-        public Tokenizer(string input) : this(new SourceText(input))
+        
+        /// <summary>Creates a new instance of the tokenizer.</summary>
+        /// <param name="text">The text to tokenize.</param>
+        public Tokenizer(string text) : this(new SourceText(text))
         {
         }
 
+        /// <inheritdoc />
         public Token ReadToken()
         {
             Token token = new Token
@@ -95,6 +104,7 @@ namespace StringMath
             return token;
         }
 
+        /// <inheritdoc />
         public override string ToString()
         {
             return _text.ToString();
