@@ -31,7 +31,7 @@ namespace StringMath.Tests
         [TestCase("1 + sqrt 4", 3)]
         [TestCase("sind(90) + sind 30", 1.5)]
         [TestCase("((1 + 1) + ((1 + 1) + (((1) + 1)) + 1))", 7)]
-        public void TestEvaluationResult(string input, double expected)
+        public void Evaluate(string input, double expected)
         {
             Assert.AreEqual(expected, _calculator.Evaluate(input));
         }
@@ -44,7 +44,7 @@ namespace StringMath.Tests
         [TestCase("({a})", 3, 3)]
         [TestCase("{PI}", Math.PI, Math.PI)]
         [TestCase("{E}", Math.E, Math.E)]
-        public void VariableEvaluationResult(string input, double variable, double expected)
+        public void Evaluate(string input, double variable, double expected)
         {
             _calculator["a"] = variable;
             _calculator["b"] = 2;
@@ -59,7 +59,7 @@ namespace StringMath.Tests
         [TestCase("2 x\r\n 5", 10)]
         [TestCase("3 << 2", 12)]
         [TestCase("-3 <> 2", -32)]
-        public void CustomOperators(string input, double expected)
+        public void Evaluate_CustomOperators(string input, double expected)
         {
             Assert.AreEqual(expected, _calculator.Evaluate(input));
         }
@@ -76,7 +76,7 @@ namespace StringMath.Tests
         [TestCase("2*{a}+2*{a}", 3, 12)]
         [TestCase("({a})", 3, 3)]
         [TestCase("2 * ({a} + 3 + 5)", 1, 18)]
-        public void CacheOperationsWithVariables(string input, double repl, double expected)
+        public void Evaluate_CachedOperation_With_Variables(string input, double repl, double expected)
         {
             _calculator.SetValue("a", repl);
 
@@ -99,7 +99,7 @@ namespace StringMath.Tests
         [TestCase("2 x\r\n 5", 10)]
         [TestCase("3 << 2", 12)]
         [TestCase("-3 <> 2", -32)]
-        public void CacheOperationsWithoutVariables(string input, double expected)
+        public void Evaluate_CachedOperation_Without_Variables(string input, double expected)
         {
             OperationInfo op = _calculator.CreateOperation(input);
             Assert.AreEqual(input, op.Expression);
@@ -114,7 +114,7 @@ namespace StringMath.Tests
         [TestCase("2*{a}+2*{a}", 3, 12)]
         [TestCase("{b}+3*{a}", 3, 11)]
         [TestCase("({a})", 3, 3)]
-        public void StaticVariableEvaluationResult(string input, double variable, double expected)
+        public void Evaluate_Static_API(string input, double variable, double expected)
         {
             SMath.SetValues(new VariablesCollection
             {
@@ -126,9 +126,10 @@ namespace StringMath.Tests
 
         [Test]
         [TestCase("{a}+2")]
-        public void TestMissingVariable(string input)
+        public void Evaluate_Unassigned_Variable_Exception(string input)
         {
-            Assert.Throws<LangException>(() => _calculator.Evaluate(input));
+            LangException exception = Assert.Throws<LangException>(() => _calculator.Evaluate(input));
+            Assert.AreEqual(LangException.ErrorCode.UNASSIGNED_VARIABLE, exception.ErrorType);
         }
     }
 }
