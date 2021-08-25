@@ -1,62 +1,85 @@
-﻿namespace StringMath
-{
-    internal interface IExpressionOptimizer
-    {
-        Expression Optimize(Expression root);
-    }
+﻿using System;
+using System.Collections.Generic;
 
-    internal class ExpressionOptimizer : IExpressionOptimizer
+namespace StringMath
+{
+    /// <inheritdoc />
+    internal class ExpressionOptimizer : IExpressionVisitor<Expression>
     {
-        private readonly IExpressionReducer _reducer;
+        private readonly Dictionary<Type, Func<Expression, Expression>> _expressionOptimizers;
         private readonly IMathContext _context;
 
-        public ExpressionOptimizer(IExpressionReducer reducer, IMathContext mathContext)
+        /// <summary>Initializez a new instance of an expression optimizer.</summary>
+        /// <param name="mathContext">The math context used to evaluate expressions.</param>
+        public ExpressionOptimizer(IMathContext mathContext)
         {
-            _reducer = reducer;
+            mathContext.EnsureNotNull(nameof(mathContext));
             _context = mathContext;
+
+            _expressionOptimizers = new Dictionary<Type, Func<Expression, Expression>>
+            {
+                [typeof(BinaryExpression)] = OptimizeBinaryExpression,
+                [typeof(UnaryExpression)] = EvaluateUnaryExpression,
+                [typeof(ConstantExpression)] = OptimizeConstantExpression,
+                [typeof(GroupingExpression)] = OptimizeGroupingExpression,
+                [typeof(VariableExpression)] = SkipExpressionOptimization,
+                [typeof(ValueExpression)] = SkipExpressionOptimization
+            };
+        }
+        
+        /// <summary>Simplifies an expression tree by removing unnecessary nodes and evaluating constant expressions.</summary>
+        /// <param name="expression">The expression tree to optimize.</param>
+        /// <returns>An optimized expression tree.</returns>
+        public Expression Visit(Expression expression)
+        {
+            Expression result = _expressionOptimizers[expression.Type](expression);
+            return result;
         }
 
-        public Expression Optimize(Expression root)
+        private Expression OptimizeConstantExpression(Expression expr)
         {
-            if (root is ConstantExpression)
+            ConstantExpression constantExpr = (ConstantExpression)expr;
+            return constantExpr.ToValueExpression();
+        }
+
+        private Expression OptimizeGroupingExpression(Expression expr)
+        {
+            GroupingExpression groupingExpr = (GroupingExpression)expr;
+            Expression innerExpr = Visit(groupingExpr.Inner);
+            return innerExpr;
+        }
+
+        private Expression EvaluateUnaryExpression(Expression expr)
+        {
+            UnaryExpression unaryExpr = (UnaryExpression)expr;
+            Expression operandExpr = Visit(unaryExpr.Operand);
+            if (operandExpr is ValueExpression valueExpr)
             {
-                ValueExpression valueExpr = _reducer.Reduce<ValueExpression>(root);
-                return valueExpr;
+                double result = _context.EvaluateUnary(unaryExpr.OperatorName, valueExpr.Value);
+                return new ValueExpression(result);
             }
 
-            if (root is GroupingExpression groupingExpr)
+            return new UnaryExpression(unaryExpr.OperatorName, operandExpr);
+        }
+
+        private Expression OptimizeBinaryExpression(Expression expr)
+        {
+            BinaryExpression binaryExpr = (BinaryExpression)expr;
+            Expression leftExpr = Visit(binaryExpr.Left);
+            Expression rightExpr = Visit(binaryExpr.Right);
+
+            if (leftExpr is ValueExpression leftValue && rightExpr is ValueExpression rightValue)
             {
-                Expression innerExpr = Optimize(groupingExpr.Inner);
-                return innerExpr;
+                double result = _context.EvaluateBinary(binaryExpr.OperatorName, leftValue.Value, rightValue.Value);
+                return new ValueExpression(result);
             }
 
-            if (root is BinaryExpression binaryExpr)
-            {
-                Expression leftExpr = Optimize(binaryExpr.Left);
-                Expression rightExpr = Optimize(binaryExpr.Right);
+            return new BinaryExpression(leftExpr, binaryExpr.OperatorName, rightExpr);
+        }
 
-                if (leftExpr is ValueExpression leftValue && rightExpr is ValueExpression rightValue)
-                {
-                    double result = _context.EvaluateBinary(binaryExpr.OperatorName, leftValue.Value, rightValue.Value);
-                    return new ValueExpression(result);
-                }
-
-                return new BinaryExpression(leftExpr, binaryExpr.OperatorName, rightExpr);
-            }
-
-            if (root is UnaryExpression unaryExpr)
-            {
-                Expression operandExpr = Optimize(unaryExpr.Operand);
-                if (operandExpr is ValueExpression valueExpr)
-                {
-                    double result = _context.EvaluateUnary(unaryExpr.OperatorName, valueExpr.Value);
-                    return new ValueExpression(result);
-                }
-
-                return new UnaryExpression(unaryExpr.OperatorName, operandExpr);
-            }
-
-            return root;
+        private Expression SkipExpressionOptimization(Expression expr)
+        {
+            return expr;
         }
     }
 }

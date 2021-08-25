@@ -36,7 +36,7 @@ namespace StringMath
         {
             if (left == default)
             {
-                if (_mathContext.IsUnaryOperator(_currentToken.Text))
+                if (_mathContext.IsUnary(_currentToken.Text))
                 {
                     Token operatorToken = Take();
                     left = new UnaryExpression(operatorToken.Text, ParseBinaryExpression(left, Precedence.Prefix));
@@ -55,9 +55,9 @@ namespace StringMath
 
             while (!IsEndOfStatement())
             {
-                if (_mathContext.IsBinaryOperator(_currentToken.Text))
+                if (_mathContext.IsBinary(_currentToken.Text))
                 {
-                    Precedence precedence = _mathContext.GetBinaryOperatorPrecedence(_currentToken.Text);
+                    Precedence precedence = _mathContext.GetBinaryPrecedence(_currentToken.Text);
                     if (parentPrecedence >= precedence)
                     {
                         return left;

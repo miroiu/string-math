@@ -88,8 +88,8 @@ namespace StringMath.Tests
         public void ParseExpression_CustomOperators(string input, string expected)
         {
             MathContext context = new MathContext();
-            context.AddBinaryOperator("pow", default);
-            context.AddUnaryOperator("rand", default);
+            context.RegisterBinary("pow", default);
+            context.RegisterUnary("rand", default);
 
             ITokenizer tokenizer = new Tokenizer(input);
             IParser parser = new Parser(tokenizer, context);

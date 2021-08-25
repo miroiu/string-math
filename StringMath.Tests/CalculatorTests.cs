@@ -75,6 +75,7 @@ namespace StringMath.Tests
         [TestCase("2*{a}+2", 3, 8)]
         [TestCase("2*{a}+2*{a}", 3, 12)]
         [TestCase("({a})", 3, 3)]
+        [TestCase("2 * ({a} + 3 + 5)", 1, 18)]
         public void CacheOperationsWithVariables(string input, double repl, double expected)
         {
             _calculator.SetValue("a", repl);

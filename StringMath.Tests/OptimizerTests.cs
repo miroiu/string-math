@@ -6,13 +6,11 @@ namespace StringMath.Tests
     internal class OptimizerTests
     {
         private IMathContext _context;
-        private IExpressionReducer _reducer;
 
         [OneTimeSetUp]
         public void Setup()
         {
             _context = new MathContext();
-            _reducer = new ExpressionReducer(_context, new VariablesCollection());
         }
 
         [Test]
@@ -23,20 +21,37 @@ namespace StringMath.Tests
         [TestCase("1.15215345346", "1.15215345346")]
         [TestCase("0", "0")]
         [TestCase("5! + ({a} / 3)", "120 + {a} / 3")]
-        [TestCase("2 + {a} + 3", "2 + {a} + 3")]
         [TestCase("3! + 3 + {a}", "9 + {a}")]
         [TestCase("3! + 5! + {a}", "126 + {a}")]
-        public void TestCorrectOptimizing(string input, string expected)
+        public void Optimize(string input, string expected)
         {
             ITokenizer tokenizer = new Tokenizer(input);
             IParser parser = new Parser(tokenizer, _context);
-            IExpressionOptimizer optimizer = new ExpressionOptimizer(_reducer, _context);
+            IExpressionVisitor<Expression> optimizer = new ExpressionOptimizer(_context);
 
             Expression parsedExpr = parser.Parse();
-            Expression optimizedExpr = optimizer.Optimize(parsedExpr);
+            Expression optimizedExpr = optimizer.Visit(parsedExpr);
             string actual = optimizedExpr.ToString();
 
             Assert.AreEqual(expected, actual);
+        }
+
+        // These tests could also pass if optimizer was smarter
+        [Test]
+        [TestCase("2 + {a} + 3", "5 + {a}")]
+        [TestCase("2 * ({a} + 3 + 5)", "2 * ({a} + 8)")]
+        [TestCase("{a} - 1 - 1", "{a} - 2")]
+        public void Optimize_Fails(string input, string expected)
+        {
+            ITokenizer tokenizer = new Tokenizer(input);
+            IParser parser = new Parser(tokenizer, _context);
+            IExpressionVisitor<Expression> optimizer = new ExpressionOptimizer(_context);
+
+            Expression parsedExpr = parser.Parse();
+            Expression optimizedExpr = optimizer.Visit(parsedExpr);
+            string actual = optimizedExpr.ToString();
+
+            Assert.AreNotEqual(expected, actual);
         }
     }
 }

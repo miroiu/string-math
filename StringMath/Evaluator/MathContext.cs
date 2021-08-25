@@ -3,18 +3,7 @@ using System.Collections.Generic;
 
 namespace StringMath
 {
-    internal interface IMathContext
-    {
-        void AddBinaryOperator(string operatorName, Func<double, double, double> operation, Precedence? precedence = default);
-        void AddUnaryOperator(string operatorName, Func<double, double> operation);
-        double EvaluateBinary(string op, double a, double b);
-        double EvaluateUnary(string op, double a);
-        Precedence GetBinaryOperatorPrecedence(string operatorName);
-        bool IsBinaryOperator(string operatorName);
-        bool IsOperator(string operatorName);
-        bool IsUnaryOperator(string operatorName);
-    }
-
+    /// <inheritdoc />
     internal sealed class MathContext : IMathContext
     {
         private readonly Dictionary<string, Func<double, double, double>> _binaryEvaluators = new Dictionary<string, Func<double, double, double>>(StringComparer.Ordinal);
@@ -22,69 +11,72 @@ namespace StringMath
         private readonly Dictionary<string, Precedence> _binaryPrecedence = new Dictionary<string, Precedence>(StringComparer.Ordinal);
         private readonly HashSet<string> _operators = new HashSet<string>(StringComparer.Ordinal);
 
+        /// <summary>Initializez a new instance of a math context.</summary>
         public MathContext()
         {
-            AddBinaryOperator("+", (a, b) => a + b, Precedence.Addition);
-            AddBinaryOperator("-", (a, b) => a - b, Precedence.Addition);
-            AddBinaryOperator("*", (a, b) => a * b, Precedence.Multiplication);
-            AddBinaryOperator("/", (a, b) => a / b, Precedence.Multiplication);
-            AddBinaryOperator("%", (a, b) => a % b, Precedence.Multiplication);
-            AddBinaryOperator("^", (a, b) => Math.Pow(a, b), Precedence.Power);
-            AddBinaryOperator("log", (a, b) => Math.Log(a, b), Precedence.Logarithmic);
-            AddBinaryOperator("max", (a, b) => Math.Max(a, b), Precedence.UserDefined);
-            AddBinaryOperator("min", (a, b) => Math.Min(a, b), Precedence.UserDefined);
+            RegisterBinary("+", (a, b) => a + b, Precedence.Addition);
+            RegisterBinary("-", (a, b) => a - b, Precedence.Addition);
+            RegisterBinary("*", (a, b) => a * b, Precedence.Multiplication);
+            RegisterBinary("/", (a, b) => a / b, Precedence.Multiplication);
+            RegisterBinary("%", (a, b) => a % b, Precedence.Multiplication);
+            RegisterBinary("^", (a, b) => Math.Pow(a, b), Precedence.Power);
+            RegisterBinary("log", (a, b) => Math.Log(a, b), Precedence.Logarithmic);
+            RegisterBinary("max", (a, b) => Math.Max(a, b), Precedence.UserDefined);
+            RegisterBinary("min", (a, b) => Math.Min(a, b), Precedence.UserDefined);
 
-            AddUnaryOperator("-", a => -a);
-            AddUnaryOperator("!", a => ComputeFactorial(a));
-            AddUnaryOperator("sqrt", a => Math.Sqrt(a));
-            AddUnaryOperator("sin", a => Math.Sin(a));
-            AddUnaryOperator("cos", a => Math.Cos(a));
-            AddUnaryOperator("tan", a => Math.Tan(a));
-            AddUnaryOperator("ceil", a => Math.Ceiling(a));
-            AddUnaryOperator("floor", a => Math.Floor(a));
-            AddUnaryOperator("round", a => Math.Round(a));
-            AddUnaryOperator("exp", a => Math.Exp(a));
-            AddUnaryOperator("abs", a => Math.Abs(a));
+            RegisterUnary("-", a => -a);
+            RegisterUnary("!", a => ComputeFactorial(a));
+            RegisterUnary("sqrt", a => Math.Sqrt(a));
+            RegisterUnary("sin", a => Math.Sin(a));
+            RegisterUnary("cos", a => Math.Cos(a));
+            RegisterUnary("tan", a => Math.Tan(a));
+            RegisterUnary("ceil", a => Math.Ceiling(a));
+            RegisterUnary("floor", a => Math.Floor(a));
+            RegisterUnary("round", a => Math.Round(a));
+            RegisterUnary("exp", a => Math.Exp(a));
+            RegisterUnary("abs", a => Math.Abs(a));
         }
 
-        public bool IsUnaryOperator(string operatorName)
+        /// <inheritdoc />
+        public bool IsUnary(string operatorName)
         {
             return _unaryEvaluators.ContainsKey(operatorName);
         }
 
-        public bool IsBinaryOperator(string operatorName)
+        /// <inheritdoc />
+        public bool IsBinary(string operatorName)
         {
             return _binaryEvaluators.ContainsKey(operatorName);
         }
 
-        public bool IsOperator(string operatorName)
-        {
-            return _operators.Contains(operatorName);
-        }
-
-        public Precedence GetBinaryOperatorPrecedence(string operatorName)
+        /// <inheritdoc />
+        public Precedence GetBinaryPrecedence(string operatorName)
         {
             return _binaryPrecedence[operatorName];
         }
 
-        public void AddBinaryOperator(string operatorName, Func<double, double, double> operation, Precedence? precedence = default)
+        /// <inheritdoc />
+        public void RegisterBinary(string operatorName, Func<double, double, double> operation, Precedence? precedence = default)
         {
             _binaryEvaluators[operatorName] = operation;
             _binaryPrecedence[operatorName] = precedence ?? Precedence.UserDefined;
             _operators.Add(operatorName);
         }
 
-        public void AddUnaryOperator(string operatorName, Func<double, double> operation)
+        /// <inheritdoc />
+        public void RegisterUnary(string operatorName, Func<double, double> operation)
         {
             _unaryEvaluators[operatorName] = operation;
             _operators.Add(operatorName);
         }
 
+        /// <inheritdoc />
         public double EvaluateBinary(string op, double a, double b)
         {
             return _binaryEvaluators[op](a, b);
         }
 
+        /// <inheritdoc />
         public double EvaluateUnary(string op, double a)
         {
             return _unaryEvaluators[op](a);
