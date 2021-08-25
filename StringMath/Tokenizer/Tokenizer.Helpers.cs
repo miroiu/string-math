@@ -18,11 +18,8 @@ namespace StringMath
             }
             else
             {
-                throw LangException.UnexpectedToken(new Token
-                {
-                    Position = stream.Position,
-                    Text = stream.Current.ToString()
-                }, TokenType.Identifier);
+                Token token = new Token(TokenType.Unknown, stream.Current.ToString(), stream.Position);
+                throw LangException.UnexpectedToken(token, TokenType.Identifier);
             }
 
             while (stream.Current != identifierTerminator)
@@ -34,11 +31,8 @@ namespace StringMath
                 }
                 else
                 {
-                    throw LangException.UnexpectedToken(new Token
-                    {
-                        Position = stream.Position,
-                        Text = stream.Current.ToString()
-                    }, identifierTerminator);
+                    Token token = new Token(TokenType.Unknown, stream.Current.ToString(), stream.Position);
+                    throw LangException.UnexpectedToken(token, identifierTerminator);
                 }
             }
 
@@ -46,11 +40,13 @@ namespace StringMath
             stream.MoveNext();
             string text = builder.ToString();
 
-            return text.Length == 2 ? throw LangException.UnexpectedToken(new Token
+            if (text.Length == 2)
             {
-                Position = stream.Position - 1,
-                Text = identifierTerminator.ToString()
-            }, identifierTerminator) : text;
+                Token token = new Token(TokenType.Unknown, identifierTerminator.ToString(), stream.Position - 1);
+                throw LangException.UnexpectedToken(token, identifierTerminator);
+            }
+
+            return text;
         }
 
         private string ReadOperator(ISourceText stream)
@@ -84,11 +80,8 @@ namespace StringMath
                     }
                     else
                     {
-                        throw LangException.UnexpectedToken(new Token
-                        {
-                            Position = stream.Position,
-                            Text = stream.Current.ToString()
-                        }, TokenType.Number);
+                        Token token = new Token(TokenType.Unknown, stream.Current.ToString(), stream.Position);
+                        throw LangException.UnexpectedToken(token, TokenType.Number);
                     }
                 }
                 else if (char.IsDigit(stream.Current))
@@ -103,11 +96,14 @@ namespace StringMath
             }
 
             char peeked = stream.Peek(-1);
-            return peeked == '.' ? throw LangException.UnexpectedToken(new Token
+
+            if (peeked == '.')
             {
-                Position = stream.Position,
-                Text = peeked.ToString()
-            }, TokenType.Number) : builder.ToString();
+                Token token = new Token(TokenType.Unknown, peeked.ToString(), stream.Position);
+                throw LangException.UnexpectedToken(token, TokenType.Number);
+            }
+
+            return builder.ToString();
         }
 
         private void ReadWhiteSpace(ISourceText stream)

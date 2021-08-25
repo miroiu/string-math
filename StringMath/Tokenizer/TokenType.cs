@@ -3,6 +3,9 @@
     /// <summary>Available token types.</summary>
     internal enum TokenType
     {
+        /// <summary>Unknown token.</summary>
+        Unknown,
+
         /// <summary>\0</summary>
         EndOfCode,
 

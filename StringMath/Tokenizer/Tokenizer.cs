@@ -2,14 +2,6 @@
 
 namespace StringMath
 {
-    /// <summary>Contract for tokenizers.</summary>
-    internal interface ITokenizer
-    {
-        /// <summary>Reads the next token in the token stream.</summary>
-        /// <returns>A token.</returns>
-        Token ReadToken();
-    }
-
     /// <inheritdoc />
     internal sealed partial class Tokenizer : ITokenizer
     {
@@ -27,7 +19,7 @@ namespace StringMath
         {
             _text = text;
         }
-        
+
         /// <summary>Creates a new instance of the tokenizer.</summary>
         /// <param name="text">The text to tokenize.</param>
         public Tokenizer(string text) : this(new SourceText(text))
@@ -37,12 +29,6 @@ namespace StringMath
         /// <inheritdoc />
         public Token ReadToken()
         {
-            Token token = new Token
-            {
-                Text = $"{_text.Current}",
-                Position = _text.Position
-            };
-
             switch (_text.Current)
             {
                 case '.':
@@ -56,29 +42,22 @@ namespace StringMath
                 case '7':
                 case '8':
                 case '9':
-                    token.Type = TokenType.Number;
-                    token.Text = ReadNumber(_text);
-                    break;
+                    return new Token(TokenType.Number, ReadNumber(_text), _text.Position);
 
                 case '(':
-                    token.Type = TokenType.OpenParen;
                     _text.MoveNext();
-                    break;
+                    return new Token(TokenType.OpenParen, "(", _text.Position);
 
                 case ')':
-                    token.Type = TokenType.CloseParen;
                     _text.MoveNext();
-                    break;
+                    return new Token(TokenType.CloseParen, ")", _text.Position);
 
                 case '{':
-                    token.Type = TokenType.Identifier;
-                    token.Text = ReadIdentifier(_text);
-                    break;
+                    return new Token(TokenType.Identifier, ReadIdentifier(_text), _text.Position);
 
                 case '!':
-                    token.Type = TokenType.Exclamation;
                     _text.MoveNext();
-                    break;
+                    return new Token(TokenType.Exclamation, "!", _text.Position);
 
                 case ' ':
                 case '\t':
@@ -91,17 +70,12 @@ namespace StringMath
                     return ReadToken();
 
                 case '\0':
-                    token.Type = TokenType.EndOfCode;
-                    break;
+                    return new Token(TokenType.EndOfCode, "\0", _text.Position);
 
                 default:
                     string op = ReadOperator(_text);
-                    token.Text = op;
-                    token.Type = TokenType.Operator;
-                    break;
+                    return new Token(TokenType.Operator, op, _text.Position);
             }
-
-            return token;
         }
 
         /// <inheritdoc />
