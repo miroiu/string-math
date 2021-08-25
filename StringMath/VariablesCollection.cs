@@ -25,7 +25,7 @@ namespace StringMath
     }
 
     /// <inheritdoc />
-    public sealed class VariablesCollection : Dictionary<string, double>, IVariablesCollection
+    public class VariablesCollection : Dictionary<string, double>, IVariablesCollection
     {
         /// <inheritdoc />
         public void CopyTo(IVariablesCollection other)

@@ -77,7 +77,8 @@ namespace StringMath.Tests
             ITokenizer tokenizer = new Tokenizer(input);
 
             // Act & Assert
-            Assert.Throws<LangException>(() => tokenizer.ReadToken());
+            LangException exception = Assert.Throws<LangException>(() => tokenizer.ReadToken());
+            Assert.AreEqual(LangException.ErrorCode.UNEXPECTED_TOKEN, exception.ErrorType);
         }
 
         [Test]
@@ -134,7 +135,8 @@ namespace StringMath.Tests
             ITokenizer tokenizer = new Tokenizer(input);
 
             // Act & Assert
-            Assert.Throws<LangException>(() => tokenizer.ReadToken());
+            LangException exception = Assert.Throws<LangException>(() => tokenizer.ReadToken());
+            Assert.AreEqual(LangException.ErrorCode.UNEXPECTED_TOKEN, exception.ErrorType);
         }
     }
 }
