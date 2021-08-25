@@ -1,16 +1,22 @@
-﻿using System;
-using System.Globalization;
+﻿using System.Globalization;
 
 namespace StringMath
 {
-    internal sealed class ValueExpression : Expression
+    /// <summary>A value expression.</summary>
+    internal sealed class ValueExpression : IExpression
     {
-        public ValueExpression(double number)
-            => Value = number;
+        /// <summary>Initializes an instance of a value expression.</summary>
+        /// <param name="value">The value of the expression.</param>
+        public ValueExpression(double value)
+            => Value = value;
 
+        /// <summary>The value of the expression.</summary>
         public double Value { get; }
-        public override Type Type => typeof(ValueExpression);
 
+        /// <inheritdoc />
+        public ExpressionType Type => ExpressionType.ValueExpression;
+
+        /// <inheritdoc />
         public override string ToString()
         {
             return Value.ToString(CultureInfo.InvariantCulture.NumberFormat);

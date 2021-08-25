@@ -3,13 +3,13 @@
 namespace StringMath
 {
     /// <summary>An optimized and cached math expression.</summary>
-    public class OperationInfo
+    public sealed class OperationInfo
     {
         /// <summary>Initializez a new instance of an operation info.</summary>
         /// <param name="root">The optimized expression tree.</param>
         /// <param name="expression">The math expression string.</param>
         /// <param name="variables">A collection of variables extracted from the expression.</param>
-        private OperationInfo(Expression root, string expression, IReadOnlyCollection<string> variables)
+        private OperationInfo(IExpression root, string expression, IReadOnlyCollection<string> variables)
         {
             Root = root;
             Expression = expression;
@@ -17,7 +17,7 @@ namespace StringMath
         }
 
         /// <summary>The cached expression tree.</summary>
-        internal Expression Root { get; }
+        internal IExpression Root { get; }
 
         /// <summary>The math expression that was used to create this operation.</summary>
         public string Expression { get; }
@@ -33,9 +33,9 @@ namespace StringMath
         {
             ITokenizer tokenizer = new Tokenizer(expression);
             IParser parser = new Parser(tokenizer, context);
-            IExpressionVisitor<Expression> optimizer = new ExpressionOptimizer(context);
-            Expression root = parser.Parse();
-            Expression optimized = optimizer.Visit(root);
+            IExpressionVisitor<IExpression> optimizer = new ExpressionOptimizer(context);
+            IExpression root = parser.Parse();
+            IExpression optimized = optimizer.Visit(root);
 
             return new OperationInfo(optimized, expression, parser.Variables);
         }

@@ -4,9 +4,9 @@ using System.Collections.Generic;
 namespace StringMath
 {
     /// <inheritdoc />
-    internal class ExpressionOptimizer : IExpressionVisitor<Expression>
+    internal class ExpressionOptimizer : IExpressionVisitor<IExpression>
     {
-        private readonly Dictionary<Type, Func<Expression, Expression>> _expressionOptimizers;
+        private readonly Dictionary<ExpressionType, Func<IExpression, IExpression>> _expressionOptimizers;
         private readonly IMathContext _context;
 
         /// <summary>Initializez a new instance of an expression optimizer.</summary>
@@ -16,43 +16,43 @@ namespace StringMath
             mathContext.EnsureNotNull(nameof(mathContext));
             _context = mathContext;
 
-            _expressionOptimizers = new Dictionary<Type, Func<Expression, Expression>>
+            _expressionOptimizers = new Dictionary<ExpressionType, Func<IExpression, IExpression>>
             {
-                [typeof(BinaryExpression)] = OptimizeBinaryExpression,
-                [typeof(UnaryExpression)] = EvaluateUnaryExpression,
-                [typeof(ConstantExpression)] = OptimizeConstantExpression,
-                [typeof(GroupingExpression)] = OptimizeGroupingExpression,
-                [typeof(VariableExpression)] = SkipExpressionOptimization,
-                [typeof(ValueExpression)] = SkipExpressionOptimization
+                [ExpressionType.BinaryExpression] = OptimizeBinaryExpression,
+                [ExpressionType.UnaryExpression] = EvaluateUnaryExpression,
+                [ExpressionType.ConstantExpression] = OptimizeConstantExpression,
+                [ExpressionType.GroupingExpression] = OptimizeGroupingExpression,
+                [ExpressionType.VariableExpression] = SkipExpressionOptimization,
+                [ExpressionType.ValueExpression] = SkipExpressionOptimization
             };
         }
         
         /// <summary>Simplifies an expression tree by removing unnecessary nodes and evaluating constant expressions.</summary>
         /// <param name="expression">The expression tree to optimize.</param>
         /// <returns>An optimized expression tree.</returns>
-        public Expression Visit(Expression expression)
+        public IExpression Visit(IExpression expression)
         {
-            Expression result = _expressionOptimizers[expression.Type](expression);
+            IExpression result = _expressionOptimizers[expression.Type](expression);
             return result;
         }
 
-        private Expression OptimizeConstantExpression(Expression expr)
+        private IExpression OptimizeConstantExpression(IExpression expr)
         {
             ConstantExpression constantExpr = (ConstantExpression)expr;
             return constantExpr.ToValueExpression();
         }
 
-        private Expression OptimizeGroupingExpression(Expression expr)
+        private IExpression OptimizeGroupingExpression(IExpression expr)
         {
             GroupingExpression groupingExpr = (GroupingExpression)expr;
-            Expression innerExpr = Visit(groupingExpr.Inner);
+            IExpression innerExpr = Visit(groupingExpr.Inner);
             return innerExpr;
         }
 
-        private Expression EvaluateUnaryExpression(Expression expr)
+        private IExpression EvaluateUnaryExpression(IExpression expr)
         {
             UnaryExpression unaryExpr = (UnaryExpression)expr;
-            Expression operandExpr = Visit(unaryExpr.Operand);
+            IExpression operandExpr = Visit(unaryExpr.Operand);
             if (operandExpr is ValueExpression valueExpr)
             {
                 double result = _context.EvaluateUnary(unaryExpr.OperatorName, valueExpr.Value);
@@ -62,11 +62,11 @@ namespace StringMath
             return new UnaryExpression(unaryExpr.OperatorName, operandExpr);
         }
 
-        private Expression OptimizeBinaryExpression(Expression expr)
+        private IExpression OptimizeBinaryExpression(IExpression expr)
         {
             BinaryExpression binaryExpr = (BinaryExpression)expr;
-            Expression leftExpr = Visit(binaryExpr.Left);
-            Expression rightExpr = Visit(binaryExpr.Right);
+            IExpression leftExpr = Visit(binaryExpr.Left);
+            IExpression rightExpr = Visit(binaryExpr.Right);
 
             if (leftExpr is ValueExpression leftValue && rightExpr is ValueExpression rightValue)
             {
@@ -77,7 +77,7 @@ namespace StringMath
             return new BinaryExpression(leftExpr, binaryExpr.OperatorName, rightExpr);
         }
 
-        private Expression SkipExpressionOptimization(Expression expr)
+        private IExpression SkipExpressionOptimization(IExpression expr)
         {
             return expr;
         }

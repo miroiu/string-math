@@ -27,10 +27,10 @@ namespace StringMath.Tests
         {
             ITokenizer tokenizer = new Tokenizer(input);
             IParser parser = new Parser(tokenizer, _context);
-            IExpressionVisitor<Expression> optimizer = new ExpressionOptimizer(_context);
+            IExpressionVisitor<IExpression> optimizer = new ExpressionOptimizer(_context);
 
-            Expression parsedExpr = parser.Parse();
-            Expression optimizedExpr = optimizer.Visit(parsedExpr);
+            IExpression parsedExpr = parser.Parse();
+            IExpression optimizedExpr = optimizer.Visit(parsedExpr);
             string actual = optimizedExpr.ToString();
 
             Assert.AreEqual(expected, actual);
@@ -45,10 +45,10 @@ namespace StringMath.Tests
         {
             ITokenizer tokenizer = new Tokenizer(input);
             IParser parser = new Parser(tokenizer, _context);
-            IExpressionVisitor<Expression> optimizer = new ExpressionOptimizer(_context);
+            IExpressionVisitor<IExpression> optimizer = new ExpressionOptimizer(_context);
 
-            Expression parsedExpr = parser.Parse();
-            Expression optimizedExpr = optimizer.Visit(parsedExpr);
+            IExpression parsedExpr = parser.Parse();
+            IExpression optimizedExpr = optimizer.Visit(parsedExpr);
             string actual = optimizedExpr.ToString();
 
             Assert.AreNotEqual(expected, actual);

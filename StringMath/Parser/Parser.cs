@@ -3,12 +3,7 @@ using System.Collections.Generic;
 
 namespace StringMath
 {
-    internal interface IParser
-    {
-        IReadOnlyCollection<string> Variables { get; }
-        Expression Parse();
-    }
-
+    /// <summary>A simple parser.</summary>
     internal sealed class Parser : IParser
     {
         private readonly ITokenizer _tokenzier;
@@ -16,23 +11,28 @@ namespace StringMath
         private Token _currentToken;
         private readonly HashSet<string> _variables = new HashSet<string>(StringComparer.Ordinal);
 
+        /// <inheritdoc />
         public IReadOnlyCollection<string> Variables => _variables;
 
+        /// <summary>Initializes a new instance of a parser.</summary>
+        /// <param name="tokenizer">The tokenizer.</param>
+        /// <param name="mathContext">The math context.</param>
         public Parser(ITokenizer tokenizer, IMathContext mathContext)
         {
             _tokenzier = tokenizer;
             _mathContext = mathContext;
         }
 
-        public Expression Parse()
+        /// <inheritdoc />
+        public IExpression Parse()
         {
             _currentToken = _tokenzier.ReadToken();
-            Expression result = ParseBinaryExpression();
+            IExpression result = ParseBinaryExpression();
             Match(TokenType.EndOfCode);
             return result;
         }
 
-        private Expression ParseBinaryExpression(Expression? left = default, Precedence? parentPrecedence = default)
+        private IExpression ParseBinaryExpression(IExpression? left = default, Precedence? parentPrecedence = default)
         {
             if (left == default)
             {
@@ -75,7 +75,7 @@ namespace StringMath
             return left;
         }
 
-        public Expression ParsePrimaryExpression()
+        private IExpression ParsePrimaryExpression()
         {
             switch (_currentToken.Type)
             {
@@ -95,31 +95,31 @@ namespace StringMath
             }
         }
 
-        private Expression ParseGroupingExpression()
+        private IExpression ParseGroupingExpression()
         {
             Take();
 
-            Expression expr = ParseBinaryExpression();
+            IExpression expr = ParseBinaryExpression();
             Match(TokenType.CloseParen);
 
             return new GroupingExpression(expr);
         }
 
-        public Token Match(TokenType tokenType)
+        private Token Match(TokenType tokenType)
         {
             return _currentToken.Type == tokenType
                 ? Take()
                 : throw LangException.UnexpectedToken(_currentToken, tokenType);
         }
 
-        public Token Take()
+        private Token Take()
         {
             Token previous = _currentToken;
             _currentToken = _tokenzier.ReadToken();
             return previous;
         }
 
-        public bool IsEndOfStatement()
+        private bool IsEndOfStatement()
         {
             return _currentToken.Type == TokenType.EndOfCode;
         }

@@ -112,7 +112,7 @@ namespace StringMath
 
         private void ReadWhiteSpace(ISourceText stream)
         {
-            while (char.IsWhiteSpace(stream.Current) && stream.MoveNext()) ;
+            while (char.IsWhiteSpace(stream.Current) && stream.MoveNext()) { }
         }
     }
 }

@@ -27,7 +27,7 @@ namespace StringMath.Tests
             ITokenizer tokenizer = new Tokenizer(input);
             IParser parser = new Parser(tokenizer, _context);
 
-            Expression result = parser.Parse();
+            IExpression result = parser.Parse();
             string actual = result.ToString();
 
             Assert.AreEqual(expected, actual);
@@ -94,7 +94,7 @@ namespace StringMath.Tests
             ITokenizer tokenizer = new Tokenizer(input);
             IParser parser = new Parser(tokenizer, context);
 
-            Expression result = parser.Parse();
+            IExpression result = parser.Parse();
             string actual = result.ToString();
 
             Assert.AreEqual(expected, actual);
@@ -129,7 +129,7 @@ namespace StringMath.Tests
             ITokenizer tokenizer = new Tokenizer(expected);
             IParser parser = new Parser(tokenizer, _context);
 
-            Expression result = parser.Parse();
+            IExpression result = parser.Parse();
             string actual = result.ToString();
 
             Assert.IsInstanceOf<VariableExpression>(result);
@@ -169,7 +169,7 @@ namespace StringMath.Tests
             ITokenizer tokenizer = new Tokenizer(input);
             IParser parser = new Parser(tokenizer, _context);
 
-            Expression result = parser.Parse();
+            IExpression result = parser.Parse();
             string actual = result.ToString();
 
             Assert.IsInstanceOf<BinaryExpression>(result);
@@ -193,7 +193,7 @@ namespace StringMath.Tests
             ITokenizer tokenizer = new Tokenizer(input);
             IParser parser = new Parser(tokenizer, _context);
 
-            Expression result = parser.Parse();
+            IExpression result = parser.Parse();
             string actual = result.ToString();
 
             Assert.IsInstanceOf<UnaryExpression>(result);
@@ -223,7 +223,7 @@ namespace StringMath.Tests
             ITokenizer tokenizer = new Tokenizer(expected);
             IParser parser = new Parser(tokenizer, _context);
 
-            Expression result = parser.Parse();
+            IExpression result = parser.Parse();
             string actual = result.ToString();
 
             Assert.IsInstanceOf<ConstantExpression>(result);
@@ -260,7 +260,7 @@ namespace StringMath.Tests
             ITokenizer tokenizer = new Tokenizer(expected);
             IParser parser = new Parser(tokenizer, _context);
 
-            Expression result = parser.Parse();
+            IExpression result = parser.Parse();
             string actual = result.ToString();
 
             Assert.IsInstanceOf<GroupingExpression>(result);

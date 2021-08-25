@@ -3,7 +3,7 @@
 namespace StringMath
 {
     /// <inheritdoc />
-    public class Calculator : VariablesCollection, ICalculator
+    public sealed class Calculator : VariablesCollection, ICalculator
     {
         private readonly IMathContext _mathContext;
         private readonly IExpressionVisitor<ValueExpression> _evaluator;
