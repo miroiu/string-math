@@ -15,7 +15,7 @@ namespace StringMath.Tests
 
             _calculator.AddOperator("abs", a => a > 0 ? a : -a);
             _calculator.AddOperator("x", (a, b) => a * b);
-            _calculator.AddOperator("<<", (a, b) => Math.ScaleB(a, (int)b));
+            _calculator.AddOperator("<<", (a, b) => a * Math.Pow(2, (int)b));
             _calculator.AddOperator("<>", (a, b) => double.Parse($"{a}{b}"), Precedence.Prefix);
             _calculator.AddOperator("e", (a, b) => double.Parse($"{a}e{b}"), Precedence.Power);
             _calculator.AddOperator("sind", a => Math.Sin(a * (Math.PI / 180)));

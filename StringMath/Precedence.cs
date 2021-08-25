@@ -60,7 +60,7 @@ namespace StringMath
         }
 
         /// <inheritdoc />
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             return obj is Precedence && Equals(obj);
         }
