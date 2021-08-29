@@ -47,9 +47,9 @@ double result2 = myCalculator.Evaluate(op); // 6
 
 ### Using the static api: SMath
 ```csharp
-// Same API as a calculator instance except the Evaluate method
+// Same API as a calculator instance
 double result = SMath.Evaluate("1 + 1"); // 2
-SMath.SetValues(new VariablesCollection { ["myVar"] = 1 });
+SMath.SetValue("myVar", 1);
 double result = SMath.Evaluate("1 + {myVar}", ); // 2
 ```
 
