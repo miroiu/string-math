@@ -15,9 +15,10 @@ namespace StringMath.Tests
         [TestCase("5!", new[] { TokenType.Number, TokenType.Exclamation })]
         public void ReadToken(string input, TokenType[] expected)
         {
-            IEnumerable<TokenType> expectedTokens = expected.Append(TokenType.EndOfCode);
-            IEnumerable<TokenType> actualTokens = input.ReadAllTokens().Select(t => t.Type);
-            Assert.That(actualTokens, Is.EquivalentTo(expectedTokens));
+            IEnumerable<TokenType> actualTokens = input.ReadAllTokens()
+                .Where(token => token.Type != TokenType.EndOfCode)
+                .Select(t => t.Type);
+            Assert.That(actualTokens, Is.EquivalentTo(expected));
         }
 
         [Test]

@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.1;netcoreapp3.1;net48;net472</TargetFrameworks>
+    <TargetFrameworks>netstandard2.1;netcoreapp3.1;net48;net472;net461</TargetFrameworks>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Authors>Miroiu Emanuel</Authors>
     <Company />
@@ -12,22 +12,32 @@ Supports variables, user defined operators and reusable operations.</Description
     <PackageProjectUrl>https://github.com/miroiu/string-math</PackageProjectUrl>
     <RepositoryUrl>https://github.com/miroiu/string-math</RepositoryUrl>
     <PackageTags>expression-evaluator calculator string-math math string-calculator user-defined-operators operators custom-operators</PackageTags>
-    <Version>3.0.1</Version>
-    <PackageReleaseNotes>Added multi-targeting and signed the assembly.</PackageReleaseNotes>
-    <AssemblyVersion>3.0.1.0</AssemblyVersion>
+    <Version>3.0.2</Version>
+    <PackageReleaseNotes>Added support for .NET 4.6.1</PackageReleaseNotes>
+    <AssemblyVersion>3.0.2.0</AssemblyVersion>
     <PackageLicenseFile></PackageLicenseFile>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <Nullable>enable</Nullable>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>../build/string-math.snk</AssemblyOriginatorKeyFile>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <RepositoryType>git</RepositoryType>
   </PropertyGroup>
   
   <PropertyGroup Condition="'$(TargetFramework)'=='net472' OR '$(TargetFramework)'=='net48'">
     <LangVersion>8.0</LangVersion>
   </PropertyGroup>
+  
+  <PropertyGroup Condition="'$(TargetFramework)'=='net461'">
+    <LangVersion>preview</LangVersion>
+  </PropertyGroup>
 
   <ItemGroup>
     <None Include="..\.editorconfig" Link=".editorconfig" />
+    <None Include="..\README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>
