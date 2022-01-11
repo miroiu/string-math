@@ -6,25 +6,25 @@ namespace StringMath
     public readonly struct Precedence : IEquatable<Precedence>
     {
         /// <summary>The lowest precedence value.</summary>
-        public static readonly Precedence None = new Precedence(int.MinValue);
+        public static readonly Precedence None = new(int.MinValue);
 
         /// <summary>Addition precedence (0).</summary>
-        public static readonly Precedence Addition = new Precedence(0);
+        public static readonly Precedence Addition = new(0);
 
         /// <summary>Multiplication precedence (1).</summary>
-        public static readonly Precedence Multiplication = new Precedence(1);
+        public static readonly Precedence Multiplication = new(1);
 
         /// <summary>Power precedence (2).</summary>
-        public static readonly Precedence Power = new Precedence(2);
+        public static readonly Precedence Power = new(2);
 
         /// <summary>Logarithmic precedence (3).</summary>
-        public static readonly Precedence Logarithmic = new Precedence(3);
+        public static readonly Precedence Logarithmic = new(3);
 
         /// <summary>User defined precedence (4).</summary>
-        public static readonly Precedence UserDefined = new Precedence(4);
+        public static readonly Precedence UserDefined = new(4);
 
         /// <summary>The highest precedence value.</summary>
-        public static readonly Precedence Prefix = new Precedence(int.MaxValue);
+        public static readonly Precedence Prefix = new(int.MaxValue);
 
         private readonly int _value;
 

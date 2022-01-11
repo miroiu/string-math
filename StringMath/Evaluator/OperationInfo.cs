@@ -1,9 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace StringMath
 {
     /// <summary>An optimized and cached math expression.</summary>
-    public sealed class OperationInfo
+    public sealed class OperationInfo<TNum> where TNum : INumber<TNum>
     {
         /// <summary>Initializez a new instance of an operation info.</summary>
         /// <param name="root">The optimized expression tree.</param>
@@ -29,15 +30,15 @@ namespace StringMath
         /// <param name="expression">The math expression.</param>
         /// <param name="context">The math context.</param>
         /// <returns>An operation info.</returns>
-        internal static OperationInfo Create(string expression, IMathContext context)
+        internal static OperationInfo<TNum> Create(string expression, IMathContext<TNum> context)
         {
             ITokenizer tokenizer = new Tokenizer(expression);
             IParser parser = new Parser(tokenizer, context);
-            IExpressionVisitor<IExpression> optimizer = new ExpressionOptimizer(context);
+            IExpressionVisitor<IExpression> optimizer = new ExpressionOptimizer<TNum>(context);
             IExpression root = parser.Parse();
             IExpression optimized = optimizer.Visit(root);
 
-            return new OperationInfo(optimized, expression, parser.Variables);
+            return new OperationInfo<TNum>(optimized, expression, parser.Variables);
         }
     }
 }

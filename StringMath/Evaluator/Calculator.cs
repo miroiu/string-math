@@ -3,35 +3,35 @@
 namespace StringMath
 {
     /// <inheritdoc />
-    public sealed class Calculator : VariablesCollection, ICalculator
+    public sealed class Calculator<TNum> : VariablesCollection<TNum>, ICalculator<TNum> where TNum : INumber<TNum>
     {
-        private readonly IMathContext _mathContext;
-        private readonly IExpressionVisitor<ValueExpression> _evaluator;
+        private readonly IMathContext<TNum> _mathContext;
+        private readonly IExpressionVisitor<ValueExpression<TNum>> _evaluator;
 
-        /// <summary>Create an instance of a <see cref="Calculator"/> which has it's own operators and variables.</summary>
+        /// <summary>Create an instance of a <see cref="Calculator{TNum}"/> which has it's own operators and variables.</summary>
         /// <param name="variables">A collection of variables.</param>
-        public Calculator(IVariablesCollection? variables = default) : this(new MathContext(), variables)
+        public Calculator(IVariablesCollection<TNum>? variables = default) : this(new MathContext<TNum>(), variables)
         {
         }
 
-        /// <summary>Create an instance of a <see cref="Calculator"/> which has it's own operators and variables.</summary>
+        /// <summary>Create an instance of a <see cref="Calculator{TNum}"/> which has it's own operators and variables.</summary>
         /// <param name="context">The math context.</param>
         /// <param name="variables">A collection of variables.</param>
-        public Calculator(IMathContext context, IVariablesCollection? variables = default)
+        public Calculator(IMathContext<TNum> context, IVariablesCollection<TNum>? variables = default)
         {
             context.EnsureNotNull(nameof(context));
 
             _mathContext = context;
-            _evaluator = new ExpressionEvaluator(_mathContext, this);
+            _evaluator = new ExpressionEvaluator<TNum>(_mathContext, this);
 
-            this["PI"] = Math.PI;
-            this["E"] = Math.E;
+            this["PI"] = TNum.Create(Math.PI);
+            this["E"] = TNum.Create(Math.E);
 
             variables?.CopyTo(this);
         }
 
         /// <inheritdoc />
-        public void AddOperator(string operatorName, Func<double, double, double> operation, Precedence? precedence = default)
+        public void AddOperator(string operatorName, Func<TNum, TNum, TNum> operation, Precedence? precedence = default)
         {
             operatorName.EnsureNotNull(nameof(operatorName));
             operation.EnsureNotNull(nameof(operation));
@@ -40,7 +40,7 @@ namespace StringMath
         }
 
         /// <inheritdoc />
-        public void AddOperator(string operatorName, Func<double, double> operation)
+        public void AddOperator(string operatorName, Func<TNum, TNum> operation)
         {
             operatorName.EnsureNotNull(nameof(operatorName));
             operation.EnsureNotNull(nameof(operation));
@@ -49,32 +49,32 @@ namespace StringMath
         }
 
         /// <inheritdoc />
-        public double Evaluate(string expression)
+        public TNum Evaluate(string expression)
         {
             expression.EnsureNotNull(nameof(expression));
 
             ITokenizer tokenizer = new Tokenizer(expression);
             IParser parse = new Parser(tokenizer, _mathContext);
 
-            ValueExpression resultExpr = _evaluator.Visit(parse.Parse());
+            ValueExpression<TNum> resultExpr = _evaluator.Visit(parse.Parse());
             return resultExpr.Value;
         }
 
         /// <inheritdoc />
-        public double Evaluate(OperationInfo operation)
+        public TNum Evaluate(OperationInfo<TNum> operation)
         {
             operation.EnsureNotNull(nameof(operation));
 
-            ValueExpression resultExpr = _evaluator.Visit(operation.Root);
+            ValueExpression<TNum> resultExpr = _evaluator.Visit(operation.Root);
             return resultExpr.Value;
         }
 
         /// <inheritdoc />
-        public OperationInfo CreateOperation(string expression)
+        public OperationInfo<TNum> CreateOperation(string expression)
         {
             expression.EnsureNotNull(nameof(expression));
 
-            return OperationInfo.Create(expression, _mathContext);
+            return OperationInfo<TNum>.Create(expression, _mathContext);
         }
     }
 }

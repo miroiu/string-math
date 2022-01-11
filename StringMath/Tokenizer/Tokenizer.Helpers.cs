@@ -8,7 +8,7 @@ namespace StringMath
         {
             const char identifierTerminator = '}';
 
-            StringBuilder builder = new StringBuilder("{", 12);
+            StringBuilder builder = new("{", 12);
             stream.MoveNext();
 
             if (char.IsLetter(stream.Current) || stream.Current == '_')
@@ -18,7 +18,7 @@ namespace StringMath
             }
             else
             {
-                Token token = new Token(TokenType.Unknown, stream.Current.ToString(), stream.Position);
+                Token token = new(TokenType.Unknown, stream.Current.ToString(), stream.Position);
                 throw LangException.UnexpectedToken(token, TokenType.Identifier);
             }
 
@@ -31,7 +31,7 @@ namespace StringMath
                 }
                 else
                 {
-                    Token token = new Token(TokenType.Unknown, stream.Current.ToString(), stream.Position);
+                    Token token = new(TokenType.Unknown, stream.Current.ToString(), stream.Position);
                     throw LangException.UnexpectedToken(token, identifierTerminator);
                 }
             }
@@ -42,7 +42,7 @@ namespace StringMath
 
             if (text.Length == 2)
             {
-                Token token = new Token(TokenType.Unknown, identifierTerminator.ToString(), stream.Position - 1);
+                Token token = new(TokenType.Unknown, identifierTerminator.ToString(), stream.Position - 1);
                 throw LangException.UnexpectedToken(token, identifierTerminator);
             }
 
@@ -51,7 +51,7 @@ namespace StringMath
 
         private string ReadOperator(ISourceText stream)
         {
-            StringBuilder builder = new StringBuilder(3);
+            StringBuilder builder = new(3);
 
             while (!char.IsWhiteSpace(stream.Current) && !_invalidOperatorCharacters.Contains(stream.Current))
             {
@@ -64,7 +64,7 @@ namespace StringMath
 
         private string ReadNumber(ISourceText stream)
         {
-            StringBuilder builder = new StringBuilder(8);
+            StringBuilder builder = new(8);
             bool hasDot = false;
 
             while (true)
@@ -80,7 +80,7 @@ namespace StringMath
                     }
                     else
                     {
-                        Token token = new Token(TokenType.Unknown, stream.Current.ToString(), stream.Position);
+                        Token token = new(TokenType.Unknown, stream.Current.ToString(), stream.Position);
                         throw LangException.UnexpectedToken(token, TokenType.Number);
                     }
                 }
@@ -99,7 +99,7 @@ namespace StringMath
 
             if (peeked == '.')
             {
-                Token token = new Token(TokenType.Unknown, peeked.ToString(), stream.Position);
+                Token token = new(TokenType.Unknown, peeked.ToString(), stream.Position);
                 throw LangException.UnexpectedToken(token, TokenType.Number);
             }
 

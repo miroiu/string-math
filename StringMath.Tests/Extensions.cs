@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace StringMath.Tests
 {
@@ -7,7 +8,7 @@ namespace StringMath.Tests
         public static List<Token> ReadAllTokens(this string input)
         {
             ITokenizer tokenizer = new Tokenizer(input);
-            List<Token> tokens = new List<Token>();
+            List<Token> tokens = new();
 
             Token t;
             do
@@ -20,7 +21,7 @@ namespace StringMath.Tests
             return tokens;
         }
 
-        public static IReadOnlyCollection<string> GetVariables(this string input, IMathContext context)
+        public static IReadOnlyCollection<string> GetVariables<TNum>(this string input, IMathContext<TNum> context) where TNum : INumber<TNum>
         {
             ITokenizer tokenzier = new Tokenizer(input);
             IParser parser = new Parser(tokenzier, context);

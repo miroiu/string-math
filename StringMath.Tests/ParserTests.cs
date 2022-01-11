@@ -1,16 +1,17 @@
 using NUnit.Framework;
+using System;
 
 namespace StringMath.Tests
 {
     [TestFixture]
     internal class ParserTests
     {
-        private IMathContext _context;
+        private IMathContext<double> _context;
 
         [OneTimeSetUp]
         public void Setup()
         {
-            _context = new MathContext();
+            _context = new MathContext<double>();
         }
 
         [Test]
@@ -80,14 +81,14 @@ namespace StringMath.Tests
         {
             Assert.That(input.GetVariables(_context), Is.EquivalentTo(expected));
         }
-        
+
         [Test]
         [TestCase("{a} pow 3", "{a} pow 3")]
         [TestCase("rand (3 + 5)", "rand(3 + 5)")]
         [TestCase("rand (3 pow 5)", "rand(3 pow 5)")]
         public void ParseExpression_CustomOperators(string input, string expected)
         {
-            MathContext context = new MathContext();
+            MathContext<double> context = new();
             context.RegisterBinary("pow", default);
             context.RegisterUnary("rand", default);
 
@@ -99,17 +100,17 @@ namespace StringMath.Tests
 
             Assert.AreEqual(expected, actual);
         }
-        
+
         [Test]
         [TestCase("{a} pow 3")]
         [TestCase("rand 3")]
         public void ParseExpression_CustomOperators_Exception(string expected)
         {
-            MathContext context = new MathContext();
+            MathContext<double> context = new();
 
             ITokenizer tokenizer = new Tokenizer(expected);
             IParser parser = new Parser(tokenizer, context);
-            
+
             LangException exception = Assert.Throws<LangException>(() => parser.Parse());
             Assert.AreEqual(LangException.ErrorCode.UNEXPECTED_TOKEN, exception.ErrorType);
         }

@@ -8,7 +8,7 @@ namespace StringMath
         private readonly ISourceText _text;
 
         // Excluded characters for custom operators
-        private readonly HashSet<char> _invalidOperatorCharacters = new HashSet<char>
+        private readonly HashSet<char> _invalidOperatorCharacters = new()
         {
             '(', ')', '{', '}', '!', '.', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '\0'
         };

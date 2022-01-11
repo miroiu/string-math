@@ -13,7 +13,7 @@
         VariableExpression,
         /// <summary><see cref="StringMath.ConstantExpression"/>.</summary>
         ConstantExpression,
-        /// <summary><see cref="StringMath.ValueExpression"/>.</summary>
+        /// <summary><see cref="StringMath.ValueExpression{TNum}"/>.</summary>
         ValueExpression,
     }
 }

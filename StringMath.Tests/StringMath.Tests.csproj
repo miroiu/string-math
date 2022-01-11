@@ -1,7 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp3.1;net48;net472;net461</TargetFrameworks>
+    <TargetFrameworks>net6.0</TargetFrameworks>
+	<EnablePreviewFeatures>true</EnablePreviewFeatures>
 
     <IsPackable>false</IsPackable>
 

@@ -7,20 +7,20 @@ namespace StringMath
     internal sealed class Parser : IParser
     {
         private readonly ITokenizer _tokenzier;
-        private readonly IMathContext _mathContext;
+        private readonly IOperatorRegistry _opRegistry;
         private Token _currentToken;
-        private readonly HashSet<string> _variables = new HashSet<string>(StringComparer.Ordinal);
+        private readonly HashSet<string> _variables = new(StringComparer.Ordinal);
 
         /// <inheritdoc />
         public IReadOnlyCollection<string> Variables => _variables;
 
         /// <summary>Initializes a new instance of a parser.</summary>
         /// <param name="tokenizer">The tokenizer.</param>
-        /// <param name="mathContext">The math context.</param>
-        public Parser(ITokenizer tokenizer, IMathContext mathContext)
+        /// <param name="opRegistry">The operator registry.</param>
+        public Parser(ITokenizer tokenizer, IOperatorRegistry opRegistry)
         {
             _tokenzier = tokenizer;
-            _mathContext = mathContext;
+            _opRegistry = opRegistry;
         }
 
         /// <inheritdoc />
@@ -36,7 +36,7 @@ namespace StringMath
         {
             if (left == default)
             {
-                if (_mathContext.IsUnary(_currentToken.Text))
+                if (_opRegistry.IsUnary(_currentToken.Text))
                 {
                     Token operatorToken = Take();
                     left = new UnaryExpression(operatorToken.Text, ParseBinaryExpression(left, Precedence.Prefix));
@@ -55,9 +55,9 @@ namespace StringMath
 
             while (!IsEndOfStatement())
             {
-                if (_mathContext.IsBinary(_currentToken.Text))
+                if (_opRegistry.IsBinary(_currentToken.Text))
                 {
-                    Precedence precedence = _mathContext.GetBinaryPrecedence(_currentToken.Text);
+                    Precedence precedence = _opRegistry.GetBinaryPrecedence(_currentToken.Text);
                     if (parentPrecedence >= precedence)
                     {
                         return left;
@@ -83,7 +83,7 @@ namespace StringMath
                     return new ConstantExpression(Take().Text);
 
                 case TokenType.Identifier:
-                    VariableExpression rep = new VariableExpression(Take().Text);
+                    VariableExpression rep = new(Take().Text);
                     _variables.Add(rep.Name);
                     return rep;
 

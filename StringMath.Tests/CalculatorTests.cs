@@ -6,12 +6,12 @@ namespace StringMath.Tests
     [TestFixture]
     internal class CalculatorTests
     {
-        private ICalculator _calculator;
+        private ICalculator<double> _calculator;
 
         [SetUp]
         public void Setup()
         {
-            _calculator = new Calculator();
+            _calculator = new Calculator<double>();
 
             _calculator.AddOperator("abs", a => a > 0 ? a : -a);
             _calculator.AddOperator("x", (a, b) => a * b);
@@ -80,7 +80,7 @@ namespace StringMath.Tests
         {
             _calculator.SetValue("a", repl);
 
-            OperationInfo op = _calculator.CreateOperation(input);
+            OperationInfo<double> op = _calculator.CreateOperation(input);
 
             Assert.That(op.Variables, Is.EquivalentTo(new[] { "a" }));
             Assert.AreEqual(input, op.Expression);
@@ -101,7 +101,7 @@ namespace StringMath.Tests
         [TestCase("-3 <> 2", -32)]
         public void Evaluate_CachedOperation_Without_Variables(string input, double expected)
         {
-            OperationInfo op = _calculator.CreateOperation(input);
+            OperationInfo<double> op = _calculator.CreateOperation(input);
             Assert.AreEqual(input, op.Expression);
 
             Assert.AreEqual(expected, _calculator.Evaluate(input));
@@ -116,12 +116,12 @@ namespace StringMath.Tests
         [TestCase("({a})", 3, 3)]
         public void Evaluate_Static_API(string input, double variable, double expected)
         {
-            SMath.SetValues(new VariablesCollection
+            SMath<double>.SetValues(new VariablesCollection<double>
             {
                 ["b"] = 2,
                 ["a"] = variable
             });
-            Assert.AreEqual(expected, SMath.Evaluate(input));
+            Assert.AreEqual(expected, SMath<double>.Evaluate(input));
         }
 
         [Test]

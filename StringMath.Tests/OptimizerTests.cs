@@ -5,12 +5,12 @@ namespace StringMath.Tests
     [TestFixture]
     internal class OptimizerTests
     {
-        private IMathContext _context;
+        private IMathContext<double> _context;
 
         [OneTimeSetUp]
         public void Setup()
         {
-            _context = new MathContext();
+            _context = new MathContext<double>();
         }
 
         [Test]
@@ -27,7 +27,7 @@ namespace StringMath.Tests
         {
             ITokenizer tokenizer = new Tokenizer(input);
             IParser parser = new Parser(tokenizer, _context);
-            IExpressionVisitor<IExpression> optimizer = new ExpressionOptimizer(_context);
+            IExpressionVisitor<IExpression> optimizer = new ExpressionOptimizer<double>(_context);
 
             IExpression parsedExpr = parser.Parse();
             IExpression optimizedExpr = optimizer.Visit(parsedExpr);
@@ -45,7 +45,7 @@ namespace StringMath.Tests
         {
             ITokenizer tokenizer = new Tokenizer(input);
             IParser parser = new Parser(tokenizer, _context);
-            IExpressionVisitor<IExpression> optimizer = new ExpressionOptimizer(_context);
+            IExpressionVisitor<IExpression> optimizer = new ExpressionOptimizer<double>(_context);
 
             IExpression parsedExpr = parser.Parse();
             IExpression optimizedExpr = optimizer.Visit(parsedExpr);

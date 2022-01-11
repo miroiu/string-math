@@ -4,14 +4,14 @@ using System.Collections.Generic;
 namespace StringMath
 {
     /// <inheritdoc />
-    internal class ExpressionOptimizer : IExpressionVisitor<IExpression>
+    internal class ExpressionOptimizer<TNum> : IExpressionVisitor<IExpression> where TNum : INumber<TNum>
     {
         private readonly Dictionary<ExpressionType, Func<IExpression, IExpression>> _expressionOptimizers;
-        private readonly IMathContext _context;
+        private readonly IMathContext<TNum> _context;
 
         /// <summary>Initializez a new instance of an expression optimizer.</summary>
         /// <param name="mathContext">The math context used to evaluate expressions.</param>
-        public ExpressionOptimizer(IMathContext mathContext)
+        public ExpressionOptimizer(IMathContext<TNum> mathContext)
         {
             mathContext.EnsureNotNull(nameof(mathContext));
             _context = mathContext;
@@ -26,7 +26,7 @@ namespace StringMath
                 [ExpressionType.ValueExpression] = SkipExpressionOptimization
             };
         }
-        
+
         /// <summary>Simplifies an expression tree by removing unnecessary nodes and evaluating constant expressions.</summary>
         /// <param name="expression">The expression tree to optimize.</param>
         /// <returns>An optimized expression tree.</returns>
@@ -39,7 +39,7 @@ namespace StringMath
         private IExpression OptimizeConstantExpression(IExpression expr)
         {
             ConstantExpression constantExpr = (ConstantExpression)expr;
-            return constantExpr.ToValueExpression();
+            return constantExpr.ToValueExpression<TNum>();
         }
 
         private IExpression OptimizeGroupingExpression(IExpression expr)
@@ -53,10 +53,10 @@ namespace StringMath
         {
             UnaryExpression unaryExpr = (UnaryExpression)expr;
             IExpression operandExpr = Visit(unaryExpr.Operand);
-            if (operandExpr is ValueExpression valueExpr)
+            if (operandExpr is ValueExpression<TNum> valueExpr)
             {
-                double result = _context.EvaluateUnary(unaryExpr.OperatorName, valueExpr.Value);
-                return new ValueExpression(result);
+                TNum result = _context.EvaluateUnary(unaryExpr.OperatorName, valueExpr.Value);
+                return new ValueExpression<TNum>(result);
             }
 
             return new UnaryExpression(unaryExpr.OperatorName, operandExpr);
@@ -68,10 +68,10 @@ namespace StringMath
             IExpression leftExpr = Visit(binaryExpr.Left);
             IExpression rightExpr = Visit(binaryExpr.Right);
 
-            if (leftExpr is ValueExpression leftValue && rightExpr is ValueExpression rightValue)
+            if (leftExpr is ValueExpression<TNum> leftValue && rightExpr is ValueExpression<TNum> rightValue)
             {
-                double result = _context.EvaluateBinary(binaryExpr.OperatorName, leftValue.Value, rightValue.Value);
-                return new ValueExpression(result);
+                TNum result = _context.EvaluateBinary(binaryExpr.OperatorName, leftValue.Value, rightValue.Value);
+                return new ValueExpression<TNum>(result);
             }
 
             return new BinaryExpression(leftExpr, binaryExpr.OperatorName, rightExpr);
