@@ -68,8 +68,8 @@ namespace StringMath.Tests
             ITokenizer tokenizer = new Tokenizer(input);
             IParser parser = new Parser(tokenizer, _context);
 
-            LangException exception = Assert.Throws<LangException>(() => parser.Parse());
-            Assert.AreEqual(LangException.ErrorCode.UNEXPECTED_TOKEN, exception.ErrorType);
+            MathException exception = Assert.Throws<MathException>(() => parser.Parse());
+            Assert.AreEqual(MathException.ErrorCode.UNEXPECTED_TOKEN, exception.Code);
         }
 
         [Test]
@@ -80,7 +80,7 @@ namespace StringMath.Tests
         {
             Assert.That(input.GetVariables(_context), Is.EquivalentTo(expected));
         }
-        
+
         [Test]
         [TestCase("{a} pow 3", "{a} pow 3")]
         [TestCase("rand (3 + 5)", "rand(3 + 5)")]
@@ -88,8 +88,8 @@ namespace StringMath.Tests
         public void ParseExpression_CustomOperators(string input, string expected)
         {
             MathContext context = new MathContext();
-            context.RegisterBinary("pow", default);
-            context.RegisterUnary("rand", default);
+            context.RegisterBinary("pow", (a, b) => a);
+            context.RegisterUnary("rand", (a) => a);
 
             ITokenizer tokenizer = new Tokenizer(input);
             IParser parser = new Parser(tokenizer, context);
@@ -99,7 +99,7 @@ namespace StringMath.Tests
 
             Assert.AreEqual(expected, actual);
         }
-        
+
         [Test]
         [TestCase("{a} pow 3")]
         [TestCase("rand 3")]
@@ -109,9 +109,9 @@ namespace StringMath.Tests
 
             ITokenizer tokenizer = new Tokenizer(expected);
             IParser parser = new Parser(tokenizer, context);
-            
-            LangException exception = Assert.Throws<LangException>(() => parser.Parse());
-            Assert.AreEqual(LangException.ErrorCode.UNEXPECTED_TOKEN, exception.ErrorType);
+
+            MathException exception = Assert.Throws<MathException>(() => parser.Parse());
+            Assert.AreEqual(MathException.ErrorCode.UNEXPECTED_TOKEN, exception.Code);
         }
 
         [Test]
@@ -149,8 +149,8 @@ namespace StringMath.Tests
             ITokenizer tokenizer = new Tokenizer(expected);
             IParser parser = new Parser(tokenizer, _context);
 
-            LangException exception = Assert.Throws<LangException>(() => parser.Parse());
-            Assert.AreEqual(LangException.ErrorCode.UNEXPECTED_TOKEN, exception.ErrorType);
+            MathException exception = Assert.Throws<MathException>(() => parser.Parse());
+            Assert.AreEqual(MathException.ErrorCode.UNEXPECTED_TOKEN, exception.Code);
         }
 
         [Test]
@@ -209,8 +209,8 @@ namespace StringMath.Tests
             ITokenizer tokenizer = new Tokenizer(input);
             IParser parser = new Parser(tokenizer, _context);
 
-            LangException exception = Assert.Throws<LangException>(() => parser.Parse());
-            Assert.AreEqual(LangException.ErrorCode.UNEXPECTED_TOKEN, exception.ErrorType);
+            MathException exception = Assert.Throws<MathException>(() => parser.Parse());
+            Assert.AreEqual(MathException.ErrorCode.UNEXPECTED_TOKEN, exception.Code);
         }
 
         [Test]
@@ -241,8 +241,8 @@ namespace StringMath.Tests
             ITokenizer tokenizer = new Tokenizer(expected);
             IParser parser = new Parser(tokenizer, _context);
 
-            LangException exception = Assert.Throws<LangException>(() => parser.Parse());
-            Assert.AreEqual(LangException.ErrorCode.UNEXPECTED_TOKEN, exception.ErrorType);
+            MathException exception = Assert.Throws<MathException>(() => parser.Parse());
+            Assert.AreEqual(MathException.ErrorCode.UNEXPECTED_TOKEN, exception.Code);
         }
 
         [Test]
@@ -282,8 +282,8 @@ namespace StringMath.Tests
             ITokenizer tokenizer = new Tokenizer(expected);
             IParser parser = new Parser(tokenizer, _context);
 
-            LangException exception = Assert.Throws<LangException>(() => parser.Parse());
-            Assert.AreEqual(LangException.ErrorCode.UNEXPECTED_TOKEN, exception.ErrorType);
+            MathException exception = Assert.Throws<MathException>(() => parser.Parse());
+            Assert.AreEqual(MathException.ErrorCode.UNEXPECTED_TOKEN, exception.Code);
         }
     }
 }

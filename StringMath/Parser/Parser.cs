@@ -91,7 +91,7 @@ namespace StringMath
                     return ParseGroupingExpression();
 
                 default:
-                    throw LangException.UnexpectedToken(_currentToken);
+                    throw MathException.UnexpectedToken(_currentToken);
             }
         }
 
@@ -109,7 +109,7 @@ namespace StringMath
         {
             return _currentToken.Type == tokenType
                 ? Take()
-                : throw LangException.UnexpectedToken(_currentToken, tokenType);
+                : throw MathException.UnexpectedToken(_currentToken, tokenType);
         }
 
         private Token Take()

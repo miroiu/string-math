@@ -83,7 +83,7 @@ namespace StringMath
             VariableExpression variableExpr = (VariableExpression)expr;
             return _variables.TryGetValue(variableExpr.Name, out double value)
                 ? new ValueExpression(value)
-                : throw LangException.UnassignedVariable(variableExpr);
+                : throw MathException.UnassignedVariable(variableExpr);
         }
     }
 }

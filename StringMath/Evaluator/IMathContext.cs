@@ -5,6 +5,9 @@ namespace StringMath
     /// <summary>Contract for math context.</summary>
     public interface IMathContext
     {
+        /// <summary>The parent math context to inherit operators from.</summary>
+        IMathContext? Parent { get; }
+
         /// <summary>Registers a binary operator implementation.</summary>
         /// <param name="operatorName">The name of the operator.</param>
         /// <param name="operation">The implementation of the operator.</param>

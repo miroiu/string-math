@@ -6,19 +6,128 @@ namespace StringMath.Tests
     [TestFixture]
     internal class CalculatorTests
     {
-        private ICalculator _calculator;
-
         [SetUp]
         public void Setup()
         {
-            _calculator = new Calculator();
+            MathExpr.AddOperator("abs", a => a > 0 ? a : -a);
+            MathExpr.AddOperator("x", (a, b) => a * b);
+            MathExpr.AddOperator("<<", (a, b) => a * Math.Pow(2, (int)b));
+            MathExpr.AddOperator("<>", (a, b) => double.Parse($"{a}{b}"), Precedence.Prefix);
+            MathExpr.AddOperator("e", (a, b) => double.Parse($"{a}e{b}"), Precedence.Power);
+            MathExpr.AddOperator("sind", a => Math.Sin(a * (Math.PI / 180)));
+        }
 
-            _calculator.AddOperator("abs", a => a > 0 ? a : -a);
-            _calculator.AddOperator("x", (a, b) => a * b);
-            _calculator.AddOperator("<<", (a, b) => a * Math.Pow(2, (int)b));
-            _calculator.AddOperator("<>", (a, b) => double.Parse($"{a}{b}"), Precedence.Prefix);
-            _calculator.AddOperator("e", (a, b) => double.Parse($"{a}e{b}"), Precedence.Power);
-            _calculator.AddOperator("sind", a => Math.Sin(a * (Math.PI / 180)));
+        [Test]
+        public void Substitute_Should_Not_Overwrite_Global_Variable()
+        {
+            MathExpr.AddVariable("PI", Math.PI);
+            MathExpr expr = "3 + {PI}";
+
+            MathException ex = Assert.Throws<MathException>(() => expr.Substitute("PI", 1));
+            Assert.AreEqual(ex.Code, MathException.ErrorCode.READONLY_VARIABLE);
+        }
+
+        [Test]
+        public void Substitute_Should_Not_Set_Missing_Variable()
+        {
+            MathExpr expr = "3 + 2";
+
+            MathException ex = Assert.Throws<MathException>(() => expr.Substitute("a", 1));
+            Assert.AreEqual(ex.Code, MathException.ErrorCode.UNEXISTING_VARIABLE);
+        }
+
+        [Test]
+        public void Substitute_Should_Set_Local_Variable()
+        {
+            MathExpr expr = "3 + {a}";
+            expr.Substitute("a", 1);
+
+            Assert.AreEqual(4, expr.Result);
+        }
+
+        [Test]
+        public void Substitute_Should_Clear_Cache()
+        {
+            MathExpr expr = "{a} + 3";
+            expr.Substitute("a", 3);
+
+            Assert.AreEqual(6, expr.Result);
+
+            expr.Substitute("a", 2);
+            Assert.AreEqual(5, expr.Result);
+        }
+
+        [Test]
+        public void Indexer_Should_Set_Local_Variable()
+        {
+            MathExpr expr = "3 + {a} + {b}";
+            expr["a"] = 1;
+            expr["b"] = 2;
+
+            Assert.AreEqual(6, expr.Result);
+        }
+
+        [Test]
+        public void Double_Conversion_Should_Evaluate_Expression()
+        {
+            double result = (MathExpr)"3 + 5";
+
+            Assert.AreEqual(8, result);
+        }
+
+        [Test]
+        public void Variables_Should_Exclude_Global_Variables()
+        {
+            MathExpr.AddVariable("PI", Math.PI);
+            MathExpr expr = "3 + {a} + {PI}";
+
+            Assert.AreEqual(new string[] { "a" }, expr.Variables);
+        }
+
+        [Test]
+        public void SetOperator_Binary_Should_Overwrite_Specified_Operator()
+        {
+            MathExpr.AddOperator("*", (x, y) => x * y);
+            MathExpr expr = "5 * 3";
+            expr.SetOperator("*", (x, y) => x);
+
+            Assert.AreEqual(5, expr.Result);
+        }
+
+        [Test]
+        public void SetOperator_Binary_Should_Not_Overwrite_Global_Operator()
+        {
+            MathExpr.AddOperator("*", (x, y) => x * y);
+            MathExpr expr = "5 * 3";
+            expr.SetOperator("*", (x, y) => x);
+
+            MathExpr expr2 = "4 * 3";
+
+            Assert.AreEqual(5, expr.Result);
+            Assert.AreEqual(12, expr2.Result);
+        }
+
+        [Test]
+        public void SetOperator_Unary_Should_Overwrite_Specified_Operator()
+        {
+            MathExpr.AddOperator(">>", (x) => x * x);
+            MathExpr expr = ">> 5";
+            expr.SetOperator(">>", (x) => x);
+
+            Assert.AreEqual(5, expr.Result);
+        }
+
+        [Test]
+        public void SetOperator_Unary_Should_Not_Overwrite_Global_Operator()
+        {
+            MathExpr.AddOperator("-", (x) => -x);
+            MathExpr expr = "-5";
+            expr.SetOperator("-", (x) => x);
+
+            MathExpr expr2 = "-5";
+
+            Assert.AreEqual(5, expr.Result);
+            Assert.AreEqual(-5, expr2.Result);
         }
 
         [Test]
@@ -33,23 +142,39 @@ namespace StringMath.Tests
         [TestCase("((1 + 1) + ((1 + 1) + (((1) + 1)) + 1))", 7)]
         public void Evaluate(string input, double expected)
         {
-            Assert.AreEqual(expected, _calculator.Evaluate(input));
+            MathExpr expr = input;
+            Assert.AreEqual(expected, expr.Result);
+        }
+
+        [TestCase("{b}+3*{a}", 3, 2, 11)]
+        public void Evaluate(string input, double a, double b, double expected)
+        {
+            MathExpr expr = input;
+            expr["a"] = a;
+            expr["b"] = b;
+
+            Assert.AreEqual(expected, expr.Result);
+        }
+
+        public void Evaluate_Using_GlobalVariables()
+        {
+            MathExpr.AddVariable("PI", Math.PI);
+            MathExpr expr = "{PI}";
+
+            Assert.AreEqual(Math.PI, expr.Result);
         }
 
         [Test]
         [TestCase("{a}+2", 1, 3)]
         [TestCase("2*{a}+2", 3, 8)]
         [TestCase("2*{a}+2*{a}", 3, 12)]
-        [TestCase("{b}+3*{a}", 3, 11)]
         [TestCase("({a})", 3, 3)]
-        [TestCase("{PI}", Math.PI, Math.PI)]
-        [TestCase("{E}", Math.E, Math.E)]
         public void Evaluate(string input, double variable, double expected)
         {
-            _calculator["a"] = variable;
-            _calculator["b"] = 2;
+            MathExpr expr = input;
+            expr["a"] = variable;
 
-            Assert.AreEqual(expected, _calculator.Evaluate(input));
+            Assert.AreEqual(expected, expr.Result);
         }
 
         [Test]
@@ -61,7 +186,8 @@ namespace StringMath.Tests
         [TestCase("-3 <> 2", -32)]
         public void Evaluate_CustomOperators(string input, double expected)
         {
-            Assert.AreEqual(expected, _calculator.Evaluate(input));
+            MathExpr expr = input;
+            Assert.AreEqual(expected, expr.Result);
         }
 
         [Test]
@@ -76,20 +202,12 @@ namespace StringMath.Tests
         [TestCase("2*{a}+2*{a}", 3, 12)]
         [TestCase("({a})", 3, 3)]
         [TestCase("2 * ({a} + 3 + 5)", 1, 18)]
-        public void Evaluate_CachedOperation_With_Variables(string input, double repl, double expected)
+        public void Evaluate_With_Variables(string input, double variable, double expected)
         {
-            _calculator.SetValue("a", repl);
+            MathExpr expr = input;
+            expr.Substitute("a", variable);
 
-            OperationInfo op = _calculator.CreateOperation(input);
-
-            Assert.That(op.Variables, Is.EquivalentTo(new[] { "a" }));
-            Assert.AreEqual(input, op.Expression);
-
-            Assert.AreEqual(expected, _calculator.Evaluate(input));
-            Assert.AreEqual(expected, _calculator.Evaluate(op));
-
-            _calculator.SetValue("a", 9);
-            Assert.AreNotEqual(expected, _calculator.Evaluate(op));
+            Assert.AreEqual(expr.Result, expected);
         }
 
         [Test]
@@ -101,35 +219,22 @@ namespace StringMath.Tests
         [TestCase("-3 <> 2", -32)]
         public void Evaluate_CachedOperation_Without_Variables(string input, double expected)
         {
-            OperationInfo op = _calculator.CreateOperation(input);
-            Assert.AreEqual(input, op.Expression);
+            MathExpr expr = input;
 
-            Assert.AreEqual(expected, _calculator.Evaluate(input));
-            Assert.AreEqual(expected, _calculator.Evaluate(op));
-        }
+            Assert.AreEqual(input, expr.Text);
 
-        [Test]
-        [TestCase("{a}+2", 1, 3)]
-        [TestCase("2*{a}+2", 3, 8)]
-        [TestCase("2*{a}+2*{a}", 3, 12)]
-        [TestCase("{b}+3*{a}", 3, 11)]
-        [TestCase("({a})", 3, 3)]
-        public void Evaluate_Static_API(string input, double variable, double expected)
-        {
-            SMath.SetValues(new VariablesCollection
-            {
-                ["b"] = 2,
-                ["a"] = variable
-            });
-            Assert.AreEqual(expected, SMath.Evaluate(input));
+            Assert.AreEqual(expected, expr.Result);
+            Assert.AreEqual(expected, expr.Result);
         }
 
         [Test]
         [TestCase("{a}+2")]
         public void Evaluate_Unassigned_Variable_Exception(string input)
         {
-            LangException exception = Assert.Throws<LangException>(() => _calculator.Evaluate(input));
-            Assert.AreEqual(LangException.ErrorCode.UNASSIGNED_VARIABLE, exception.ErrorType);
+            MathExpr expr = input;
+
+            MathException exception = Assert.Throws<MathException>(() => expr.Result.ToString());
+            Assert.AreEqual(MathException.ErrorCode.UNASSIGNED_VARIABLE, exception.Code);
         }
     }
 }
