@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using StringMath.Expressions;
 
 namespace StringMath
 {
@@ -83,7 +84,9 @@ namespace StringMath
                     return new ConstantExpression(Take().Text);
 
                 case TokenType.Identifier:
-                    VariableExpression rep = new VariableExpression(Take().Text);
+                    string text = Take().Text;
+                    string name = text.Substring(1, text.Length - 2);
+                    VariableExpression rep = new VariableExpression(name);
                     _variables.Add(rep.Name);
                     return rep;
 
@@ -102,7 +105,7 @@ namespace StringMath
             IExpression expr = ParseBinaryExpression();
             Match(TokenType.CloseParen);
 
-            return new GroupingExpression(expr);
+            return expr;
         }
 
         private Token Match(TokenType tokenType)

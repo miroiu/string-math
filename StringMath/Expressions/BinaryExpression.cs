@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace StringMath
+﻿namespace StringMath.Expressions
 {
     /// <summary>A binary expression.</summary>
     internal sealed class BinaryExpression : IExpression

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Globalization;
 
 namespace StringMath
 {
@@ -36,13 +35,6 @@ namespace StringMath
             };
         }
 
-        /// <summary>Converts a constant expression to a value expression.</summary>
-        /// <param name="constantExpr">A constant expression.</param>
-        /// <returns>A value expression.</returns>
-        public static ValueExpression ToValueExpression(this ConstantExpression constantExpr)
-        {
-            double value = double.Parse(constantExpr.Value, CultureInfo.InvariantCulture.NumberFormat);
-            return new ValueExpression(value);
-        }
+        public static MathExpr ToExpr(this string expr) => (MathExpr)expr;
     }
 }

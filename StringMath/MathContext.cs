@@ -34,6 +34,7 @@ namespace StringMath
             Default.RegisterUnary("sin", a => Math.Sin(a));
             Default.RegisterUnary("cos", a => Math.Cos(a));
             Default.RegisterUnary("tan", a => Math.Tan(a));
+            Default.RegisterUnary("atan", a => Math.Atan(a));
             Default.RegisterUnary("ceil", a => Math.Ceiling(a));
             Default.RegisterUnary("floor", a => Math.Floor(a));
             Default.RegisterUnary("round", a => Math.Round(a));

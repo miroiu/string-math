@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace StringMath
+namespace StringMath.Expressions
 {
     /// <summary>An unary expression.</summary>
     internal sealed class UnaryExpression : IExpression

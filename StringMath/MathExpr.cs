@@ -1,4 +1,5 @@
-﻿using System;
+﻿using StringMath.Expressions;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -7,48 +8,61 @@ namespace StringMath
     /// <summary>A mathematical expression.</summary>
     public class MathExpr
     {
-        private readonly IExpression _expression;
-        private readonly IExpressionVisitor<ValueExpression> _evaluator;
+        private readonly IExpressionVisitor _evaluator;
         private readonly IVariablesCollection _variables = new VariablesCollection();
-        private readonly IMathContext _context;
         private double? _cachedResult;
+
+        internal IExpression Expression { get; }
+
+        /// <summary>The <see cref="IMathContext"/> in which this expression is evaluated.</summary>
+        public IMathContext Context { get; }
 
         /// <summary>A collection of variable names extracted from the <see cref="Text"/>.</summary>
         public IReadOnlyCollection<string> Variables { get; }
 
         /// <summary>Constructs a <see cref="MathExpr"/> from a string.</summary>
         /// <param name="text">The math expression.</param>
-        /// <param name="optimize">Whether to optimize the expression or not.</param>
-        public MathExpr(string text, bool optimize = false) : this(text, new MathContext(MathContext.Default), optimize)
+        public MathExpr(string text) : this(text, new MathContext(MathContext.Default))
         {
         }
 
         /// <summary>Constructs a <see cref="MathExpr"/> from a string.</summary>
         /// <param name="text">The math expression.</param>
         /// <param name="context">The <see cref="IMathContext"/> in which this expression is evaluated.</param>
-        /// <param name="optimize">Whether to optimize the expression or not.</param>
-        public MathExpr(string text, IMathContext context, bool optimize = false)
+        public MathExpr(string text, IMathContext context)
         {
             text.EnsureNotNull(nameof(text));
             context.EnsureNotNull(nameof(context));
 
             Text = text;
-            _context = context;
+            Context = context;
 
             ITokenizer tokenizer = new Tokenizer(Text);
             IParser parser = new Parser(tokenizer, context);
             IExpression root = parser.Parse();
             Variables = parser.Variables.Where(x => !VariablesCollection.Default.Contains(x)).ToList();
 
-            if (optimize)
-            {
-                // TODO: Register pipelines in MathContext
-                IExpressionVisitor<IExpression> optimizer = new ExpressionOptimizer(context);
-                root = optimizer.Visit(root);
-            }
+            Expression = root;
+            _evaluator = new EvaluateExpression(Context, _variables);
+        }
 
-            _expression = root;
-            _evaluator = new ExpressionEvaluator(_context, _variables);
+        /// <summary>Constructs a <see cref="MathExpr"/> from an expression tree.</summary>
+        /// <param name="expression">The expression tree.</param>
+        /// <param name="context">The <see cref="IMathContext"/> in which this expression is evaluated.</param>
+        internal MathExpr(IExpression expression, IMathContext context)
+        {
+            expression.EnsureNotNull(nameof(expression));
+            context.EnsureNotNull(nameof(context));
+
+            Text = expression.ToString()!;
+            Context = context;
+
+            var extractor = new ExtractVariables();
+            extractor.Visit(expression);
+            Variables = extractor.Variables.Where(x => !VariablesCollection.Default.Contains(x)).ToList();
+
+            Expression = expression;
+            _evaluator = new EvaluateExpression(Context, _variables);
         }
 
         /// <summary>The result of the expression.</summary>
@@ -59,7 +73,7 @@ namespace StringMath
             {
                 if (!_cachedResult.HasValue)
                 {
-                    var result = _evaluator.Visit(_expression);
+                    var result = (ConstantExpression)_evaluator.Visit(Expression);
                     _cachedResult = result.Value;
                 }
 
@@ -116,7 +130,7 @@ namespace StringMath
         public MathExpr SetOperator(string name, Func<double, double, double> operation, Precedence? precedence = default)
         {
             _cachedResult = null;
-            _context.RegisterBinary(name, operation, precedence);
+            Context.RegisterBinary(name, operation, precedence);
             return this;
         }
 
@@ -128,7 +142,7 @@ namespace StringMath
         public MathExpr SetOperator(string name, Func<double, double> operation)
         {
             _cachedResult = null;
-            _context.RegisterUnary(name, operation);
+            Context.RegisterUnary(name, operation);
             return this;
         }
 

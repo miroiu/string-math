@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using StringMath.Expressions;
+using System.Collections.Generic;
 
 namespace StringMath
 {
