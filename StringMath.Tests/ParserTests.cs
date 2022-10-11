@@ -3,7 +3,7 @@ using StringMath.Expressions;
 
 namespace StringMath.Tests
 {
-    [TestFixture, Ignore("Removed parentheses.")]
+    [TestFixture]
     internal class ParserTests
     {
         private IMathContext _context;
@@ -17,8 +17,8 @@ namespace StringMath.Tests
         [Test]
         [TestCase("1 * 2", "1 * 2")]
         [TestCase("1 ^ (6 % 2)", "1 ^ (6 % 2)")]
-        [TestCase("1 - ((3 + 8) max 1)", "1 - ((3 + 8) max 1)")]
-        [TestCase("5! + ({a} / 3)", "5! + ({a} / 3)")]
+        [TestCase("1 - ((3 + 8) max 1)", "1 - (3 + 8) max 1")]
+        [TestCase("5! + ({a} / 3)", "5! + {a} / 3")]
         [TestCase("-9.53", "-9.53")]
         [TestCase("1.15215345346", "1.15215345346")]
         [TestCase("0", "0")]
@@ -159,7 +159,7 @@ namespace StringMath.Tests
         [TestCase("cos(90.0) - 5", "cos(90) - 5")]
         [TestCase("round(1) * (2 + 3)", "round(1) * (2 + 3)")]
         [TestCase("!1.5 / 3", "1.5! / 3")]
-        [TestCase("1.5! ^ sqrt 3", "1.5! ^ sqrt3")]
+        [TestCase("1.5! ^ sqrt 3", "1.5! ^ sqrt(3)")]
         [TestCase("{a} - abs (5 % 3)", "{a} - abs(5 % 3)")]
         [TestCase("{a} - 3 + {b}", "{a} - 3 + {b}")]
         [TestCase("{a} / 3 * {b}", "{a} / 3 * {b}")]
@@ -171,7 +171,7 @@ namespace StringMath.Tests
             IParser parser = new Parser(tokenizer, _context);
 
             IExpression result = parser.Parse();
-            string actual = result.ToString();
+            string actual = result.ToString(_context);
 
             Assert.IsInstanceOf<BinaryExpression>(result);
             Assert.AreEqual(expected, actual);
@@ -183,19 +183,19 @@ namespace StringMath.Tests
         [TestCase("round(1)", "round(1)")]
         [TestCase("!1.5", "1.5!")]
         [TestCase("1.5!", "1.5!")]
-        [TestCase("abs.5", "abs0.5")]
+        [TestCase("abs.5", "abs(0.5)")]
         [TestCase("-999", "-999")]
         [TestCase("sqrt(-999 / 2 * 3 max 5)", "sqrt(-999 / 2 * 3 max 5)")]
-        [TestCase("-(sqrt5)", "-(sqrt5)")]
-        [TestCase("- sqrt5", "-sqrt5")]
-        [TestCase("sqrt{a}", "sqrt{a}")]
+        [TestCase("-(sqrt5)", "-(sqrt(5))")]
+        [TestCase("- sqrt5", "-(sqrt(5))")]
+        [TestCase("sqrt{a}", "sqrt({a})")]
         public void ParseUnaryExpression(string input, string expected)
         {
             ITokenizer tokenizer = new Tokenizer(input);
             IParser parser = new Parser(tokenizer, _context);
 
             IExpression result = parser.Parse();
-            string actual = result.ToString();
+            string actual = result.ToString(_context);
 
             Assert.IsInstanceOf<UnaryExpression>(result);
             Assert.AreEqual(expected, actual);
@@ -225,7 +225,7 @@ namespace StringMath.Tests
             IParser parser = new Parser(tokenizer, _context);
 
             IExpression result = parser.Parse();
-            string actual = result.ToString();
+            string actual = result.ToString(_context);
 
             Assert.IsInstanceOf<ConstantExpression>(result);
             Assert.AreEqual(expected, actual);
@@ -247,24 +247,23 @@ namespace StringMath.Tests
         }
 
         [Test]
-        [TestCase("(1)")]
-        [TestCase("((1))")]
-        [TestCase("(1 + 2)")]
-        [TestCase("((1 + 2) % 3)")]
-        [TestCase("(5! * (1 + 2))")]
-        [TestCase("(5 + (1 + 2))")]
-        [TestCase("((5 - {a}) + (1 + 2))")]
-        [TestCase("((5 - 2) + (1 + 2! * 3))")]
-        [TestCase("((5 - 2) + ((-1 + 2) * 3))")]
-        public void ParseGroupingExpression(string expected)
+        [TestCase("(1)", "1")]
+        [TestCase("((1))", "1")]
+        [TestCase("(1 + 2)", "1 + 2")]
+        [TestCase("((1 + 2) % 3)", "(1 + 2) % 3")]
+        [TestCase("(5! * (1 + 2))", "5! * (1 + 2)")]
+        [TestCase("(5 + (1 + 2))", "5 + 1 + 2")]
+        [TestCase("((5 - {a}) + (1 + 2))", "5 - {a} + 1 + 2")]
+        [TestCase("((5 - 2) + (1 + 2! * 3))", "5 - 2 + 1 + 2! * 3")]
+        [TestCase("((5 - 2) + ((-1 + 2) * 3))", "5 - 2 + (-1 + 2) * 3")]
+        public void ParseGroupingExpression(string input, string expected)
         {
-            ITokenizer tokenizer = new Tokenizer(expected);
+            ITokenizer tokenizer = new Tokenizer(input);
             IParser parser = new Parser(tokenizer, _context);
 
             IExpression result = parser.Parse();
-            string actual = result.ToString();
+            string actual = result.ToString(_context);
 
-            Assert.IsInstanceOf<BinaryExpression>(result);
             Assert.AreEqual(expected, actual);
         }
 

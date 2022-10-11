@@ -16,8 +16,9 @@
 
         /// <inheritdoc />
         public override string ToString()
-        {
-            return $"{{{Name}}}";
-        }
+            => ToString(MathContext.Default);
+
+        public string ToString(IMathContext context)
+            => $"{{{Name}}}";
     }
 }

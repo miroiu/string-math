@@ -1,4 +1,6 @@
-﻿namespace StringMath.Expressions
+﻿using StringMath.Expressions;
+
+namespace StringMath
 {
     /// <summary>Contract for expression visitors.</summary>
     internal interface IExpressionVisitor

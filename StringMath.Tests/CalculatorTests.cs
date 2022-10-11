@@ -222,8 +222,6 @@ namespace StringMath.Tests
         {
             MathExpr expr = input;
 
-            Assert.AreEqual(input, expr.Text);
-
             Assert.AreEqual(expected, expr.Result);
             Assert.AreEqual(expected, expr.Result);
         }

@@ -34,10 +34,9 @@ namespace StringMath
             text.EnsureNotNull(nameof(text));
             context.EnsureNotNull(nameof(context));
 
-            Text = text;
             Context = context;
 
-            ITokenizer tokenizer = new Tokenizer(Text);
+            ITokenizer tokenizer = new Tokenizer(text);
             IParser parser = new Parser(tokenizer, context);
             IExpression root = parser.Parse();
             Variables = parser.Variables.Where(x => !VariablesCollection.Default.Contains(x)).ToList();
@@ -54,7 +53,6 @@ namespace StringMath
             expression.EnsureNotNull(nameof(expression));
             context.EnsureNotNull(nameof(context));
 
-            Text = expression.ToString()!;
             Context = context;
 
             var extractor = new ExtractVariables();
@@ -81,8 +79,8 @@ namespace StringMath
             }
         }
 
-        /// <summary>The string that was used to create this expression.</summary>
-        public string Text { get; }
+        /// <summary>Creates a string representation of the current expression.</summary>
+        public string Text => Expression.ToString(Context);
 
         /// <summary>Substitutes the variable with the given value.</summary>
         /// <param name="name">The name of the variable.</param>

@@ -27,6 +27,9 @@ namespace StringMath.Expressions
 
         /// <inheritdoc />
         public override string ToString()
-             => Value.ToString();
+             => ToString(MathContext.Default);
+
+        public string ToString(IMathContext context)
+            => Value.ToString();
     }
 }
