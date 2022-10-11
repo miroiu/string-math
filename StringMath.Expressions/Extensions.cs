@@ -22,7 +22,16 @@ public static partial class Extensions
 
     public static MathExpr Expand(this MathExpr expr)
     {
-        var expanded = expr.ToExpr().Expand();
+        Expr expanded = expr.ToExpr();
+        Expr temp;
+
+        do
+        {
+            temp = expanded;
+            expanded = expanded.Expand();
+        }
+        while (expanded != temp);
+
         return expanded.ToMathExpr(expr.Context);
     }
 
@@ -75,6 +84,15 @@ public static partial class Extensions
             // (a - b) * c => c * a - c * b
             Mul(Diff diff, Variable num) => num * E(diff.Left) - num * E(diff.Right),
 
+            // -(a - b) => -a + b
+            Neg(Neg(Expr a)) => E(a),
+
+            // -(a - b) => -a + b
+            Neg(Diff(Expr a, Expr b)) => -E(a) + E(b),
+
+            // -(a + b) => -a - b
+            Neg(Sum(Expr a, Expr b)) => -E(a) - E(b),
+
             // x^(m + n)
             Pow(Expr x, Sum(Expr m, Expr n)) => (E(x) ^ E(m)) * (E(x) ^ E(n)),
 
@@ -98,6 +116,10 @@ public static partial class Extensions
 
             // x^2 => x * x
             Pow(Expr x, Number(2)) => E(x) * E(x),
+
+            // generic
+            Binary(Expr a, string op, Expr b) => SMath.Binary(E(a), op, E(b)),
+            Unary(Expr a, string op) => SMath.Unary(E(a), op),
 
             _ => e
         };
@@ -169,29 +191,4 @@ public static partial class Extensions
 
         return S(expr);
     }
-}
-
-public static class SMath
-{
-    public static Variable Var(string name) => new(name);
-    public static Binary Binary(Expr left, string op, Expr right) => new(left, op, right);
-    public static Unary Unary(Expr left, string op) => new(left, op);
-
-    public static Neg Neg(Expr Value) => new(Value);
-    public static Factorial Factorial(Expr Value) => new(Value);
-    public static Sin Sin(Expr Value) => new(Value);
-    public static Cos Cos(Expr Value) => new(Value);
-    public static Abs Abs(Expr Value) => new(Value);
-    public static Sqrt Sqrt(Expr Value) => new(Value);
-    public static Tan Tan(Expr Value) => new(Value);
-    public static Atan Atan(Expr Value) => new(Value);
-    public static Exp Exp(Expr Value) => new(Value);
-
-    public static Sum Sum(Expr Left, Expr Right) => new(Left, Right);
-    public static Diff Diff(Expr Left, Expr Right) => new(Left, Right);
-    public static Mul Mul(Expr Left, Expr Right) => new(Left, Right);
-    public static Div Div(Expr Left, Expr Right) => new(Left, Right);
-    public static Pow Pow(Expr Left, Expr Right) => new(Left, Right);
-    public static Mod Mod(Expr Left, Expr Right) => new(Left, Right);
-    public static Log Log(Expr Left, Expr Right) => new(Left, Right);
 }

@@ -2,8 +2,8 @@
 
 public static class Factory
 {
-    public delegate Expr BinaryExprFactory(Expr left, string op, Expr right);
-    public delegate Expr UnaryExprFactory(string op, Expr operand);
+    public delegate Binary BinaryExprFactory(Expr left, string op, Expr right);
+    public delegate Unary UnaryExprFactory(string op, Expr operand);
 
     public static BinaryExprFactory BinaryExpr = (left, op, right) => op switch
     {

@@ -5,6 +5,8 @@
         [Theory]
         [InlineData("5 * (3 + 2)", "5 * 3 + 5 * 2")]
         [InlineData("5 * (3 - 2)", "5 * 3 - 5 * 2")]
+        [InlineData("5 * (-3 - 2)", "5 * -3 - 5 * 2")]
+        [InlineData("5 * -(-3 - 2)", "5 * 3 + 5 * 2")]
         [InlineData("{a} * (3 + {b})", "{a} * 3 + {a} * {b}")]
         [InlineData("{a} * (3 - {b})", "{a} * 3 - {a} * {b}")]
         public void Expand(string input, string expected)
