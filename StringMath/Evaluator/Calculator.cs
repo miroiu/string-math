@@ -53,11 +53,45 @@ namespace StringMath
         }
 
         /// <summary>
+        /// Evaluates a cached mathematical expression.
+        /// </summary>
+        /// <param name="operation">The math expression to evaluate.</param>
+        /// <returns>The result as a decimal value.</returns>
+        public decimal Evaluate(OperationInfo operation)
+            => Reducer.Reduce<ResultExpression>(operation.Root, _mathContext, _replacements).Value;
+
+        /// <summary>
+        /// Creates an operation that can be evaluated later.
+        /// </summary>
+        /// <param name="expression">The math expression to evaluate.</param>
+        /// <returns>The result as a decimal value.</returns>
+        public OperationInfo CreateOperation(string expression)
+        {
+            SourceText text = new SourceText(expression);
+            Lexer lexer = new Lexer(text, _mathContext);
+            Parser parser = new Parser(lexer, _mathContext);
+            Expression root = parser.Parse();
+
+            return new OperationInfo(root, expression, parser.Replacements);
+        }
+
+        /// <summary>
         /// Replaces the value of a variable.
         /// </summary>
         /// <param name="name">The variable's name.</param>
         /// <param name="value">The new value.</param>
         public void Replace(string name, decimal value)
             => _replacements[name] = value;
+
+        /// <summary>
+        /// Gets or sets the value of a variable.
+        /// </summary>
+        /// <param name="replacement">Name of the variable.</param>
+        /// <returns>Value of the variable.</returns>
+        public decimal this[string replacement]
+        {
+            get => _replacements[replacement];
+            set => _replacements[replacement] = value;
+        }
     }
 }

@@ -6,20 +6,17 @@
     <Authors>Miroiu Emanuel</Authors>
     <Company />
     <Description>Calculates the value of a math expression from a string returning a decimal.
-Supports variables and user defined operators.</Description>
+Supports variables, user defined operators and reusable operations.</Description>
     <Copyright>2020 Miroiu Emanuel</Copyright>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/miroiu/string-math</PackageProjectUrl>
     <RepositoryUrl>https://github.com/miroiu/string-math</RepositoryUrl>
     <PackageTags>expression-evaluator calculator string-math math string-calculator user-defined-operators operators custom-operators</PackageTags>
-    <Version>2.0.0</Version>
-    <PackageReleaseNotes>Create an instance of a Calculator with custom operators and variables or use the static class SMath.
-Specify the operator's precedence when creating a new one or overwriting an existing one. 
-Create custom operators using both letters and different characters than letters.
-Added more default operators.
-Added variables for Calculator instances (PI, E).
-The Replacement's api was changed to use a Replacements collection instead of an array of Replacement objects.</PackageReleaseNotes>
-    <AssemblyVersion>2.0.0.0</AssemblyVersion>
+    <Version>2.1.0</Version>
+    <PackageReleaseNotes>Added the ability to reuse operations. 
+var op = SMath.CreateOperation("2 + {a}");
+var result = SMath.Evaluate(op);</PackageReleaseNotes>
+    <AssemblyVersion>2.1.0.0</AssemblyVersion>
     <PackageLicenseFile></PackageLicenseFile>
   </PropertyGroup>
 
