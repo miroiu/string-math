@@ -13,7 +13,7 @@ Supports variables and user defined operators.</Description>
     <RepositoryUrl>https://github.com/miroiu/string-math</RepositoryUrl>
     <PackageTags>expression-evaluator calculator string-math math string-calculator user-defined-operators operators custom-operators</PackageTags>
     <Version>4.0.0</Version>
-    <PackageReleaseNotes>Added support for .NET 5 and .NET 6</PackageReleaseNotes>
+    <PackageReleaseNotes>Refactored everything and added support for .NET 5 and .NET 6</PackageReleaseNotes>
     <PackageLicenseFile></PackageLicenseFile>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <Nullable>enable</Nullable>
