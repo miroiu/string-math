@@ -4,7 +4,7 @@ using System;
 namespace StringMath.Tests
 {
     [TestFixture]
-    internal class CalculatorTests
+    internal class MathExprTests
     {
         [SetUp]
         public void Setup()
@@ -277,6 +277,47 @@ namespace StringMath.Tests
 
             double result = "1 + 2 + 3".Eval(context);
             Assert.AreEqual(1, result);
+        }
+
+        [Test]
+        [TestCase("1 + 5", 6)]
+        [TestCase("1 + -5", -4)]
+        [TestCase("2 * (abs(-5) + 1)", 12)]
+        public void Compile(string input, double expected)
+        {
+            Func<double> fn = input.ToMathExpr().Compile();
+            double result = fn();
+
+            Assert.AreEqual(expected, result);
+        }
+
+        [Test]
+        [TestCase("1 + {a}", new[] { "a" }, new[] { 1d }, 2)]
+        public void Compile1(string input, string[] paramsOrder, double[] paramsValues, double expected)
+        {
+            Func<double, double> fn = input.ToMathExpr().Compile(paramsOrder[0]);
+            double result = fn(paramsValues[0]);
+
+            Assert.AreEqual(expected, result);
+        }
+
+        [Test]
+        [TestCase("(1 + {a}) * {b}", new[] { "b", "a" }, new[] { 2d, 3d }, 8)]
+        [TestCase("(1 + {b}) * {a}", new[] { "b", "a" }, new[] { 2d, 3d }, 9)]
+        public void Compile2(string input, string[] paramsOrder, double[] paramsValues, double expected)
+        {
+            Func<double, double, double> fn = input.ToMathExpr().Compile(paramsOrder[0], paramsOrder[1]);
+            double result = fn(paramsValues[0], paramsValues[1]);
+
+            Assert.AreEqual(expected, result);
+        }
+
+        [Test]
+        public void Compile1_Throws_Missing_Variable()
+        {
+            MathException ex = Assert.Throws<MathException>(() => "1 + {a}".ToMathExpr().Compile("b"));
+
+            Assert.AreEqual(MathException.ErrorCode.UNEXISTING_VARIABLE, ex.Code);
         }
     }
 }
