@@ -1,4 +1,4 @@
-> V3 README can be found here: https://github.com/miroiu/string-math/tree/release-3.0.0
+> V3 README can be found here: <https://github.com/miroiu/string-math/tree/release-3.0.0>
 
 # String Math [![NuGet](https://img.shields.io/nuget/v/StringMath?style=flat-square&logo=nuget)](https://www.nuget.org/packages/StringMath/) [![Downloads](https://img.shields.io/nuget/dt/StringMath?label=downloads&style=flat-square&logo=nuget)](https://www.nuget.org/packages/StringMath) ![.NET](https://img.shields.io/static/v1?label=%20&message=Framework%204.6.1%20to%20NET%206&color=5C2D91&style=flat-square&logo=.net) ![](https://img.shields.io/static/v1?label=%20&message=documentation&color=yellow&style=flat-square)
 
@@ -57,8 +57,15 @@ double result2 = "{PI} + 1".Eval(); // 4.1415926535897931
 
 ```csharp
 var expr = "{a} + {b} + {PI}".ToMathExpr();
-var variables = expr.Variables;	// { "a", "b", "PI" }
+var variables = expr.Variables; // { "a", "b", "PI" }
 var localVariables = expr.LocalVariables; // { "a", "b" }
+```
+
+### Compilation
+
+```csharp
+Func<double, double> fn = "{a} + 2".ToMathExpr().Compile("a");
+double result = fn(5); // 7
 ```
 
 ### Conditional substitution
@@ -68,8 +75,8 @@ MathExpr expr = "1 / {a}".Substitute("a", 1);
 
 double temp = expr.Result; // 1
 
-if (someCondition) 	// true
-	expr.Substitute("a", 2);
+if (someCondition)  // true
+ expr.Substitute("a", 2);
 
 double final = expr.Result; // 0.5
 ```
@@ -88,7 +95,7 @@ double result = "1 + 2 + 3".Eval(expr.Context);
 ### Custom math context
 
 ```csharp
-var context = new MathContext();	// new MathContext(MathContext.Default); // to inherit from global
+var context = new MathContext(); // new MathContext(MathContext.Default); // to inherit from global
 context.RegisterBinary("+", (a, b) => Math.Pow(a, b));
 
 MathExpr expr = new MathExpr("{PI} + 1", context);

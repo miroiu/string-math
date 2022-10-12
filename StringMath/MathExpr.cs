@@ -107,6 +107,54 @@ namespace StringMath
             return this;
         }
 
+        /// <summary>Compiles a <see cref="MathExpr"/> into a delegate.</summary>
+        /// <returns>A type safe delegate.</returns>
+        public Func<double> Compile()
+        {
+            var exp = new CompileExpression().Compile<Func<IMathContext, double>>(Expression).Compile();
+            return () => exp(Context);
+        }
+
+        /// <summary>Compiles a <see cref="MathExpr"/> into a delegate.</summary>
+        /// <returns>A type safe delegate.</returns>
+        public Func<double, double> Compile(string var)
+        {
+            var exp = new CompileExpression().Compile<Func<IMathContext, double, double>>(Expression, var).Compile();
+            return (double x) => exp(Context, x);
+        }
+
+        /// <summary>Compiles a <see cref="MathExpr"/> into a delegate.</summary>
+        /// <returns>A type safe delegate.</returns>
+        public Func<double, double, double> Compile(string var1, string var2)
+        {
+            var exp = new CompileExpression().Compile<Func<IMathContext, double, double, double>>(Expression, var1, var2).Compile();
+            return (x, y) => exp(Context, x, y);
+        }
+
+        /// <summary>Compiles a <see cref="MathExpr"/> into a delegate.</summary>
+        /// <returns>A type safe delegate.</returns>
+        public Func<double, double, double, double> Compile(string var1, string var2, string var3)
+        {
+            var exp = new CompileExpression().Compile<Func<IMathContext, double, double, double, double>>(Expression, var1, var2, var3).Compile();
+            return (x, y, z) => exp(Context, x, y, z);
+        }
+
+        /// <summary>Compiles a <see cref="MathExpr"/> into a delegate.</summary>
+        /// <returns>A type safe delegate.</returns>
+        public Func<double, double, double, double, double> Compile(string var1, string var2, string var3, string var4)
+        {
+            var exp = new CompileExpression().Compile<Func<IMathContext, double, double, double, double, double>>(Expression, var1, var2, var3, var4).Compile();
+            return (x, y, z, w) => exp(Context, x, y, z, w);
+        }
+
+        /// <summary>Compiles a <see cref="MathExpr"/> into a delegate.</summary>
+        /// <returns>A type safe delegate.</returns>
+        public Func<double, double, double, double, double, double> Compile(string var1, string var2, string var3, string var4, string var5)
+        {
+            var exp = new CompileExpression().Compile<Func<IMathContext, double, double, double, double, double, double>>(Expression, var1, var2, var3, var4, var5).Compile();
+            return (x, y, z, w, q) => exp(Context, x, y, z, w, q);
+        }
+
         /// <summary>Converts a string to a <see cref="MathExpr"/>.</summary>
         /// <param name="value">The value to convert.</param>
         public static implicit operator MathExpr(string value) => new MathExpr(value);
