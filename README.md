@@ -3,7 +3,7 @@
 # String Math [![NuGet](https://img.shields.io/nuget/v/StringMath?style=flat-square&logo=nuget)](https://www.nuget.org/packages/StringMath/) [![Downloads](https://img.shields.io/nuget/dt/StringMath?label=downloads&style=flat-square&logo=nuget)](https://www.nuget.org/packages/StringMath) ![.NET](https://img.shields.io/static/v1?label=%20&message=Framework%204.6.1%20to%20NET%206&color=5C2D91&style=flat-square&logo=.net) ![](https://img.shields.io/static/v1?label=%20&message=documentation&color=yellow&style=flat-square)
 
 Calculates the value of a math expression from a string returning a double.
-Supports variables and user defined operators.
+Supports variables, user defined operators and expression compilation.
 
 ```csharp
 double result = "1 * (2 - 3) ^ 2".Eval(); // 1
