@@ -1,9 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 
 namespace StringMath
 {
     /// <summary>A collection of variables.</summary>
-    public interface IVariablesCollection : IEnumerable<string>
+    internal interface IVariablesCollection : IEnumerable<string>
     {
         /// <summary>Overwrites the value of a variable.</summary>
         /// <param name="name">The variable's name.</param>
@@ -16,38 +18,62 @@ namespace StringMath
         /// <returns><c>true</c> if the variable exists, false otherwise.</returns>
         bool TryGetValue(string name, out double value);
 
+        /// <summary>Tells whether the variable is defined or not.</summary>
+        /// <param name="name">The name of the variable.</param>
+        /// <returns>True if variable was previously defined. False otherwise.</returns>
+        bool Contains(string name);
+
         /// <inheritdoc cref="SetValue(string, double)" />
         double this[string name] { set; }
-
-        /// <summary>Copies the variables to another collection.</summary>
-        /// <param name="other">The other collection.</param>
-        void CopyTo(IVariablesCollection other);
     }
 
     /// <inheritdoc />
-    public class VariablesCollection : Dictionary<string, double>, IVariablesCollection
+    internal class VariablesCollection : IVariablesCollection
     {
+        public static readonly VariablesCollection Default = new VariablesCollection();
+
+        private readonly Dictionary<string, double> _values = new Dictionary<string, double>();
+
+        static VariablesCollection()
+        {
+            Default["PI"] = Math.PI;
+            Default["E"] = Math.E;
+        }
+
         /// <inheritdoc />
         public void CopyTo(IVariablesCollection other)
         {
             other.EnsureNotNull(nameof(other));
 
-            foreach (var kvp in this)
+            foreach (var kvp in _values)
             {
                 other.SetValue(kvp.Key, kvp.Value);
             }
         }
 
         /// <inheritdoc />
+        public IEnumerator GetEnumerator() => _values.GetEnumerator();
+
+        /// <inheritdoc />
+        public double this[string name]
+        {
+            set => SetValue(name, value);
+        }
+
+        /// <inheritdoc />
         public void SetValue(string name, double value)
         {
             name.EnsureNotNull(nameof(name));
-            base[name] = value;
+            _values[name] = value;
         }
 
-        IEnumerator<string> IEnumerable<string>.GetEnumerator()
-        {
-            return Keys.GetEnumerator();
-        }
+        /// <inheritdoc />
+        public bool TryGetValue(string name, out double value)
+            => _values.TryGetValue(name, out value) || Default._values.TryGetValue(name, out value);
+
+        IEnumerator<string> IEnumerable<string>.GetEnumerator() => _values.Keys.GetEnumerator();
+
+        /// <inheritdoc />
+        public bool Contains(string name) => _values.ContainsKey(name);
     }
 }

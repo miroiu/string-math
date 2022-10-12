@@ -4,60 +4,84 @@ using System.Collections.Generic;
 namespace StringMath
 {
     /// <inheritdoc />
-    internal sealed class MathContext : IMathContext
+    /// <remarks>Inherits operators from <see cref="Parent"/>.</remarks>
+    public sealed class MathContext : IMathContext
     {
         private readonly Dictionary<string, Func<double, double, double>> _binaryEvaluators = new Dictionary<string, Func<double, double, double>>(StringComparer.Ordinal);
         private readonly Dictionary<string, Func<double, double>> _unaryEvaluators = new Dictionary<string, Func<double, double>>(StringComparer.Ordinal);
         private readonly Dictionary<string, Precedence> _binaryPrecedence = new Dictionary<string, Precedence>(StringComparer.Ordinal);
         private readonly HashSet<string> _operators = new HashSet<string>(StringComparer.Ordinal);
 
-        /// <summary>Initializez a new instance of a math context.</summary>
-        public MathContext()
-        {
-            RegisterBinary("+", (a, b) => a + b, Precedence.Addition);
-            RegisterBinary("-", (a, b) => a - b, Precedence.Addition);
-            RegisterBinary("*", (a, b) => a * b, Precedence.Multiplication);
-            RegisterBinary("/", (a, b) => a / b, Precedence.Multiplication);
-            RegisterBinary("%", (a, b) => a % b, Precedence.Multiplication);
-            RegisterBinary("^", (a, b) => Math.Pow(a, b), Precedence.Power);
-            RegisterBinary("log", (a, b) => Math.Log(a, b), Precedence.Logarithmic);
-            RegisterBinary("max", (a, b) => Math.Max(a, b), Precedence.UserDefined);
-            RegisterBinary("min", (a, b) => Math.Min(a, b), Precedence.UserDefined);
+        /// <summary>The global instance used by <see cref="MathExpr.AddOperator(string, Func{double, double})"/> methods.</summary>
+        public static readonly IMathContext Default = new MathContext();
 
-            RegisterUnary("-", a => -a);
-            RegisterUnary("!", a => ComputeFactorial(a));
-            RegisterUnary("sqrt", a => Math.Sqrt(a));
-            RegisterUnary("sin", a => Math.Sin(a));
-            RegisterUnary("cos", a => Math.Cos(a));
-            RegisterUnary("tan", a => Math.Tan(a));
-            RegisterUnary("ceil", a => Math.Ceiling(a));
-            RegisterUnary("floor", a => Math.Floor(a));
-            RegisterUnary("round", a => Math.Round(a));
-            RegisterUnary("exp", a => Math.Exp(a));
-            RegisterUnary("abs", a => Math.Abs(a));
+        /// <summary>The parent context to inherit from.</summary>
+        public IMathContext? Parent { get; }
+
+        static MathContext()
+        {
+            var rad = Math.PI / 180;
+            var deg = 180 / Math.PI;
+
+            Default.RegisterBinary("+", (a, b) => a + b, Precedence.Addition);
+            Default.RegisterBinary("-", (a, b) => a - b, Precedence.Addition);
+            Default.RegisterBinary("*", (a, b) => a * b, Precedence.Multiplication);
+            Default.RegisterBinary("/", (a, b) => a / b, Precedence.Multiplication);
+            Default.RegisterBinary("%", (a, b) => a % b, Precedence.Multiplication);
+            Default.RegisterBinary("^", (a, b) => Math.Pow(a, b), Precedence.Power);
+            Default.RegisterBinary("log", (a, b) => Math.Log(a, b), Precedence.Logarithmic);
+            Default.RegisterBinary("max", (a, b) => Math.Max(a, b), Precedence.UserDefined);
+            Default.RegisterBinary("min", (a, b) => Math.Min(a, b), Precedence.UserDefined);
+
+            Default.RegisterUnary("-", a => -a);
+            Default.RegisterUnary("!", a => ComputeFactorial(a));
+            Default.RegisterUnary("sqrt", a => Math.Sqrt(a));
+            Default.RegisterUnary("sin", a => Math.Sin(a));
+            Default.RegisterUnary("asin", a => Math.Asin(a));
+            Default.RegisterUnary("cos", a => Math.Cos(a));
+            Default.RegisterUnary("acos", a => Math.Acos(a));
+            Default.RegisterUnary("tan", a => Math.Tan(a));
+            Default.RegisterUnary("atan", a => Math.Atan(a));
+            Default.RegisterUnary("ceil", a => Math.Ceiling(a));
+            Default.RegisterUnary("floor", a => Math.Floor(a));
+            Default.RegisterUnary("round", a => Math.Round(a));
+            Default.RegisterUnary("exp", a => Math.Exp(a));
+            Default.RegisterUnary("abs", a => Math.Abs(a));
+            Default.RegisterUnary("rad", a => rad * a);
+            Default.RegisterUnary("deg", a => deg * a);
         }
+
+        /// <summary>Creates a new instance of a MathContext.</summary>
+        /// <param name="parent">The parent context to inherit operators from.</param>
+        public MathContext(IMathContext parent)
+            => Parent = parent;
+
+        /// <summary>Creates a new instance of a MathContext.</summary>
+        public MathContext() { }
 
         /// <inheritdoc />
         public bool IsUnary(string operatorName)
-        {
-            return _unaryEvaluators.ContainsKey(operatorName);
-        }
+            => _unaryEvaluators.ContainsKey(operatorName) || (Parent?.IsUnary(operatorName) ?? false);
 
         /// <inheritdoc />
         public bool IsBinary(string operatorName)
-        {
-            return _binaryEvaluators.ContainsKey(operatorName);
-        }
+            => _binaryEvaluators.ContainsKey(operatorName) || (Parent?.IsBinary(operatorName) ?? false);
 
         /// <inheritdoc />
         public Precedence GetBinaryPrecedence(string operatorName)
         {
-            return _binaryPrecedence[operatorName];
+            return _binaryPrecedence.ContainsKey(operatorName)
+                ? _binaryPrecedence[operatorName]
+                : Parent?.GetBinaryPrecedence(operatorName)
+                ?? throw MathException.MissingBinaryOperator(operatorName);
         }
 
         /// <inheritdoc />
         public void RegisterBinary(string operatorName, Func<double, double, double> operation, Precedence? precedence = default)
         {
+            operatorName.EnsureNotNull(nameof(operatorName));
+            operation.EnsureNotNull(nameof(operation));
+
             _binaryEvaluators[operatorName] = operation;
             _binaryPrecedence[operatorName] = precedence ?? Precedence.UserDefined;
             _operators.Add(operatorName);
@@ -66,6 +90,9 @@ namespace StringMath
         /// <inheritdoc />
         public void RegisterUnary(string operatorName, Func<double, double> operation)
         {
+            operatorName.EnsureNotNull(nameof(operatorName));
+            operation.EnsureNotNull(nameof(operation));
+
             _unaryEvaluators[operatorName] = operation;
             _operators.Add(operatorName);
         }
@@ -73,13 +100,23 @@ namespace StringMath
         /// <inheritdoc />
         public double EvaluateBinary(string op, double a, double b)
         {
-            return _binaryEvaluators[op](a, b);
+            double result = _binaryEvaluators.ContainsKey(op)
+                ? _binaryEvaluators[op](a, b)
+                : Parent?.EvaluateBinary(op, a, b)
+                ?? throw MathException.MissingBinaryOperator(op);
+
+            return result;
         }
 
         /// <inheritdoc />
         public double EvaluateUnary(string op, double a)
         {
-            return _unaryEvaluators[op](a);
+            double result = _unaryEvaluators.ContainsKey(op)
+                ? _unaryEvaluators[op](a)
+                : Parent?.EvaluateUnary(op, a)
+                ?? throw MathException.MissingUnaryOperator(op);
+
+            return result;
         }
 
         #region Factorial

@@ -1,4 +1,5 @@
 using NUnit.Framework;
+using StringMath.Expressions;
 
 namespace StringMath.Tests
 {
@@ -10,14 +11,14 @@ namespace StringMath.Tests
         [OneTimeSetUp]
         public void Setup()
         {
-            _context = new MathContext();
+            _context = MathContext.Default;
         }
 
         [Test]
         [TestCase("1 * 2", "1 * 2")]
         [TestCase("1 ^ (6 % 2)", "1 ^ (6 % 2)")]
-        [TestCase("1 - ((3 + 8) max 1)", "1 - ((3 + 8) max 1)")]
-        [TestCase("5! + ({a} / 3)", "5! + ({a} / 3)")]
+        [TestCase("1 - ((3 + 8) max 1)", "1 - (3 + 8) max 1")]
+        [TestCase("5! + ({a} / 3)", "5! + {a} / 3")]
         [TestCase("-9.53", "-9.53")]
         [TestCase("1.15215345346", "1.15215345346")]
         [TestCase("0", "0")]
@@ -63,33 +64,25 @@ namespace StringMath.Tests
         [TestCase("1 + asd")]
         [TestCase("{-a}")]
         [TestCase("*{a}")]
+        [TestCase("1 + 2 1")]
         public void ParseBadExpression_Exception(string input)
         {
             ITokenizer tokenizer = new Tokenizer(input);
             IParser parser = new Parser(tokenizer, _context);
 
-            LangException exception = Assert.Throws<LangException>(() => parser.Parse());
-            Assert.AreEqual(LangException.ErrorCode.UNEXPECTED_TOKEN, exception.ErrorType);
+            MathException exception = Assert.Throws<MathException>(() => parser.Parse());
+            Assert.AreEqual(MathException.ErrorCode.UNEXPECTED_TOKEN, exception.Code);
         }
 
-        [Test]
-        [TestCase("{a}", new[] { "a" })]
-        [TestCase("2 * {a} - {PI}", new[] { "a", "PI" })]
-        [TestCase("({a} - 5) * 4 + {E}", new[] { "a", "E" })]
-        public void ParseVariableExpression_Multiple(string input, string[] expected)
-        {
-            Assert.That(input.GetVariables(_context), Is.EquivalentTo(expected));
-        }
-        
         [Test]
         [TestCase("{a} pow 3", "{a} pow 3")]
         [TestCase("rand (3 + 5)", "rand(3 + 5)")]
         [TestCase("rand (3 pow 5)", "rand(3 pow 5)")]
         public void ParseExpression_CustomOperators(string input, string expected)
         {
-            MathContext context = new MathContext();
-            context.RegisterBinary("pow", default);
-            context.RegisterUnary("rand", default);
+            MathContext context = new MathContext(_context);
+            context.RegisterBinary("pow", (a, b) => a);
+            context.RegisterUnary("rand", (a) => a);
 
             ITokenizer tokenizer = new Tokenizer(input);
             IParser parser = new Parser(tokenizer, context);
@@ -99,7 +92,7 @@ namespace StringMath.Tests
 
             Assert.AreEqual(expected, actual);
         }
-        
+
         [Test]
         [TestCase("{a} pow 3")]
         [TestCase("rand 3")]
@@ -109,9 +102,9 @@ namespace StringMath.Tests
 
             ITokenizer tokenizer = new Tokenizer(expected);
             IParser parser = new Parser(tokenizer, context);
-            
-            LangException exception = Assert.Throws<LangException>(() => parser.Parse());
-            Assert.AreEqual(LangException.ErrorCode.UNEXPECTED_TOKEN, exception.ErrorType);
+
+            MathException exception = Assert.Throws<MathException>(() => parser.Parse());
+            Assert.AreEqual(MathException.ErrorCode.UNEXPECTED_TOKEN, exception.Code);
         }
 
         [Test]
@@ -149,16 +142,16 @@ namespace StringMath.Tests
             ITokenizer tokenizer = new Tokenizer(expected);
             IParser parser = new Parser(tokenizer, _context);
 
-            LangException exception = Assert.Throws<LangException>(() => parser.Parse());
-            Assert.AreEqual(LangException.ErrorCode.UNEXPECTED_TOKEN, exception.ErrorType);
+            MathException exception = Assert.Throws<MathException>(() => parser.Parse());
+            Assert.AreEqual(MathException.ErrorCode.UNEXPECTED_TOKEN, exception.Code);
         }
 
         [Test]
         [TestCase("10 + 3", "10 + 3")]
-        [TestCase("cos(90.0) - 5", "cos(90.0) - 5")]
+        [TestCase("cos(90.0) - 5", "cos(90) - 5")]
         [TestCase("round(1) * (2 + 3)", "round(1) * (2 + 3)")]
         [TestCase("!1.5 / 3", "1.5! / 3")]
-        [TestCase("1.5! ^ sqrt 3", "1.5! ^ sqrt3")]
+        [TestCase("1.5! ^ sqrt 3", "1.5! ^ sqrt(3)")]
         [TestCase("{a} - abs (5 % 3)", "{a} - abs(5 % 3)")]
         [TestCase("{a} - 3 + {b}", "{a} - 3 + {b}")]
         [TestCase("{a} / 3 * {b}", "{a} / 3 * {b}")]
@@ -170,31 +163,31 @@ namespace StringMath.Tests
             IParser parser = new Parser(tokenizer, _context);
 
             IExpression result = parser.Parse();
-            string actual = result.ToString();
+            string actual = result.ToString(_context);
 
             Assert.IsInstanceOf<BinaryExpression>(result);
             Assert.AreEqual(expected, actual);
         }
 
         [Test]
-        [TestCase("sin(90.0 + 2)", "sin(90.0 + 2)")]
-        [TestCase("cos(90.0)", "cos(90.0)")]
+        [TestCase("sin(90.0 + 2)", "sin(90 + 2)")]
+        [TestCase("cos(90.0)", "cos(90)")]
         [TestCase("round(1)", "round(1)")]
         [TestCase("!1.5", "1.5!")]
         [TestCase("1.5!", "1.5!")]
-        [TestCase("abs.5", "abs.5")]
+        [TestCase("abs.5", "abs(0.5)")]
         [TestCase("-999", "-999")]
         [TestCase("sqrt(-999 / 2 * 3 max 5)", "sqrt(-999 / 2 * 3 max 5)")]
-        [TestCase("-(sqrt5)", "-(sqrt5)")]
-        [TestCase("- sqrt5", "-sqrt5")]
-        [TestCase("sqrt{a}", "sqrt{a}")]
+        [TestCase("-(sqrt5)", "-(sqrt(5))")]
+        [TestCase("- sqrt5", "-(sqrt(5))")]
+        [TestCase("sqrt{a}", "sqrt({a})")]
         public void ParseUnaryExpression(string input, string expected)
         {
             ITokenizer tokenizer = new Tokenizer(input);
             IParser parser = new Parser(tokenizer, _context);
 
             IExpression result = parser.Parse();
-            string actual = result.ToString();
+            string actual = result.ToString(_context);
 
             Assert.IsInstanceOf<UnaryExpression>(result);
             Assert.AreEqual(expected, actual);
@@ -209,22 +202,22 @@ namespace StringMath.Tests
             ITokenizer tokenizer = new Tokenizer(input);
             IParser parser = new Parser(tokenizer, _context);
 
-            LangException exception = Assert.Throws<LangException>(() => parser.Parse());
-            Assert.AreEqual(LangException.ErrorCode.UNEXPECTED_TOKEN, exception.ErrorType);
+            MathException exception = Assert.Throws<MathException>(() => parser.Parse());
+            Assert.AreEqual(MathException.ErrorCode.UNEXPECTED_TOKEN, exception.Code);
         }
 
         [Test]
-        [TestCase("1")]
-        [TestCase("1.5")]
-        [TestCase(".5")]
-        [TestCase("9999999")]
-        public void ParseConstantExpression(string expected)
+        [TestCase("1", "1")]
+        [TestCase("1.5", "1.5")]
+        [TestCase(".5", "0.5")]
+        [TestCase("9999999", "9999999")]
+        public void ParseConstantExpression(string input, string expected)
         {
-            ITokenizer tokenizer = new Tokenizer(expected);
+            ITokenizer tokenizer = new Tokenizer(input);
             IParser parser = new Parser(tokenizer, _context);
 
             IExpression result = parser.Parse();
-            string actual = result.ToString();
+            string actual = result.ToString(_context);
 
             Assert.IsInstanceOf<ConstantExpression>(result);
             Assert.AreEqual(expected, actual);
@@ -241,29 +234,28 @@ namespace StringMath.Tests
             ITokenizer tokenizer = new Tokenizer(expected);
             IParser parser = new Parser(tokenizer, _context);
 
-            LangException exception = Assert.Throws<LangException>(() => parser.Parse());
-            Assert.AreEqual(LangException.ErrorCode.UNEXPECTED_TOKEN, exception.ErrorType);
+            MathException exception = Assert.Throws<MathException>(() => parser.Parse());
+            Assert.AreEqual(MathException.ErrorCode.UNEXPECTED_TOKEN, exception.Code);
         }
 
         [Test]
-        [TestCase("(1)")]
-        [TestCase("((1))")]
-        [TestCase("(1 + 2)")]
-        [TestCase("((1 + 2) % 3)")]
-        [TestCase("(5! * (1 + 2))")]
-        [TestCase("(5 + (1 + 2))")]
-        [TestCase("((5 - {a}) + (1 + 2))")]
-        [TestCase("((5 - 2) + (1 + 2! * 3))")]
-        [TestCase("((5 - 2) + ((-1 + 2) * 3))")]
-        public void ParseGroupingExpression(string expected)
+        [TestCase("(1)", "1")]
+        [TestCase("((1))", "1")]
+        [TestCase("(1 + 2)", "1 + 2")]
+        [TestCase("((1 + 2) % 3)", "(1 + 2) % 3")]
+        [TestCase("(5! * (1 + 2))", "5! * (1 + 2)")]
+        [TestCase("(5 + (1 + 2))", "5 + 1 + 2")]
+        [TestCase("((5 - {a}) + (1 + 2))", "5 - {a} + 1 + 2")]
+        [TestCase("((5 - 2) + (1 + 2! * 3))", "5 - 2 + 1 + 2! * 3")]
+        [TestCase("((5 - 2) + ((-1 + 2) * 3))", "5 - 2 + (-1 + 2) * 3")]
+        public void ParseGroupingExpression(string input, string expected)
         {
-            ITokenizer tokenizer = new Tokenizer(expected);
+            ITokenizer tokenizer = new Tokenizer(input);
             IParser parser = new Parser(tokenizer, _context);
 
             IExpression result = parser.Parse();
-            string actual = result.ToString();
+            string actual = result.ToString(_context);
 
-            Assert.IsInstanceOf<GroupingExpression>(result);
             Assert.AreEqual(expected, actual);
         }
 
@@ -282,8 +274,8 @@ namespace StringMath.Tests
             ITokenizer tokenizer = new Tokenizer(expected);
             IParser parser = new Parser(tokenizer, _context);
 
-            LangException exception = Assert.Throws<LangException>(() => parser.Parse());
-            Assert.AreEqual(LangException.ErrorCode.UNEXPECTED_TOKEN, exception.ErrorType);
+            MathException exception = Assert.Throws<MathException>(() => parser.Parse());
+            Assert.AreEqual(MathException.ErrorCode.UNEXPECTED_TOKEN, exception.Code);
         }
     }
 }

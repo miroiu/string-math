@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace StringMath
+﻿namespace StringMath.Expressions
 {
     /// <summary>A binary expression.</summary>
     internal sealed class BinaryExpression : IExpression
@@ -30,8 +28,17 @@ namespace StringMath
 
         /// <inheritdoc />
         public override string ToString()
+            => ToString(MathContext.Default);
+
+        public string ToString(IMathContext context)
         {
-            return $"{Left} {OperatorName} {Right}";
+            bool addLeft = Left is BinaryExpression left && context.GetBinaryPrecedence(OperatorName) > context.GetBinaryPrecedence(left.OperatorName);
+            bool addRight = Right is BinaryExpression right && context.GetBinaryPrecedence(OperatorName) > context.GetBinaryPrecedence(right.OperatorName);
+
+            string? leftStr = addLeft ? $"({Left.ToString(context)})" : Left.ToString(context);
+            string? rightStr = addRight ? $"({Right.ToString(context)})" : Right.ToString(context);
+
+            return $"{leftStr} {OperatorName} {rightStr}";
         }
     }
 }

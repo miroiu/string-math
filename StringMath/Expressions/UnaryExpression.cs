@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace StringMath
+namespace StringMath.Expressions
 {
     /// <summary>An unary expression.</summary>
     internal sealed class UnaryExpression : IExpression
@@ -25,8 +25,13 @@ namespace StringMath
 
         /// <inheritdoc />
         public override string ToString()
-        {
-            return string.Equals(OperatorName, "!", StringComparison.Ordinal) ? $"{Operand}{OperatorName}" : $"{OperatorName}{Operand}";
-        }
+            => ToString(MathContext.Default);
+
+        public string ToString(IMathContext context)
+            => OperatorName.Length > 2 || Operand is BinaryExpression || Operand is UnaryExpression
+                ? $"{OperatorName}({Operand.ToString(context)})"
+                : string.Equals(OperatorName, "!", StringComparison.Ordinal)
+                ? $"{Operand.ToString(context)}{OperatorName}"
+                : $"{OperatorName}{Operand.ToString(context)}";
     }
 }

@@ -19,7 +19,7 @@ namespace StringMath
             else
             {
                 Token token = new Token(TokenType.Unknown, stream.Current.ToString(), stream.Position);
-                throw LangException.UnexpectedToken(token, TokenType.Identifier);
+                throw MathException.UnexpectedToken(token, TokenType.Identifier);
             }
 
             while (stream.Current != identifierTerminator)
@@ -32,7 +32,7 @@ namespace StringMath
                 else
                 {
                     Token token = new Token(TokenType.Unknown, stream.Current.ToString(), stream.Position);
-                    throw LangException.UnexpectedToken(token, identifierTerminator);
+                    throw MathException.UnexpectedToken(token, identifierTerminator);
                 }
             }
 
@@ -43,7 +43,7 @@ namespace StringMath
             if (text.Length == 2)
             {
                 Token token = new Token(TokenType.Unknown, identifierTerminator.ToString(), stream.Position - 1);
-                throw LangException.UnexpectedToken(token, identifierTerminator);
+                throw MathException.UnexpectedToken(token, identifierTerminator);
             }
 
             return text;
@@ -81,7 +81,7 @@ namespace StringMath
                     else
                     {
                         Token token = new Token(TokenType.Unknown, stream.Current.ToString(), stream.Position);
-                        throw LangException.UnexpectedToken(token, TokenType.Number);
+                        throw MathException.UnexpectedToken(token, TokenType.Number);
                     }
                 }
                 else if (char.IsDigit(stream.Current))
@@ -100,7 +100,7 @@ namespace StringMath
             if (peeked == '.')
             {
                 Token token = new Token(TokenType.Unknown, peeked.ToString(), stream.Position);
-                throw LangException.UnexpectedToken(token, TokenType.Number);
+                throw MathException.UnexpectedToken(token, TokenType.Number);
             }
 
             return builder.ToString();

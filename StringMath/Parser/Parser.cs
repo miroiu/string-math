@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using StringMath.Expressions;
 
 namespace StringMath
 {
@@ -9,10 +8,6 @@ namespace StringMath
         private readonly ITokenizer _tokenzier;
         private readonly IMathContext _mathContext;
         private Token _currentToken;
-        private readonly HashSet<string> _variables = new HashSet<string>(StringComparer.Ordinal);
-
-        /// <inheritdoc />
-        public IReadOnlyCollection<string> Variables => _variables;
 
         /// <summary>Initializes a new instance of a parser.</summary>
         /// <param name="tokenizer">The tokenizer.</param>
@@ -83,15 +78,15 @@ namespace StringMath
                     return new ConstantExpression(Take().Text);
 
                 case TokenType.Identifier:
-                    VariableExpression rep = new VariableExpression(Take().Text);
-                    _variables.Add(rep.Name);
-                    return rep;
+                    string text = Take().Text;
+                    string name = text.Substring(1, text.Length - 2);
+                    return new VariableExpression(name);
 
                 case TokenType.OpenParen:
                     return ParseGroupingExpression();
 
                 default:
-                    throw LangException.UnexpectedToken(_currentToken);
+                    throw MathException.UnexpectedToken(_currentToken);
             }
         }
 
@@ -102,14 +97,14 @@ namespace StringMath
             IExpression expr = ParseBinaryExpression();
             Match(TokenType.CloseParen);
 
-            return new GroupingExpression(expr);
+            return expr;
         }
 
         private Token Match(TokenType tokenType)
         {
             return _currentToken.Type == tokenType
                 ? Take()
-                : throw LangException.UnexpectedToken(_currentToken, tokenType);
+                : throw MathException.UnexpectedToken(_currentToken, tokenType);
         }
 
         private Token Take()
