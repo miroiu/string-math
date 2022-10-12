@@ -10,6 +10,8 @@ namespace StringMath
     {
         private readonly IExpressionVisitor _evaluator;
         private readonly IVariablesCollection _variables = new VariablesCollection();
+        private IReadOnlyCollection<string>? _localVariables;
+        private IReadOnlyCollection<string>? _allVariables;
         private double? _cachedResult;
 
         internal IExpression Expression { get; }
@@ -17,8 +19,24 @@ namespace StringMath
         /// <summary>The <see cref="IMathContext"/> in which this expression is evaluated.</summary>
         public IMathContext Context { get; }
 
-        /// <summary>A collection of variable names extracted from the <see cref="Text"/>.</summary>
-        public IReadOnlyCollection<string> Variables { get; }
+        /// <summary>A collection of variable names excluding globals from <see cref="Variables"/>.</summary>
+        public IReadOnlyCollection<string> LocalVariables => _localVariables ??= Variables.Where(x => !VariablesCollection.Default.Contains(x)).ToList();
+
+        /// <summary>A collection of variable names including globals extracted from the <see cref="Text"/>.</summary>
+        public IReadOnlyCollection<string> Variables
+        {
+            get
+            {
+                if (_allVariables == null)
+                {
+                    var extractor = new ExtractVariables();
+                    extractor.Visit(Expression);
+                    _allVariables = extractor.Variables;
+                }
+
+                return _allVariables;
+            }
+        }
 
         /// <summary>Constructs a <see cref="MathExpr"/> from a string.</summary>
         /// <param name="text">The math expression.</param>
@@ -29,20 +47,8 @@ namespace StringMath
         /// <summary>Constructs a <see cref="MathExpr"/> from a string.</summary>
         /// <param name="text">The math expression.</param>
         /// <param name="context">The <see cref="IMathContext"/> in which this expression is evaluated.</param>
-        public MathExpr(string text, IMathContext context)
+        public MathExpr(string text, IMathContext context) : this(text.Parse(context), context)
         {
-            text.EnsureNotNull(nameof(text));
-            context.EnsureNotNull(nameof(context));
-
-            Context = context;
-
-            ITokenizer tokenizer = new Tokenizer(text);
-            IParser parser = new Parser(tokenizer, context);
-            IExpression root = parser.Parse();
-            Variables = parser.Variables.Where(x => !VariablesCollection.Default.Contains(x)).ToList();
-
-            Expression = root;
-            _evaluator = new EvaluateExpression(Context, _variables);
         }
 
         /// <summary>Constructs a <see cref="MathExpr"/> from an expression tree.</summary>
@@ -54,10 +60,6 @@ namespace StringMath
             context.EnsureNotNull(nameof(context));
 
             Context = context;
-
-            var extractor = new ExtractVariables();
-            extractor.Visit(expression);
-            Variables = extractor.Variables.Where(x => !VariablesCollection.Default.Contains(x)).ToList();
 
             Expression = expression;
             _evaluator = new EvaluateExpression(Context, _variables);
@@ -92,7 +94,7 @@ namespace StringMath
                 throw MathException.ReadonlyVariable(name);
             }
 
-            if (Variables.Contains(name))
+            if (LocalVariables.Contains(name))
             {
                 _cachedResult = null;
                 _variables[name] = value;

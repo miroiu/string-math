@@ -11,9 +11,15 @@ public record Expr
     public static Neg operator -(Expr operand) => new(operand);
 
     public static implicit operator Expr(double value) => new Number(value);
+    public static implicit operator Expr(string value) => value.ToExpr();
 }
 
-public record Variable(string Name) : Expr;
+public record Variable(string Name) : Expr
+{
+    public static implicit operator string(Variable var) => var.Name;
+    public static implicit operator Variable(string name) => new(name);
+}
+
 public record Number(double Value) : Expr
 {
     public static implicit operator Number(double val) => new(val);

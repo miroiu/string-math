@@ -12,16 +12,16 @@ namespace StringMath
         public static readonly Precedence Addition = new Precedence(0);
 
         /// <summary>Multiplication precedence (1).</summary>
-        public static readonly Precedence Multiplication = new Precedence(1);
+        public static readonly Precedence Multiplication = new Precedence(4);
 
         /// <summary>Power precedence (2).</summary>
-        public static readonly Precedence Power = new Precedence(2);
+        public static readonly Precedence Power = new Precedence(8);
 
         /// <summary>Logarithmic precedence (3).</summary>
-        public static readonly Precedence Logarithmic = new Precedence(3);
+        public static readonly Precedence Logarithmic = new Precedence(16);
 
         /// <summary>User defined precedence (4).</summary>
-        public static readonly Precedence UserDefined = new Precedence(4);
+        public static readonly Precedence UserDefined = new Precedence(32);
 
         /// <summary>The highest precedence value.</summary>
         public static readonly Precedence Prefix = new Precedence(int.MaxValue);
@@ -55,32 +55,22 @@ namespace StringMath
 
         /// <inheritdoc />
         public bool Equals(Precedence other)
-        {
-            return other._value == _value;
-        }
+            => other._value == _value;
 
         /// <inheritdoc />
         public override bool Equals(object? obj)
-        {
-            return obj is Precedence && Equals(obj);
-        }
+            => obj is Precedence && Equals(obj);
 
         /// <inheritdoc />
         public override int GetHashCode()
-        {
-            return _value.GetHashCode();
-        }
+            => _value.GetHashCode();
 
         /// <inheritdoc />
         public static bool operator ==(Precedence left, Precedence right)
-        {
-            return left.Equals(right);
-        }
+            => left.Equals(right);
 
         /// <inheritdoc />
         public static bool operator !=(Precedence left, Precedence right)
-        {
-            return !(left == right);
-        }
+            => !(left == right);
     }
 }

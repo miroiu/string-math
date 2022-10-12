@@ -11,7 +11,7 @@ namespace StringMath.Tests
         [OneTimeSetUp]
         public void Setup()
         {
-            _context = new MathContext();
+            _context = MathContext.Default;
         }
 
         [Test]
@@ -64,6 +64,7 @@ namespace StringMath.Tests
         [TestCase("1 + asd")]
         [TestCase("{-a}")]
         [TestCase("*{a}")]
+        [TestCase("1 + 2 1")]
         public void ParseBadExpression_Exception(string input)
         {
             ITokenizer tokenizer = new Tokenizer(input);
@@ -74,21 +75,12 @@ namespace StringMath.Tests
         }
 
         [Test]
-        [TestCase("{a}", new[] { "a" })]
-        [TestCase("2 * {a} - {PI}", new[] { "a", "PI" })]
-        [TestCase("({a} - 5) * 4 + {E}", new[] { "a", "E" })]
-        public void ParseVariableExpression_Multiple(string input, string[] expected)
-        {
-            Assert.That(input.GetVariables(_context), Is.EquivalentTo(expected));
-        }
-
-        [Test]
         [TestCase("{a} pow 3", "{a} pow 3")]
         [TestCase("rand (3 + 5)", "rand(3 + 5)")]
         [TestCase("rand (3 pow 5)", "rand(3 pow 5)")]
         public void ParseExpression_CustomOperators(string input, string expected)
         {
-            MathContext context = new MathContext();
+            MathContext context = new MathContext(_context);
             context.RegisterBinary("pow", (a, b) => a);
             context.RegisterUnary("rand", (a) => a);
 

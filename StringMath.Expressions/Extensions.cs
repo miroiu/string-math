@@ -5,6 +5,9 @@ public static partial class Extensions
     public static Expr ToExpr(this MathExpr expr)
         => ExprConversion.Convert(expr.Expression);
 
+    public static Expr ToExpr(this string expr)
+        => ExprConversion.Convert(((MathExpr)expr).Expression);
+
     public static MathExpr ToMathExpr(this Expr expr, IMathContext? context = default)
     {
         var expression = ExprConversion.Convert(expr);
@@ -51,144 +54,5 @@ public static partial class Extensions
         while (simplified != temp);
 
         return simplified.ToMathExpr(expr.Context);
-    }
-}
-
-public static partial class Extensions
-{
-    public static Expr Expand(this Expr expr)
-    {
-        static Expr E(Expr e) => e switch
-        {
-            // 5 * (a + b) => 5 * a + 5 * b
-            Mul(Number num, Sum sum) => num * E(sum.Left) + num * E(sum.Right),
-
-            // (a + b) * 5 => 5 * a + 5 * b
-            Mul(Sum sum, Number num) => num * E(sum.Left) + num * E(sum.Right),
-
-            // (a - b) * 5 => 5 * a - 5 * b
-            Mul(Number num, Diff diff) => num * E(diff.Left) - num * E(diff.Right),
-
-            // 5 * (a - b) => 5 * a - 5 * b
-            Mul(Diff diff, Number num) => num * E(diff.Left) - num * E(diff.Right),
-
-            // c * (a + b) => c * a + c * b
-            Mul(Variable num, Sum sum) => num * E(sum.Left) + num * E(sum.Right),
-
-            // (a + b) * c => c * a + c * b
-            Mul(Sum sum, Variable num) => num * E(sum.Left) + num * E(sum.Right),
-
-            // c * (a - b) => c * a - c * b
-            Mul(Variable num, Diff diff) => num * E(diff.Left) - num * E(diff.Right),
-
-            // (a - b) * c => c * a - c * b
-            Mul(Diff diff, Variable num) => num * E(diff.Left) - num * E(diff.Right),
-
-            // -(a - b) => -a + b
-            Neg(Neg(Expr a)) => E(a),
-
-            // -(a - b) => -a + b
-            Neg(Diff(Expr a, Expr b)) => -E(a) + E(b),
-
-            // -(a + b) => -a - b
-            Neg(Sum(Expr a, Expr b)) => -E(a) - E(b),
-
-            // x^(m + n)
-            Pow(Expr x, Sum(Expr m, Expr n)) => (E(x) ^ E(m)) * (E(x) ^ E(n)),
-
-            // x^(m - n)
-            Pow(Expr x, Diff(Expr m, Expr n)) => (E(x) ^ E(m)) / (E(x) ^ E(n)),
-
-            // (x^m)^n
-            Pow(Pow(Expr x, Expr m), Expr n) => E(x) ^ (E(m) * E(n)),
-
-            // (x/y)^-m
-            Pow(Div(Expr x, Expr y), Neg(Expr m)) => (E(y) / E(x)) ^ E(m),
-
-            // (x*y)^m
-            Pow(Mul(Expr x, Expr y), Expr m) => (E(x) ^ E(m)) * (E(y) ^ E(m)),
-
-            // (x*y)^m
-            Pow(Div(Expr x, Expr y), Expr m) => (E(x) ^ E(m)) / (E(y) ^ E(m)),
-
-            // x^-m
-            Pow(Expr x, Neg(Expr m)) => 1 / (E(x) ^ E(m)),
-
-            // x^2 => x * x
-            Pow(Expr x, Number(2)) => E(x) * E(x),
-
-            // generic
-            Binary(Expr a, string op, Expr b) => SMath.Binary(E(a), op, E(b)),
-            Unary(Expr a, string op) => SMath.Unary(E(a), op),
-
-            _ => e
-        };
-
-        return E(expr);
-    }
-
-    /// <summary>Attempts to simplify the given expression.</summary>
-    /// <param name="expr">The expression.</param>
-    /// <returns>A new simplified expression.</returns>
-    public static Expr Simplify(this Expr expr, IMathContext context)
-    {
-        Expr S(Expr e) => e switch
-        {
-            // -1
-            Unary(Number a, string op) => context.EvaluateUnary(op, a.Value),
-
-            // -a
-            Unary(Variable, string) c => c,
-
-            // 3 * 2
-            Binary(Number a, string op, Number b) => context.EvaluateBinary(op, a.Value, b.Value),
-
-            // x / 2
-            Binary(Variable, string, Number) c => c,
-
-            // 2 % x
-            Binary(Number, string, Variable) c => c,
-
-            // x ^ y
-            Binary(Variable, string, Variable) c => c,
-
-            // a - 0
-            Diff(Expr expr, Number(0)) => S(expr),
-
-            // 0 - a
-            Diff(Number(0), Expr expr) => S(-expr),
-
-            // 0 + a
-            Sum(Number(0), Expr expr) => S(expr),
-
-            // a + 0
-            Sum(Expr expr, Number(0)) => S(expr),
-
-            // 0 * a
-            Mul(Number(0), Expr) => 0,
-
-            // a * 0
-            Mul(Expr, Number(0)) => 0,
-
-            // 1 * a
-            Mul(Number(1), Expr expr) => S(expr),
-
-            // a * 1
-            Mul(Expr expr, Number(1)) => S(expr),
-
-            // x^1
-            Pow(Expr x, Number(1)) => S(x),
-
-            // x^0
-            Pow(Expr, Number(0)) => 1,
-
-            // generic
-            Binary(Expr a, string op, Expr b) => SMath.Binary(S(a), op, S(b)),
-            Unary(Expr a, string op) => SMath.Unary(S(a), op),
-
-            _ => e
-        };
-
-        return S(expr);
     }
 }

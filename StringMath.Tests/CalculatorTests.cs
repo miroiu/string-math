@@ -76,12 +76,25 @@ namespace StringMath.Tests
         }
 
         [Test]
-        public void Variables_Should_Exclude_Global_Variables()
+        [TestCase("{a}", new[] { "a" })]
+        [TestCase("2 * {a} - {PI}", new[] { "a" })]
+        [TestCase("({a} - 5) * 4 + {E}", new[] { "a" })]
+        public void LocalVariables_Should_Exclude_Global_Variables(string input, string[] expected)
         {
-            MathExpr.AddVariable("PI", Math.PI);
-            MathExpr expr = "3 + {a} + {PI}";
+            MathExpr expr = input;
 
-            Assert.AreEqual(new string[] { "a" }, expr.Variables);
+            Assert.AreEqual(expected, expr.LocalVariables);
+        }
+
+        [Test]
+        [TestCase("{a}", new[] { "a" })]
+        [TestCase("2 * {a} - {PI}", new[] { "a", "PI" })]
+        [TestCase("({a} - 5) * 4 + {E}", new[] { "a", "E" })]
+        public void Variables_Should_Include_Global_Variables(string input, string[] expected)
+        {
+            MathExpr expr = input;
+
+            Assert.AreEqual(expected, expr.Variables);
         }
 
         [Test]
@@ -143,8 +156,8 @@ namespace StringMath.Tests
         [TestCase("((1 + 1) + ((1 + 1) + (((1) + 1)) + 1))", 7)]
         public void Evaluate(string input, double expected)
         {
-            MathExpr expr = input;
-            Assert.AreEqual(expected, expr.Result);
+            double result = input.Eval();
+            Assert.AreEqual(expected, result);
         }
 
         [TestCase("{b}+3*{a}", 3, 2, 11)]
@@ -172,8 +185,7 @@ namespace StringMath.Tests
         [TestCase("({a})", 3, 3)]
         public void Evaluate(string input, double variable, double expected)
         {
-            MathExpr expr = input;
-            expr["a"] = variable;
+            MathExpr expr = input.Substitute("a", variable);
 
             Assert.AreEqual(expected, expr.Result);
         }
@@ -234,6 +246,37 @@ namespace StringMath.Tests
 
             MathException exception = Assert.Throws<MathException>(() => expr.Result.ToString());
             Assert.AreEqual(MathException.ErrorCode.UNASSIGNED_VARIABLE, exception.Code);
+        }
+
+        [Test]
+        public void Evaluate_Sharing_Context()
+        {
+            MathExpr expr = "{a} + 1".Substitute("a", 2);
+            expr.SetOperator("+", (a, b) => Math.Pow(a, b));
+
+            Assert.AreEqual(2, expr.Result);
+
+            MathExpr expr2 = "3 + 2".ToMathExpr(expr.Context);
+            Assert.AreEqual(9, expr2.Result);
+
+            double result = "1 + 2 + 3".Eval(expr.Context);
+            Assert.AreEqual(1, result);
+        }
+
+        [Test]
+        public void Evaluate_Custom_Context()
+        {
+            var context = new MathContext();
+            context.RegisterBinary("+", (a, b) => Math.Pow(a, b));
+
+            MathExpr expr = new MathExpr("{a} + 1", context).Substitute("a", 2);
+            Assert.AreEqual(2, expr.Result);
+
+            MathExpr expr2 = "3 + 2".ToMathExpr(context);
+            Assert.AreEqual(9, expr2.Result);
+
+            double result = "1 + 2 + 3".Eval(context);
+            Assert.AreEqual(1, result);
         }
     }
 }

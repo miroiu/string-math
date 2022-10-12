@@ -5,7 +5,7 @@ using System.Collections.Generic;
 namespace StringMath
 {
     /// <summary>A collection of variables.</summary>
-    public interface IVariablesCollection : IEnumerable<string>
+    internal interface IVariablesCollection : IEnumerable<string>
     {
         /// <summary>Overwrites the value of a variable.</summary>
         /// <param name="name">The variable's name.</param>
@@ -28,7 +28,7 @@ namespace StringMath
     }
 
     /// <inheritdoc />
-    public class VariablesCollection : IVariablesCollection
+    internal class VariablesCollection : IVariablesCollection
     {
         public static readonly VariablesCollection Default = new VariablesCollection();
 

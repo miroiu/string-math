@@ -19,16 +19,5 @@ namespace StringMath.Tests
 
             return tokens;
         }
-
-        public static IReadOnlyCollection<string> GetVariables(this string input, IMathContext context)
-        {
-            ITokenizer tokenzier = new Tokenizer(input);
-            IParser parser = new Parser(tokenzier, context);
-
-            // Populate the variables collection
-            parser.Parse();
-
-            return parser.Variables;
-        }
     }
 }

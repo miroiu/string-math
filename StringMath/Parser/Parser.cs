@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using StringMath.Expressions;
+﻿using StringMath.Expressions;
 
 namespace StringMath
 {
@@ -10,10 +8,6 @@ namespace StringMath
         private readonly ITokenizer _tokenzier;
         private readonly IMathContext _mathContext;
         private Token _currentToken;
-        private readonly HashSet<string> _variables = new HashSet<string>(StringComparer.Ordinal);
-
-        /// <inheritdoc />
-        public IReadOnlyCollection<string> Variables => _variables;
 
         /// <summary>Initializes a new instance of a parser.</summary>
         /// <param name="tokenizer">The tokenizer.</param>
@@ -86,9 +80,7 @@ namespace StringMath
                 case TokenType.Identifier:
                     string text = Take().Text;
                     string name = text.Substring(1, text.Length - 2);
-                    VariableExpression rep = new VariableExpression(name);
-                    _variables.Add(rep.Name);
-                    return rep;
+                    return new VariableExpression(name);
 
                 case TokenType.OpenParen:
                     return ParseGroupingExpression();

@@ -5,19 +5,24 @@ namespace StringMath
 {
     /// <inheritdoc />
     /// <remarks>Inherits operators from <see cref="Parent"/>.</remarks>
-    internal sealed class MathContext : IMathContext
+    public sealed class MathContext : IMathContext
     {
         private readonly Dictionary<string, Func<double, double, double>> _binaryEvaluators = new Dictionary<string, Func<double, double, double>>(StringComparer.Ordinal);
         private readonly Dictionary<string, Func<double, double>> _unaryEvaluators = new Dictionary<string, Func<double, double>>(StringComparer.Ordinal);
         private readonly Dictionary<string, Precedence> _binaryPrecedence = new Dictionary<string, Precedence>(StringComparer.Ordinal);
         private readonly HashSet<string> _operators = new HashSet<string>(StringComparer.Ordinal);
-        private readonly IMathContext? _parent;
 
-        public static readonly MathContext Default = new MathContext(null);
-        public IMathContext? Parent => _parent;
+        /// <summary>The global instance used by <see cref="MathExpr.AddOperator(string, Func{double, double})"/> methods.</summary>
+        public static readonly IMathContext Default = new MathContext();
+
+        /// <summary>The parent context to inherit from.</summary>
+        public IMathContext? Parent { get; }
 
         static MathContext()
         {
+            var rad = Math.PI / 180;
+            var deg = 180 / Math.PI;
+
             Default.RegisterBinary("+", (a, b) => a + b, Precedence.Addition);
             Default.RegisterBinary("-", (a, b) => a - b, Precedence.Addition);
             Default.RegisterBinary("*", (a, b) => a * b, Precedence.Multiplication);
@@ -32,7 +37,9 @@ namespace StringMath
             Default.RegisterUnary("!", a => ComputeFactorial(a));
             Default.RegisterUnary("sqrt", a => Math.Sqrt(a));
             Default.RegisterUnary("sin", a => Math.Sin(a));
+            Default.RegisterUnary("asin", a => Math.Asin(a));
             Default.RegisterUnary("cos", a => Math.Cos(a));
+            Default.RegisterUnary("acos", a => Math.Acos(a));
             Default.RegisterUnary("tan", a => Math.Tan(a));
             Default.RegisterUnary("atan", a => Math.Atan(a));
             Default.RegisterUnary("ceil", a => Math.Ceiling(a));
@@ -40,12 +47,17 @@ namespace StringMath
             Default.RegisterUnary("round", a => Math.Round(a));
             Default.RegisterUnary("exp", a => Math.Exp(a));
             Default.RegisterUnary("abs", a => Math.Abs(a));
+            Default.RegisterUnary("rad", a => rad * a);
+            Default.RegisterUnary("deg", a => deg * a);
         }
 
         /// <summary>Creates a new instance of a MathContext.</summary>
         /// <param name="parent">The parent context to inherit operators from.</param>
-        public MathContext(IMathContext? parent = default)
-            => _parent = parent ?? Default;
+        public MathContext(IMathContext parent)
+            => Parent = parent;
+
+        /// <summary>Creates a new instance of a MathContext.</summary>
+        public MathContext() { }
 
         /// <inheritdoc />
         public bool IsUnary(string operatorName)
