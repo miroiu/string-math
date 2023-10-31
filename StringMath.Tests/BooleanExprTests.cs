@@ -1,4 +1,5 @@
 ﻿using NUnit.Framework;
+using System;
 
 namespace StringMath.Tests
 {
@@ -14,15 +15,15 @@ namespace StringMath.Tests
             MathExpr.AddVariable("false", 0);
 
             _context = new MathContext();
-            _context.RegisterBinary("and", (a, b) => a != 0 && b != 0 ? 1 : 0, Precedence.Multiplication);
-            _context.RegisterBinary("or", (a, b) => a != 0 || b != 0 ? 1 : 0, Precedence.Addition);
-            _context.RegisterBinary(">", (a, b) => a > b ? 1 : 0, Precedence.Power);
-            _context.RegisterBinary("<", (a, b) => a < b ? 1 : 0, Precedence.Power);
-            _context.RegisterUnary("!", (a) => a != 0 ? 0 : 1);
+            _context.RegisterLogical("and", (a, b) => a && b, Precedence.Multiplication);
+            _context.RegisterLogical("or", (a, b) => a || b, Precedence.Addition);
+            _context.RegisterLogical(">", (a, b) => a > b, Precedence.Power);
+            _context.RegisterLogical("<", (a, b) => a < b, Precedence.Power);
+            _context.RegisterLogical("!", (a) => !a);
         }
 
         [Test]
-        public void Evaluate_Boolean_Substitution()
+        public void Evaluate_Variable_Substitution()
         {
             MathExpr expr = new MathExpr("{a} and 1", _context);
             Assert.IsFalse(expr.Substitute("a", 0).EvalBoolean());
@@ -40,13 +41,20 @@ namespace StringMath.Tests
         }
 
         [Test]
-        public void Evaluate_Boolean_Globals()
+        public void Evaluate_Globals_Variables()
         {
             Assert.IsTrue("{true} or {false} and {true}".EvalBoolean(_context));
             Assert.IsTrue("{true} or {false}".EvalBoolean(_context));
             Assert.IsFalse("{false} or {false}".EvalBoolean(_context));
             Assert.IsFalse("{true} and {false}".EvalBoolean(_context));
             Assert.IsTrue("{true} and {true}".EvalBoolean(_context));
+        }
+
+        [Test]
+        public void Evaluate_Binary_Operation()
+        {
+            _context.RegisterBinary("+", (a, b) => a + b);
+            Assert.IsTrue("(3 + 5) > 7".EvalBoolean(_context));
         }
     }
 
@@ -60,5 +68,14 @@ namespace StringMath.Tests
 
         public static MathExpr Substitute(this MathExpr expr, string name, bool value)
             => expr.Substitute(name, value is true ? 1 : 0);
+
+        public static void RegisterLogical(this IMathContext context, string operatorName, Func<bool, bool, bool> operation, Precedence? precedence)
+            => context.RegisterBinary(operatorName, (a, b) => operation(a != 0, b != 0) ? 1 : 0, precedence);
+
+        public static void RegisterLogical(this IMathContext context, string operatorName, Func<double, double, bool> operation, Precedence? precedence)
+            => context.RegisterBinary(operatorName, (a, b) => operation(a, b) ? 1 : 0, precedence);
+
+        public static void RegisterLogical(this IMathContext context, string operatorName, Func<bool, bool> operation)
+            => context.RegisterUnary(operatorName, (a) => operation(a != 0) ? 1 : 0);
     }
 }
