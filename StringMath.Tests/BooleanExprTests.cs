@@ -26,8 +26,8 @@ namespace StringMath.Tests
         public void Evaluate_Variable_Substitution()
         {
             MathExpr expr = new MathExpr("{a} and 1", _context);
-            Assert.IsFalse(expr.Substitute("a", 0).EvalBoolean());
-            Assert.IsTrue(expr.Substitute("a", 1).EvalBoolean());
+            Assert.IsFalse(expr.Substitute("a", false).EvalBoolean());
+            Assert.IsTrue(expr.Substitute("a", true).EvalBoolean());
         }
 
         [Test]
