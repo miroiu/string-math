@@ -42,6 +42,7 @@ namespace StringMath.Tests
         [Test]
         public void Evaluate_Boolean_Globals()
         {
+            Assert.IsTrue("{true} or {false} and {true}".EvalBoolean(_context));
             Assert.IsTrue("{true} or {false}".EvalBoolean(_context));
             Assert.IsFalse("{false} or {false}".EvalBoolean(_context));
             Assert.IsFalse("{true} and {false}".EvalBoolean(_context));
