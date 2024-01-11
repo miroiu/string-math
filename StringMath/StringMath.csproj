@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net8;net6;net5;netstandard2.1;netcoreapp3.1;net48;net472;net461</TargetFrameworks>
+    <TargetFrameworks>net8;net6;net5;netstandard2.1;netcoreapp3.1;net48;net472;net462</TargetFrameworks>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Authors>miroiu</Authors>
     <Company />
@@ -12,7 +12,7 @@ Supports variables and user defined operators.</Description>
     <PackageProjectUrl>https://github.com/miroiu/string-math</PackageProjectUrl>
     <RepositoryUrl>https://github.com/miroiu/string-math</RepositoryUrl>
     <PackageTags>expression-evaluator calculator string-math math string-calculator user-defined-operators operators custom-operators</PackageTags>
-    <Version>4.1.1</Version>
+    <Version>4.1.2</Version>
     <PackageReleaseNotes>Improved performance</PackageReleaseNotes>
     <PackageLicenseFile></PackageLicenseFile>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
@@ -22,12 +22,12 @@ Supports variables and user defined operators.</Description>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <RepositoryType>git</RepositoryType>
   </PropertyGroup>
-  
+
   <PropertyGroup Condition="'$(TargetFramework)'=='net472' OR '$(TargetFramework)'=='net48'">
     <LangVersion>8.0</LangVersion>
   </PropertyGroup>
   
-  <PropertyGroup Condition="'$(TargetFramework)'=='net461'">
+  <PropertyGroup Condition="'$(TargetFramework)'=='net462'">
     <LangVersion>preview</LangVersion>
   </PropertyGroup>
 

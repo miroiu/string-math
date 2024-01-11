@@ -3,6 +3,7 @@ using System.Collections.Generic;
 
 namespace StringMath
 {
+#if !(NETCOREAPP3_1_OR_GREATER || NETSTANDARD2_1_OR_GREATER)
     internal sealed class SourceText : IEnumerator<char>
     {
         public string Text { get; }
@@ -48,4 +49,5 @@ namespace StringMath
             return $"{Current} :{Position}";
         }
     }
+#endif
 }

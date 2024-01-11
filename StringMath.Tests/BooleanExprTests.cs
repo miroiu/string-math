@@ -1,15 +1,13 @@
-﻿using NUnit.Framework;
+﻿using Xunit;
 using System;
 
 namespace StringMath.Tests
 {
-    [TestFixture]
-    internal class BooleanExprTests
+    public class BooleanExprTests
     {
-        private MathContext _context;
+        private readonly MathContext _context;
 
-        [SetUp]
-        public void Setup()
+        public BooleanExprTests()
         {
             MathExpr.AddVariable("true", 1);
             MathExpr.AddVariable("false", 0);
@@ -22,39 +20,39 @@ namespace StringMath.Tests
             _context.RegisterLogical("!", (a) => !a);
         }
 
-        [Test]
+        [Fact]
         public void Evaluate_Variable_Substitution()
         {
             MathExpr expr = new MathExpr("{a} and 1", _context);
-            Assert.IsFalse(expr.Substitute("a", false).EvalBoolean());
-            Assert.IsTrue(expr.Substitute("a", true).EvalBoolean());
+            Assert.False(expr.Substitute("a", false).EvalBoolean());
+            Assert.True(expr.Substitute("a", true).EvalBoolean());
         }
 
-        [Test]
+        [Fact]
         public void Evaluate_Boolean_Numbers()
         {
             bool expr = "1 and 1".EvalBoolean(_context);
-            Assert.IsTrue(expr);
+            Assert.True(expr);
 
             bool result = "1 and 0 or !0 and 3 > 2".EvalBoolean(_context);
-            Assert.IsTrue(result);
+            Assert.True(result);
         }
 
-        [Test]
+        [Fact]
         public void Evaluate_Globals_Variables()
         {
-            Assert.IsTrue("{true} or {false} and {true}".EvalBoolean(_context));
-            Assert.IsTrue("{true} or {false}".EvalBoolean(_context));
-            Assert.IsFalse("{false} or {false}".EvalBoolean(_context));
-            Assert.IsFalse("{true} and {false}".EvalBoolean(_context));
-            Assert.IsTrue("{true} and {true}".EvalBoolean(_context));
+            Assert.True("{true} or {false} and {true}".EvalBoolean(_context));
+            Assert.True("{true} or {false}".EvalBoolean(_context));
+            Assert.False("{false} or {false}".EvalBoolean(_context));
+            Assert.False("{true} and {false}".EvalBoolean(_context));
+            Assert.True("{true} and {true}".EvalBoolean(_context));
         }
 
-        [Test]
+        [Fact]
         public void Evaluate_Binary_Operation()
         {
             _context.RegisterBinary("+", (a, b) => a + b);
-            Assert.IsTrue("(3 + 5) > 7".EvalBoolean(_context));
+            Assert.True("(3 + 5) > 7".EvalBoolean(_context));
         }
     }
 

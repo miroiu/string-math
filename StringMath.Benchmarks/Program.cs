@@ -1,4 +1,12 @@
 ﻿using BenchmarkDotNet.Running;
-using StringMath.Benchmarks;
 
-BenchmarkRunner.Run<TokenizerBenchmarks>();
+namespace StringMath.Benchmarks
+{
+    public class Program
+    {
+        public static void Main(string[] args)
+        {
+            BenchmarkRunner.Run<TokenizerBenchmarks>();
+        }
+    }
+}

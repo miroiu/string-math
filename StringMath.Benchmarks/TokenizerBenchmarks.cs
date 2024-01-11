@@ -5,6 +5,7 @@ namespace StringMath.Benchmarks
 {
     [MemoryDiagnoser(true)]
     [SimpleJob(RuntimeMoniker.Net80, warmupCount: 0, iterationCount: 1, launchCount: 1)]
+    [SimpleJob(RuntimeMoniker.Net48, warmupCount: 0, iterationCount: 1, launchCount: 1)]
     public class TokenizerBenchmarks
     {
         [Benchmark]

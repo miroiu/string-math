@@ -1,30 +1,34 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFrameworks>net8;net6;net5;netcoreapp3.1;net48;net472;net461</TargetFrameworks>
+    <PropertyGroup>
+    <TargetFrameworks>net8;net6;net5;netcoreapp3.1;net48;net472;net462</TargetFrameworks>
 
-    <IsPackable>false</IsPackable>
+        <IsPackable>false</IsPackable>
 
-    <SignAssembly>true</SignAssembly>
+        <SignAssembly>true</SignAssembly>
 
-    <AssemblyOriginatorKeyFile>../build/string-math.snk</AssemblyOriginatorKeyFile>
-  </PropertyGroup>
+        <AssemblyOriginatorKeyFile>../build/string-math.snk</AssemblyOriginatorKeyFile>
+    </PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="nunit" Version="3.13.2" />
-    <PackageReference Include="NUnit3TestAdapter" Version="4.0.0">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.11.0" />
-  </ItemGroup>
-  
+    <ItemGroup>
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
+        <PackageReference Include="xunit" Version="2.6.4" />
+        <PackageReference Include="xunit.runner.visualstudio" Version="2.5.6">
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+            <PrivateAssets>all</PrivateAssets>
+        </PackageReference>
+        <PackageReference Include="coverlet.collector" Version="6.0.0">
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+            <PrivateAssets>all</PrivateAssets>
+        </PackageReference>
+    </ItemGroup>
+
   <PropertyGroup Condition="'$(TargetFramework)'=='net472' OR '$(TargetFramework)'=='net48'">
     <LangVersion>8.0</LangVersion>
   </PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\StringMath\StringMath.csproj" />
-  </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\StringMath\StringMath.csproj" />
+    </ItemGroup>
 
 </Project>

@@ -1,12 +1,18 @@
-﻿using System.Collections.Generic;
-using System.Text;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace StringMath
 {
+#if NETCOREAPP3_1_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+
     /// <inheritdoc />
-    internal sealed partial class Tokenizer
+    internal sealed class Tokenizer
     {
-        private readonly SourceText _text;
+        private readonly List<Token> _tokens = new List<Token>(8);
+        private readonly int _length;
+        private int _currentIndex;
+        private int _tokenIndex;
 
         // Excluded characters for custom operators
         private static readonly HashSet<char> _invalidOperatorCharacters = new HashSet<char>
@@ -16,179 +22,213 @@ namespace StringMath
 
         /// <summary>Creates a new instance of the tokenizer.</summary>
         /// <param name="text">The text to tokenize.</param>
-        public Tokenizer(SourceText text)
+        public Tokenizer(string text) : this(text.AsSpan())
         {
-            _text = text;
         }
 
-        /// <summary>Creates a new instance of the tokenizer.</summary>
-        /// <param name="text">The text to tokenize.</param>
-        public Tokenizer(string text) : this(new SourceText(text))
+        private bool AtEnd
         {
+            get
+            {
+                Debug.Assert(_currentIndex <= _length);
+                return _currentIndex >= _length;
+            }
+        }
+
+        public Tokenizer(ReadOnlySpan<char> text)
+        {
+            _length = text.Length;
+
+            while (!AtEnd)
+            {
+                switch (text[_currentIndex])
+                {
+                    case '.':
+                    case '0':
+                    case '1':
+                    case '2':
+                    case '3':
+                    case '4':
+                    case '5':
+                    case '6':
+                    case '7':
+                    case '8':
+                    case '9':
+                        _tokens.Add(ReadNumber(ref text));
+                        break;
+
+                    case '(':
+                        MoveNext();
+                        _tokens.Add(new Token(TokenType.OpenParen, "(", _currentIndex));
+                        break;
+
+                    case ')':
+                        MoveNext();
+                        _tokens.Add(new Token(TokenType.CloseParen, ")", _currentIndex));
+                        break;
+
+                    case '{':
+                        _tokens.Add(ReadIdentifier(ref text));
+                        break;
+
+                    case '!':
+                        MoveNext();
+                        _tokens.Add(new Token(TokenType.Exclamation, "!", _currentIndex));
+                        break;
+
+                    case ' ':
+                    case '\t':
+                        SkipWhiteSpace(ref text);
+                        break;
+
+                    case '\r':
+                    case '\n':
+                        MoveNext();
+                        break;
+
+                    case '\0':
+                        _tokens.Add(new Token(TokenType.EndOfCode, "\0", _currentIndex));
+                        MoveNext();
+                        break;
+
+                    default:
+                        _tokens.Add(ReadOperator(ref text));
+                        break;
+                }
+            }
+
+            var endOfCodeToken = new Token(TokenType.EndOfCode, "\0", _currentIndex);
+            _tokens.Add(endOfCodeToken);
+        }
+
+        private void MoveNext()
+        {
+            Debug.Assert(_currentIndex < _length);
+            _currentIndex++;
         }
 
         /// <inheritdoc />
         public Token ReadToken()
         {
-            switch (_text.Current)
+            if (_tokenIndex < _tokens.Count)
             {
-                case '.':
-                case '0':
-                case '1':
-                case '2':
-                case '3':
-                case '4':
-                case '5':
-                case '6':
-                case '7':
-                case '8':
-                case '9':
-                    return new Token(TokenType.Number, ReadNumber(_text), _text.Position);
-
-                case '(':
-                    _text.MoveNext();
-                    return new Token(TokenType.OpenParen, "(", _text.Position);
-
-                case ')':
-                    _text.MoveNext();
-                    return new Token(TokenType.CloseParen, ")", _text.Position);
-
-                case '{':
-                    return new Token(TokenType.Identifier, ReadIdentifier(_text), _text.Position);
-
-                case '!':
-                    _text.MoveNext();
-                    return new Token(TokenType.Exclamation, "!", _text.Position);
-
-                case ' ':
-                case '\t':
-                    ReadWhiteSpace(_text);
-                    return ReadToken();
-
-                case '\r':
-                case '\n':
-                    _text.MoveNext();
-                    return ReadToken();
-
-                case '\0':
-                    return new Token(TokenType.EndOfCode, "\0", _text.Position);
-
-                default:
-                    string op = ReadOperator(_text);
-                    return new Token(TokenType.Operator, op, _text.Position);
+                return _tokens[_tokenIndex++];
             }
+
+            //Debug.Fail("Reading more tokens than expected.");
+            return _tokens[^1];
         }
 
-        /// <inheritdoc />
-        public override string? ToString()
-        {
-            return _text.ToString();
-        }
-
-        private string ReadIdentifier(SourceText stream)
+        private Token ReadIdentifier(ref ReadOnlySpan<char> input)
         {
             const char identifierTerminator = '}';
+            var endIndex = input[_currentIndex..].IndexOf(identifierTerminator) + _currentIndex;
 
-            StringBuilder builder = new StringBuilder(12);
-            stream.MoveNext();
-
-            if (char.IsLetter(stream.Current) || stream.Current == '_')
+            if (endIndex - _currentIndex < 2)
             {
-                builder.Append(stream.Current);
-                stream.MoveNext();
-            }
-            else
-            {
-                Token token = new Token(TokenType.Unknown, stream.Current.ToString(), stream.Position);
-                throw MathException.UnexpectedToken(token, TokenType.Identifier);
+                var unexpectedToken = new Token(TokenType.Unknown, input[_currentIndex].ToString(), _currentIndex);
+                throw MathException.UnexpectedToken(unexpectedToken, TokenType.Identifier);
             }
 
-            while (stream.Current != identifierTerminator)
+            var identifier = input.Slice(_currentIndex + 1, endIndex - _currentIndex - 1);
+
+            if (identifier.Length == 0)
             {
-                if (char.IsLetterOrDigit(stream.Current) || stream.Current == '_')
+                var unexpectedToken = new Token(TokenType.Unknown, identifierTerminator.ToString(), _currentIndex);
+                throw MathException.UnexpectedToken(unexpectedToken, identifierTerminator);
+            }
+
+            // Make sure we start with a letter or an underscore
+            if (!char.IsLetter(identifier[0]) && identifier[0] != '_')
+            {
+                var unexpectedToken = new Token(TokenType.Unknown, identifier[0].ToString(), _currentIndex);
+                throw MathException.UnexpectedToken(unexpectedToken, TokenType.Identifier);
+            }
+
+            for (int i = 0; i < identifier.Length; i++)
+            {
+                if (!char.IsLetterOrDigit(identifier[i]) && identifier[i] != '_')
                 {
-                    builder.Append(stream.Current);
-                    stream.MoveNext();
-                }
-                else
-                {
-                    Token token = new Token(TokenType.Unknown, stream.Current.ToString(), stream.Position);
-                    throw MathException.UnexpectedToken(token, identifierTerminator);
+                    var unexpectedToken = new Token(TokenType.Unknown, identifier[i].ToString(), _currentIndex + i);
+                    throw MathException.UnexpectedToken(unexpectedToken, identifierTerminator);
                 }
             }
 
-            stream.MoveNext();
-            string text = builder.ToString();
+            _currentIndex += identifier.Length + 2;
 
-            if (text.Length == 0)
-            {
-                Token token = new Token(TokenType.Unknown, identifierTerminator.ToString(), stream.Position - 1);
-                throw MathException.UnexpectedToken(token, identifierTerminator);
-            }
-
-            return text;
+            var token = new Token(TokenType.Identifier, identifier.ToString(), _currentIndex);
+            return token;
         }
 
-        private string ReadOperator(SourceText stream)
+        private Token ReadOperator(ref ReadOnlySpan<char> input)
         {
-            StringBuilder builder = new StringBuilder(3);
-
-            while (!char.IsWhiteSpace(stream.Current) && !_invalidOperatorCharacters.Contains(stream.Current))
+            if (input.Length > 0 && _invalidOperatorCharacters.Contains(input[_currentIndex]))
             {
-                builder.Append(stream.Current);
-                stream.MoveNext();
+                var unexpectedToken = new Token(TokenType.Unknown, input[_currentIndex].ToString(), _currentIndex);
+                throw MathException.UnexpectedToken(unexpectedToken, TokenType.Operator);
             }
 
-            return builder.ToString();
+            int startIndex = _currentIndex;
+            do
+            {
+                MoveNext();
+            }
+            while (!AtEnd && !char.IsWhiteSpace(input[_currentIndex]) && !_invalidOperatorCharacters.Contains(input[_currentIndex]));
+
+            var token = new Token(TokenType.Operator, input[startIndex.._currentIndex].ToString(), _currentIndex);
+            return token;
         }
 
-        private string ReadNumber(SourceText stream)
+        private Token ReadNumber(ref ReadOnlySpan<char> input)
         {
-            StringBuilder builder = new StringBuilder(8);
+            int startIndex = _currentIndex;
             bool hasDot = false;
 
-            while (true)
+            do
             {
-                if (stream.Current == '.')
+                var currentChar = input[_currentIndex];
+                if (currentChar == '.')
                 {
                     if (!hasDot)
                     {
                         hasDot = true;
-
-                        builder.Append(stream.Current);
-                        stream.MoveNext();
+                        MoveNext();
                     }
                     else
                     {
-                        Token token = new Token(TokenType.Unknown, stream.Current.ToString(), stream.Position);
-                        throw MathException.UnexpectedToken(token, TokenType.Number);
+                        var unexpectedToken = new Token(TokenType.Unknown, currentChar.ToString(), _currentIndex);
+                        throw MathException.UnexpectedToken(unexpectedToken, TokenType.Number);
                     }
                 }
-                else if (char.IsDigit(stream.Current))
+                else if (char.IsDigit(currentChar))
                 {
-                    builder.Append(stream.Current);
-                    stream.MoveNext();
+                    MoveNext();
                 }
                 else
                 {
                     break;
                 }
             }
+            while (!AtEnd);
 
-            char peeked = stream.Peek(-1);
-
-            if (peeked == '.')
+            if (_currentIndex >= 1 && _currentIndex <= _length && !char.IsDigit(input[_currentIndex - 1]))
             {
-                Token token = new Token(TokenType.Unknown, peeked.ToString(), stream.Position);
-                throw MathException.UnexpectedToken(token, TokenType.Number);
+                var unexpectedToken = new Token(TokenType.Unknown, input[_currentIndex - 1].ToString(), _currentIndex - 1);
+                throw MathException.UnexpectedToken(unexpectedToken, TokenType.Number);
             }
 
-            return builder.ToString();
+            var token = new Token(TokenType.Number, input[startIndex.._currentIndex].ToString(), _currentIndex);
+            return token;
         }
 
-        private void ReadWhiteSpace(SourceText stream)
+        private void SkipWhiteSpace(ref ReadOnlySpan<char> input)
         {
-            while (char.IsWhiteSpace(stream.Current) && stream.MoveNext()) { }
+            while (!AtEnd && char.IsWhiteSpace(input[_currentIndex]))
+            {
+                MoveNext();
+            }
         }
     }
+
+#endif
 }
