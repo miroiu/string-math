@@ -40,8 +40,8 @@ namespace StringMath
         {
             text.EnsureNotNull(nameof(text));
 
-            ITokenizer tokenizer = new Tokenizer(text);
-            IParser parser = new Parser(tokenizer, context);
+            Tokenizer tokenizer = new Tokenizer(text);
+            Parser parser = new Parser(tokenizer, context);
             return parser.Parse();
         }
     }
