@@ -293,9 +293,9 @@ namespace StringMath.Tests
 
         [Test]
         [TestCase("1 + {a}", new[] { "a" }, new[] { 1d }, 2)]
-        public void Compile1(string input, string[] paramsOrder, double[] paramsValues, double expected)
+        public void Compile_1Variable(string input, string[] paramsOrder, double[] paramsValues, double expected)
         {
-            Func<double, double> fn = input.ToMathExpr().Compile(paramsOrder[0]);
+            var fn = input.ToMathExpr().Compile(paramsOrder[0]);
             double result = fn(paramsValues[0]);
 
             Assert.AreEqual(expected, result);
@@ -304,20 +304,69 @@ namespace StringMath.Tests
         [Test]
         [TestCase("(1 + {a}) * {b}", new[] { "b", "a" }, new[] { 2d, 3d }, 8)]
         [TestCase("(1 + {b}) * {a}", new[] { "b", "a" }, new[] { 2d, 3d }, 9)]
-        public void Compile2(string input, string[] paramsOrder, double[] paramsValues, double expected)
+        public void Compile_2Variables(string input, string[] paramsOrder, double[] paramsValues, double expected)
         {
-            Func<double, double, double> fn = input.ToMathExpr().Compile(paramsOrder[0], paramsOrder[1]);
+            var fn = input.ToMathExpr().Compile(paramsOrder[0], paramsOrder[1]);
             double result = fn(paramsValues[0], paramsValues[1]);
 
             Assert.AreEqual(expected, result);
         }
 
         [Test]
-        public void Compile1_Throws_Missing_Variable()
+        [TestCase("({c} - 1 + {a}) * {b}", new[] { "b", "a", "c" }, new[] { 2d, 3d, 2d }, 8)]
+        [TestCase("({c} - 1 + {b}) * {a}", new[] { "b", "a", "c" }, new[] { 2d, 3d, 2d }, 9)]
+        public void Compile_3Variables(string input, string[] paramsOrder, double[] paramsValues, double expected)
+        {
+            var fn = input.ToMathExpr().Compile(paramsOrder[0], paramsOrder[1], paramsOrder[2]);
+            double result = fn(paramsValues[0], paramsValues[1], paramsValues[2]);
+
+            Assert.AreEqual(expected, result);
+        }
+
+        [Test]
+        public void Compile_Throws_Missing_Variable()
         {
             MathException ex = Assert.Throws<MathException>(() => "1 + {a}".ToMathExpr().Compile("b"));
 
             Assert.AreEqual(MathException.ErrorCode.UNEXISTING_VARIABLE, ex.Code);
+        }
+
+        [Test]
+        public void Compile_Throws_Missing_Variable_When_No_Parameter_Provided()
+        {
+            MathException ex = Assert.Throws<MathException>(() => "1 + {a}".ToMathExpr().Compile());
+
+            Assert.AreEqual(MathException.ErrorCode.UNEXISTING_VARIABLE, ex.Code);
+        }
+
+        [Test]
+        public void Compile_Resolves_Remaining_Variables()
+        {
+            var expr = "1 + {a}".ToMathExpr().Substitute("a", 3);
+            var fn = expr.Compile();
+            double result = fn();
+
+            Assert.AreEqual(4, result);
+        }
+
+        [Test]
+        public void Compile_Resolves_Remaining_Variables2()
+        {
+            var expr = "1 + {a} * {b}".ToMathExpr().Substitute("a", 3);
+            var fn = expr.Compile("b");
+            double result = fn(2);
+
+            Assert.AreEqual(7, result);
+        }
+
+        [Test]
+        public void Compile_Resolves_Global_Variables()
+        {
+            var expr = "1 + {PI}".ToMathExpr();
+            var fn = expr.Compile();
+            double result = fn();
+
+            Assert.AreEqual(1 + Math.PI, result);
         }
     }
 }

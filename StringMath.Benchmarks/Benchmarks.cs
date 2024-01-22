@@ -5,7 +5,7 @@ namespace StringMath.Benchmarks
 {
     [MemoryDiagnoser(true)]
     [SimpleJob(RuntimeMoniker.Net80, warmupCount: 0, iterationCount: 1, launchCount: 1)]
-    public class TokenizerBenchmarks
+    public class Benchmarks
     {
         [Benchmark]
         public void Tokenize()
@@ -26,13 +26,20 @@ namespace StringMath.Benchmarks
         {
             var tokenizer = new Tokenizer("1.23235456576878798 - ((3 + {b}) max .1) ^ sqrt(-999 / 2 * 3 max 5) + !5 - 0.00000000002 / {ahghghh}");
             var parser = new Parser(tokenizer, MathContext.Default);
-            var expr = parser.Parse();
+            _ = parser.Parse();
         }
 
         [Benchmark]
-        public double Evaluate_Expr()
+        public double Evaluate()
         {
             return "1.23235456576878798 - ((3 + {b}) max .1) ^ sqrt(-999 / 2 * 3 max 5) + !5 - 0.00000000002 / {ahghghh}".ToMathExpr().Substitute("b", 12989d).Substitute("ahghghh", 12345d).Result;
+        }
+
+        [Benchmark]
+        public double Compile()
+        {
+            var fn = "1.23235456576878798 - ((3 + {b}) max .1) ^ sqrt(-999 / 2 * 3 max 5) + !5 - 0.00000000002 / {ahghghh}".ToMathExpr().Substitute("b", 12989d).Substitute("ahghghh", 12345d).Compile("ahghghh");
+            return fn(12345d);
         }
     }
 }
