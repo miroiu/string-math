@@ -6,7 +6,7 @@ namespace StringMath.Tests
     {
         public static List<Token> ReadAllTokens(this string input)
         {
-            ITokenizer tokenizer = new Tokenizer(input);
+            Tokenizer tokenizer = new Tokenizer(input);
             List<Token> tokens = new List<Token>();
 
             Token t;

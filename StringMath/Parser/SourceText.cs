@@ -3,13 +3,7 @@ using System.Collections.Generic;
 
 namespace StringMath
 {
-    internal interface ISourceText : IEnumerator<char>
-    {
-        int Position { get; }
-        char Peek(int count = 1);
-    }
-
-    internal sealed class SourceText : ISourceText
+    internal sealed class SourceText : IEnumerator<char>
     {
         public string Text { get; }
         public int Position { get; private set; }

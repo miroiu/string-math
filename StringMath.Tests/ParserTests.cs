@@ -25,8 +25,8 @@ namespace StringMath.Tests
         [TestCase("!2", "2!")]
         public void ParseMathExpression(string input, string expected)
         {
-            ITokenizer tokenizer = new Tokenizer(input);
-            IParser parser = new Parser(tokenizer, _context);
+            Tokenizer tokenizer = new Tokenizer(input);
+            Parser parser = new Parser(tokenizer, _context);
 
             IExpression result = parser.Parse();
             string actual = result.ToString();
@@ -67,8 +67,8 @@ namespace StringMath.Tests
         [TestCase("1 + 2 1")]
         public void ParseBadExpression_Exception(string input)
         {
-            ITokenizer tokenizer = new Tokenizer(input);
-            IParser parser = new Parser(tokenizer, _context);
+            Tokenizer tokenizer = new Tokenizer(input);
+            Parser parser = new Parser(tokenizer, _context);
 
             MathException exception = Assert.Throws<MathException>(() => parser.Parse());
             Assert.AreEqual(MathException.ErrorCode.UNEXPECTED_TOKEN, exception.Code);
@@ -84,8 +84,8 @@ namespace StringMath.Tests
             context.RegisterBinary("pow", (a, b) => a);
             context.RegisterUnary("rand", (a) => a);
 
-            ITokenizer tokenizer = new Tokenizer(input);
-            IParser parser = new Parser(tokenizer, context);
+            Tokenizer tokenizer = new Tokenizer(input);
+            Parser parser = new Parser(tokenizer, context);
 
             IExpression result = parser.Parse();
             string actual = result.ToString();
@@ -100,8 +100,8 @@ namespace StringMath.Tests
         {
             MathContext context = new MathContext();
 
-            ITokenizer tokenizer = new Tokenizer(expected);
-            IParser parser = new Parser(tokenizer, context);
+            Tokenizer tokenizer = new Tokenizer(expected);
+            Parser parser = new Parser(tokenizer, context);
 
             MathException exception = Assert.Throws<MathException>(() => parser.Parse());
             Assert.AreEqual(MathException.ErrorCode.UNEXPECTED_TOKEN, exception.Code);
@@ -119,8 +119,8 @@ namespace StringMath.Tests
         [TestCase("{a13}", "a13")]
         public void ParseVariableExpression(string expected, string name)
         {
-            ITokenizer tokenizer = new Tokenizer(expected);
-            IParser parser = new Parser(tokenizer, _context);
+            Tokenizer tokenizer = new Tokenizer(expected);
+            Parser parser = new Parser(tokenizer, _context);
 
             IExpression result = parser.Parse();
             string actual = result.ToString();
@@ -139,8 +139,8 @@ namespace StringMath.Tests
         [TestCase("{-a}")]
         public void ParseVariableExpression_Exception(string expected)
         {
-            ITokenizer tokenizer = new Tokenizer(expected);
-            IParser parser = new Parser(tokenizer, _context);
+            Tokenizer tokenizer = new Tokenizer(expected);
+            Parser parser = new Parser(tokenizer, _context);
 
             MathException exception = Assert.Throws<MathException>(() => parser.Parse());
             Assert.AreEqual(MathException.ErrorCode.UNEXPECTED_TOKEN, exception.Code);
@@ -159,8 +159,8 @@ namespace StringMath.Tests
         [TestCase("1 / 2 / 3", "1 / 2 / 3")]
         public void ParseBinaryExpression(string input, string expected)
         {
-            ITokenizer tokenizer = new Tokenizer(input);
-            IParser parser = new Parser(tokenizer, _context);
+            Tokenizer tokenizer = new Tokenizer(input);
+            Parser parser = new Parser(tokenizer, _context);
 
             IExpression result = parser.Parse();
             string actual = result.ToString(_context);
@@ -183,8 +183,8 @@ namespace StringMath.Tests
         [TestCase("sqrt{a}", "sqrt({a})")]
         public void ParseUnaryExpression(string input, string expected)
         {
-            ITokenizer tokenizer = new Tokenizer(input);
-            IParser parser = new Parser(tokenizer, _context);
+            Tokenizer tokenizer = new Tokenizer(input);
+            Parser parser = new Parser(tokenizer, _context);
 
             IExpression result = parser.Parse();
             string actual = result.ToString(_context);
@@ -199,8 +199,8 @@ namespace StringMath.Tests
         [TestCase("+5")]
         public void ParseUnaryExpression_Exception(string input)
         {
-            ITokenizer tokenizer = new Tokenizer(input);
-            IParser parser = new Parser(tokenizer, _context);
+            Tokenizer tokenizer = new Tokenizer(input);
+            Parser parser = new Parser(tokenizer, _context);
 
             MathException exception = Assert.Throws<MathException>(() => parser.Parse());
             Assert.AreEqual(MathException.ErrorCode.UNEXPECTED_TOKEN, exception.Code);
@@ -213,8 +213,8 @@ namespace StringMath.Tests
         [TestCase("9999999", "9999999")]
         public void ParseConstantExpression(string input, string expected)
         {
-            ITokenizer tokenizer = new Tokenizer(input);
-            IParser parser = new Parser(tokenizer, _context);
+            Tokenizer tokenizer = new Tokenizer(input);
+            Parser parser = new Parser(tokenizer, _context);
 
             IExpression result = parser.Parse();
             string actual = result.ToString(_context);
@@ -231,8 +231,8 @@ namespace StringMath.Tests
         [TestCase("9.01+")]
         public void ParseConstantExpression_Exception(string expected)
         {
-            ITokenizer tokenizer = new Tokenizer(expected);
-            IParser parser = new Parser(tokenizer, _context);
+            Tokenizer tokenizer = new Tokenizer(expected);
+            Parser parser = new Parser(tokenizer, _context);
 
             MathException exception = Assert.Throws<MathException>(() => parser.Parse());
             Assert.AreEqual(MathException.ErrorCode.UNEXPECTED_TOKEN, exception.Code);
@@ -250,8 +250,8 @@ namespace StringMath.Tests
         [TestCase("((5 - 2) + ((-1 + 2) * 3))", "5 - 2 + (-1 + 2) * 3")]
         public void ParseGroupingExpression(string input, string expected)
         {
-            ITokenizer tokenizer = new Tokenizer(input);
-            IParser parser = new Parser(tokenizer, _context);
+            Tokenizer tokenizer = new Tokenizer(input);
+            Parser parser = new Parser(tokenizer, _context);
 
             IExpression result = parser.Parse();
             string actual = result.ToString(_context);
@@ -271,8 +271,8 @@ namespace StringMath.Tests
         [TestCase("({a} + (1 + 2)")]
         public void ParseGroupingExpression_Fail(string expected)
         {
-            ITokenizer tokenizer = new Tokenizer(expected);
-            IParser parser = new Parser(tokenizer, _context);
+            Tokenizer tokenizer = new Tokenizer(expected);
+            Parser parser = new Parser(tokenizer, _context);
 
             MathException exception = Assert.Throws<MathException>(() => parser.Parse());
             Assert.AreEqual(MathException.ErrorCode.UNEXPECTED_TOKEN, exception.Code);

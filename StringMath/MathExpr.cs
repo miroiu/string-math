@@ -8,8 +8,8 @@ namespace StringMath
     /// <summary>A mathematical expression.</summary>
     public class MathExpr
     {
-        private readonly IExpressionVisitor _evaluator;
-        private readonly IVariablesCollection _variables = new VariablesCollection();
+        private readonly EvaluateExpression _evaluator;
+        private readonly VariablesCollection _variables = new VariablesCollection();
         private IReadOnlyCollection<string>? _localVariables;
         private IReadOnlyCollection<string>? _allVariables;
         private double? _cachedResult;
@@ -111,7 +111,7 @@ namespace StringMath
         /// <returns>A type safe delegate.</returns>
         public Func<double> Compile()
         {
-            var exp = new CompileExpression().Compile<Func<IMathContext, double>>(Expression).Compile();
+            var exp = new CompileExpression(_variables).Compile<Func<IMathContext, double>>(Expression);
             return () => exp(Context);
         }
 
@@ -119,7 +119,7 @@ namespace StringMath
         /// <returns>A type safe delegate.</returns>
         public Func<double, double> Compile(string var)
         {
-            var exp = new CompileExpression().Compile<Func<IMathContext, double, double>>(Expression, var).Compile();
+            var exp = new CompileExpression(_variables).Compile<Func<IMathContext, double, double>>(Expression, var);
             return (double x) => exp(Context, x);
         }
 
@@ -127,7 +127,7 @@ namespace StringMath
         /// <returns>A type safe delegate.</returns>
         public Func<double, double, double> Compile(string var1, string var2)
         {
-            var exp = new CompileExpression().Compile<Func<IMathContext, double, double, double>>(Expression, var1, var2).Compile();
+            var exp = new CompileExpression(_variables).Compile<Func<IMathContext, double, double, double>>(Expression, var1, var2);
             return (x, y) => exp(Context, x, y);
         }
 
@@ -135,7 +135,7 @@ namespace StringMath
         /// <returns>A type safe delegate.</returns>
         public Func<double, double, double, double> Compile(string var1, string var2, string var3)
         {
-            var exp = new CompileExpression().Compile<Func<IMathContext, double, double, double, double>>(Expression, var1, var2, var3).Compile();
+            var exp = new CompileExpression(_variables).Compile<Func<IMathContext, double, double, double, double>>(Expression, var1, var2, var3);
             return (x, y, z) => exp(Context, x, y, z);
         }
 
@@ -143,7 +143,7 @@ namespace StringMath
         /// <returns>A type safe delegate.</returns>
         public Func<double, double, double, double, double> Compile(string var1, string var2, string var3, string var4)
         {
-            var exp = new CompileExpression().Compile<Func<IMathContext, double, double, double, double, double>>(Expression, var1, var2, var3, var4).Compile();
+            var exp = new CompileExpression(_variables).Compile<Func<IMathContext, double, double, double, double, double>>(Expression, var1, var2, var3, var4);
             return (x, y, z, w) => exp(Context, x, y, z, w);
         }
 
@@ -151,7 +151,7 @@ namespace StringMath
         /// <returns>A type safe delegate.</returns>
         public Func<double, double, double, double, double, double> Compile(string var1, string var2, string var3, string var4, string var5)
         {
-            var exp = new CompileExpression().Compile<Func<IMathContext, double, double, double, double, double, double>>(Expression, var1, var2, var3, var4, var5).Compile();
+            var exp = new CompileExpression(_variables).Compile<Func<IMathContext, double, double, double, double, double, double>>(Expression, var1, var2, var3, var4, var5);
             return (x, y, z, w, q) => exp(Context, x, y, z, w, q);
         }
 

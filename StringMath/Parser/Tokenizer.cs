@@ -1,21 +1,22 @@
 ﻿using System.Collections.Generic;
+using System.Text;
 
 namespace StringMath
 {
     /// <inheritdoc />
-    internal sealed partial class Tokenizer : ITokenizer
+    internal sealed partial class Tokenizer
     {
-        private readonly ISourceText _text;
+        private readonly SourceText _text;
 
         // Excluded characters for custom operators
-        private readonly HashSet<char> _invalidOperatorCharacters = new HashSet<char>
+        private static readonly HashSet<char> _invalidOperatorCharacters = new HashSet<char>
         {
             '(', ')', '{', '}', '!', '.', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '\0'
         };
 
         /// <summary>Creates a new instance of the tokenizer.</summary>
         /// <param name="text">The text to tokenize.</param>
-        public Tokenizer(ISourceText text)
+        public Tokenizer(SourceText text)
         {
             _text = text;
         }
@@ -82,6 +83,112 @@ namespace StringMath
         public override string? ToString()
         {
             return _text.ToString();
+        }
+
+        private string ReadIdentifier(SourceText stream)
+        {
+            const char identifierTerminator = '}';
+
+            StringBuilder builder = new StringBuilder(12);
+            stream.MoveNext();
+
+            if (char.IsLetter(stream.Current) || stream.Current == '_')
+            {
+                builder.Append(stream.Current);
+                stream.MoveNext();
+            }
+            else
+            {
+                Token token = new Token(TokenType.Unknown, stream.Current.ToString(), stream.Position);
+                throw MathException.UnexpectedToken(token, TokenType.Identifier);
+            }
+
+            while (stream.Current != identifierTerminator)
+            {
+                if (char.IsLetterOrDigit(stream.Current) || stream.Current == '_')
+                {
+                    builder.Append(stream.Current);
+                    stream.MoveNext();
+                }
+                else
+                {
+                    Token token = new Token(TokenType.Unknown, stream.Current.ToString(), stream.Position);
+                    throw MathException.UnexpectedToken(token, identifierTerminator);
+                }
+            }
+
+            stream.MoveNext();
+            string text = builder.ToString();
+
+            if (text.Length == 0)
+            {
+                Token token = new Token(TokenType.Unknown, identifierTerminator.ToString(), stream.Position - 1);
+                throw MathException.UnexpectedToken(token, identifierTerminator);
+            }
+
+            return text;
+        }
+
+        private string ReadOperator(SourceText stream)
+        {
+            StringBuilder builder = new StringBuilder(3);
+
+            while (!char.IsWhiteSpace(stream.Current) && !_invalidOperatorCharacters.Contains(stream.Current))
+            {
+                builder.Append(stream.Current);
+                stream.MoveNext();
+            }
+
+            return builder.ToString();
+        }
+
+        private string ReadNumber(SourceText stream)
+        {
+            StringBuilder builder = new StringBuilder(8);
+            bool hasDot = false;
+
+            while (true)
+            {
+                if (stream.Current == '.')
+                {
+                    if (!hasDot)
+                    {
+                        hasDot = true;
+
+                        builder.Append(stream.Current);
+                        stream.MoveNext();
+                    }
+                    else
+                    {
+                        Token token = new Token(TokenType.Unknown, stream.Current.ToString(), stream.Position);
+                        throw MathException.UnexpectedToken(token, TokenType.Number);
+                    }
+                }
+                else if (char.IsDigit(stream.Current))
+                {
+                    builder.Append(stream.Current);
+                    stream.MoveNext();
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+            char peeked = stream.Peek(-1);
+
+            if (peeked == '.')
+            {
+                Token token = new Token(TokenType.Unknown, peeked.ToString(), stream.Position);
+                throw MathException.UnexpectedToken(token, TokenType.Number);
+            }
+
+            return builder.ToString();
+        }
+
+        private void ReadWhiteSpace(SourceText stream)
+        {
+            while (char.IsWhiteSpace(stream.Current) && stream.MoveNext()) { }
         }
     }
 }

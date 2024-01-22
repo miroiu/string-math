@@ -29,7 +29,7 @@ namespace StringMath.Tests
         public void ReadToken_IgnoresWhitespace(string input)
         {
             // Arrange
-            ITokenizer tokenizer = new Tokenizer(input);
+            Tokenizer tokenizer = new Tokenizer(input);
 
             // Act
             Token token1 = tokenizer.ReadToken();
@@ -53,14 +53,14 @@ namespace StringMath.Tests
         public void ReadIdentifier(string input)
         {
             // Arrange
-            ITokenizer tokenizer = new Tokenizer(input);
+            Tokenizer tokenizer = new Tokenizer(input);
 
             // Act
             Token token = tokenizer.ReadToken();
 
             // Assert
             Assert.AreEqual(TokenType.Identifier, token.Type);
-            Assert.AreEqual(input, token.Text);
+            Assert.AreEqual(input, $"{{{token.Text}}}");
         }
 
         [Test]
@@ -75,7 +75,7 @@ namespace StringMath.Tests
         public void ReadIdentifier_Exception(string input)
         {
             // Arrange
-            ITokenizer tokenizer = new Tokenizer(input);
+            Tokenizer tokenizer = new Tokenizer(input);
 
             // Act & Assert
             MathException exception = Assert.Throws<MathException>(() => tokenizer.ReadToken());
@@ -92,7 +92,7 @@ namespace StringMath.Tests
         public void ReadOperator(string input)
         {
             // Arrange
-            ITokenizer tokenizer = new Tokenizer(input);
+            Tokenizer tokenizer = new Tokenizer(input);
 
             // Act
             Token token = tokenizer.ReadToken();
@@ -113,7 +113,7 @@ namespace StringMath.Tests
         public void ReadNumber(string input)
         {
             // Arrange
-            ITokenizer tokenizer = new Tokenizer(input);
+            Tokenizer tokenizer = new Tokenizer(input);
 
             // Act
             Token token = tokenizer.ReadToken();
@@ -133,7 +133,7 @@ namespace StringMath.Tests
         public void ReadNumber_Exception(string input)
         {
             // Arrange
-            ITokenizer tokenizer = new Tokenizer(input);
+            Tokenizer tokenizer = new Tokenizer(input);
 
             // Act & Assert
             MathException exception = Assert.Throws<MathException>(() => tokenizer.ReadToken());

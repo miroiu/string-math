@@ -8,56 +8,72 @@ namespace StringMath
 {
     internal class CompileExpression
     {
-        private static readonly ParameterExpression _contextParam = Expression.Parameter(typeof(IMathContext), "ctx");
-        private Dictionary<string, ParameterExpression> _variables = new Dictionary<string, ParameterExpression>();
+        private static readonly ParameterExpression _contextParam = Expression.Parameter(typeof(IMathContext), "__internal_ctx");
+        private List<ParameterExpression> _parameters = new List<ParameterExpression>();
+        private readonly IVariablesCollection _variables;
 
-        public Expression<T> Compile<T>(SM.IExpression expression, params string[] variables)
+        public CompileExpression(IVariablesCollection variables)
         {
-            _variables = variables.ToDictionary(var => var, var => Expression.Parameter(typeof(double), var));
-            var args = new List<ParameterExpression>(1 + variables.Length)
+            _variables = variables;
+        }
+
+        public T Compile<T>(SM.IExpression expression, params string[] parameters)
+            => VisitWithParameters<T>(expression, parameters).Compile();
+
+        private Expression<T> VisitWithParameters<T>(SM.IExpression expression, params string[] parameters)
+        {
+            _parameters = new List<ParameterExpression>(1 + parameters.Length)
             {
                 _contextParam
             };
-            args.AddRange(_variables.Values);
 
-            var result = Convert(expression);
-            return Expression.Lambda<T>(result, args);
+            foreach (var parameter in parameters)
+            {
+                _parameters.Add(Expression.Parameter(typeof(double), parameter));
+            }
+
+            var result = Visit(expression);
+            return Expression.Lambda<T>(result, _parameters);
         }
 
-        public Expression Convert(SM.IExpression expression)
+        public Expression Visit(SM.IExpression expression)
         {
             Expression result = expression switch
             {
-                SM.BinaryExpression binaryExpr => ConvertBinaryExpr(binaryExpr),
-                SM.ConstantExpression constantExpr => ConvertConstantExpr(constantExpr),
-                SM.UnaryExpression unaryExpr => ConvertUnaryExpr(unaryExpr),
-                SM.VariableExpression variableExpr => ConvertVariableExpr(variableExpr),
+                SM.BinaryExpression binaryExpr => VisitBinaryExpr(binaryExpr),
+                SM.ConstantExpression constantExpr => VisitConstantExpr(constantExpr),
+                SM.UnaryExpression unaryExpr => VisitUnaryExpr(unaryExpr),
+                SM.VariableExpression variableExpr => VisitVariableExpr(variableExpr),
                 _ => throw new NotImplementedException($"'{expression?.GetType().Name}' Convertor is not implemented.")
             };
 
             return result;
         }
 
-        public Expression ConvertVariableExpr(SM.VariableExpression variableExpr)
+        private Expression VisitVariableExpr(SM.VariableExpression variableExpr)
         {
-            if (!_variables.TryGetValue(variableExpr.Name, out var result))
-                throw MathException.MissingVariable(variableExpr.Name);
+            var parameter = _parameters.FirstOrDefault(x => x.Name == variableExpr.Name);
+            if (parameter != null)
+                return parameter;
 
-            return result;
+            if(_variables.TryGetValue(variableExpr.Name, out var variable))
+                return Expression.Constant(variable);
+
+            throw MathException.MissingVariable(variableExpr.Name);
         }
 
-        public Expression ConvertConstantExpr(SM.ConstantExpression constantExpr) => Expression.Constant(constantExpr.Value);
+        private Expression VisitConstantExpr(SM.ConstantExpression constantExpr) => Expression.Constant(constantExpr.Value);
 
-        public Expression ConvertBinaryExpr(SM.BinaryExpression binaryExpr) =>
+        private Expression VisitBinaryExpr(SM.BinaryExpression binaryExpr) =>
             Expression.Call(_contextParam,
                 nameof(IMathContext.EvaluateBinary),
                 null,
-                Expression.Constant(binaryExpr.OperatorName), Convert(binaryExpr.Left), Convert(binaryExpr.Right));
+                Expression.Constant(binaryExpr.OperatorName), Visit(binaryExpr.Left), Visit(binaryExpr.Right));
 
-        public Expression ConvertUnaryExpr(SM.UnaryExpression unaryExpr) =>
+        private Expression VisitUnaryExpr(SM.UnaryExpression unaryExpr) =>
             Expression.Call(_contextParam,
                 nameof(IMathContext.EvaluateUnary),
                 null,
-                Expression.Constant(unaryExpr.OperatorName), Convert(unaryExpr.Operand));
+                Expression.Constant(unaryExpr.OperatorName), Visit(unaryExpr.Operand));
     }
 }

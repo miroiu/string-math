@@ -11,16 +11,16 @@ namespace StringMath
         /// <summary>Addition precedence (0).</summary>
         public static readonly Precedence Addition = new Precedence(0);
 
-        /// <summary>Multiplication precedence (1).</summary>
+        /// <summary>Multiplication precedence (4).</summary>
         public static readonly Precedence Multiplication = new Precedence(4);
 
-        /// <summary>Power precedence (2).</summary>
+        /// <summary>Power precedence (8).</summary>
         public static readonly Precedence Power = new Precedence(8);
 
-        /// <summary>Logarithmic precedence (3).</summary>
+        /// <summary>Logarithmic precedence (16).</summary>
         public static readonly Precedence Logarithmic = new Precedence(16);
 
-        /// <summary>User defined precedence (4).</summary>
+        /// <summary>User defined precedence (32).</summary>
         public static readonly Precedence UserDefined = new Precedence(32);
 
         /// <summary>The highest precedence value.</summary>

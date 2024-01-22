@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net6;net5;netstandard2.1;netcoreapp3.1;net48;net472;net461</TargetFrameworks>
+    <TargetFrameworks>net8;net6;net5;netstandard2.1;netcoreapp3.1;net48;net472;net461</TargetFrameworks>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Authors>miroiu</Authors>
     <Company />
@@ -12,8 +12,8 @@ Supports variables and user defined operators.</Description>
     <PackageProjectUrl>https://github.com/miroiu/string-math</PackageProjectUrl>
     <RepositoryUrl>https://github.com/miroiu/string-math</RepositoryUrl>
     <PackageTags>expression-evaluator calculator string-math math string-calculator user-defined-operators operators custom-operators</PackageTags>
-    <Version>4.1.0</Version>
-    <PackageReleaseNotes>Added math expression compliation</PackageReleaseNotes>
+    <Version>4.1.2</Version>
+    <PackageReleaseNotes>Fixed compiled expressions not using variables that are not passed as arguments</PackageReleaseNotes>
     <PackageLicenseFile></PackageLicenseFile>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <Nullable>enable</Nullable>

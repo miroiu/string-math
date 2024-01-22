@@ -3,16 +3,16 @@
 namespace StringMath
 {
     /// <summary>A simple parser.</summary>
-    internal sealed class Parser : IParser
+    internal sealed class Parser
     {
-        private readonly ITokenizer _tokenzier;
+        private readonly Tokenizer _tokenzier;
         private readonly IMathContext _mathContext;
         private Token _currentToken;
 
         /// <summary>Initializes a new instance of a parser.</summary>
         /// <param name="tokenizer">The tokenizer.</param>
         /// <param name="mathContext">The math context.</param>
-        public Parser(ITokenizer tokenizer, IMathContext mathContext)
+        public Parser(Tokenizer tokenizer, IMathContext mathContext)
         {
             _tokenzier = tokenizer;
             _mathContext = mathContext;
@@ -78,9 +78,7 @@ namespace StringMath
                     return new ConstantExpression(Take().Text);
 
                 case TokenType.Identifier:
-                    string text = Take().Text;
-                    string name = text.Substring(1, text.Length - 2);
-                    return new VariableExpression(name);
+                    return new VariableExpression(Take().Text);
 
                 case TokenType.OpenParen:
                     return ParseGroupingExpression();
