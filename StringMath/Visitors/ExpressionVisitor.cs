@@ -2,8 +2,12 @@
 
 namespace StringMath
 {
-    internal abstract class BaseExpressionVisitor : IExpressionVisitor
+    /// <summary>Contract for expression visitors.</summary>
+    internal abstract class ExpressionVisitor
     {
+        /// <summary>Visits an expression tree and transforms it into another expression tree.</summary>
+        /// <param name="expression">The expression to transform.</param>
+        /// <returns>A new expression tree.</returns>
         public IExpression Visit(IExpression expression)
         {
             IExpression result = expression switch

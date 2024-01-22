@@ -3,7 +3,7 @@
 namespace StringMath
 {
     /// <inheritdoc />
-    internal sealed class EvaluateExpression : BaseExpressionVisitor
+    internal sealed class EvaluateExpression : ExpressionVisitor
     {
         private readonly IMathContext _context;
         private readonly IVariablesCollection _variables;

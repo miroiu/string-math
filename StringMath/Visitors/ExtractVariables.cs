@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace StringMath
 {
-    internal class ExtractVariables : BaseExpressionVisitor
+    internal class ExtractVariables : ExpressionVisitor
     {
         private readonly HashSet<string> _variables = new HashSet<string>(StringComparer.Ordinal);
 
