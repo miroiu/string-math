@@ -44,6 +44,7 @@ namespace StringMath
                 SM.ConstantExpression constantExpr => VisitConstantExpr(constantExpr),
                 SM.UnaryExpression unaryExpr => VisitUnaryExpr(unaryExpr),
                 SM.VariableExpression variableExpr => VisitVariableExpr(variableExpr),
+                SM.InvocationExpression invocationExpr => VisitInvocationExpr(invocationExpr),
                 _ => throw new NotImplementedException($"'{expression?.GetType().Name}' Convertor is not implemented.")
             };
 
@@ -75,5 +76,15 @@ namespace StringMath
                 nameof(IMathContext.EvaluateUnary),
                 null,
                 Expression.Constant(unaryExpr.OperatorName), Visit(unaryExpr.Operand));
+
+        private Expression VisitInvocationExpr(SM.InvocationExpression invocationExpr)
+        {
+            var args = invocationExpr.Arguments.Select(Visit).ToArray();
+            return Expression.Call(_contextParam,
+                nameof(IMathContext.InvokeFunction),
+                null,
+                Expression.Constant(invocationExpr.Name),
+                Expression.NewArrayInit(typeof(double), args));
+}
     }
 }

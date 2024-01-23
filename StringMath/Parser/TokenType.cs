@@ -11,6 +11,7 @@
 
         /// <summary>[aA-zZ_]+[aA-zZ0-9_]</summary>
         Identifier,
+
         /// <summary>1 or .1 or 1.1</summary>
         Number,
 
