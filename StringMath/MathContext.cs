@@ -10,7 +10,6 @@ namespace StringMath
         private readonly Dictionary<string, Func<double, double, double>> _binaryEvaluators = new Dictionary<string, Func<double, double, double>>(StringComparer.Ordinal);
         private readonly Dictionary<string, Func<double, double>> _unaryEvaluators = new Dictionary<string, Func<double, double>>(StringComparer.Ordinal);
         private readonly Dictionary<string, Precedence> _binaryPrecedence = new Dictionary<string, Precedence>(StringComparer.Ordinal);
-        private readonly HashSet<string> _operators = new HashSet<string>(StringComparer.Ordinal);
 
         /// <summary>The global instance used by <see cref="MathExpr.AddOperator(string, Func{double, double})"/> methods.</summary>
         public static readonly IMathContext Default = new MathContext();
@@ -28,25 +27,25 @@ namespace StringMath
             Default.RegisterBinary("*", (a, b) => a * b, Precedence.Multiplication);
             Default.RegisterBinary("/", (a, b) => a / b, Precedence.Multiplication);
             Default.RegisterBinary("%", (a, b) => a % b, Precedence.Multiplication);
-            Default.RegisterBinary("^", (a, b) => Math.Pow(a, b), Precedence.Power);
-            Default.RegisterBinary("log", (a, b) => Math.Log(a, b), Precedence.Logarithmic);
-            Default.RegisterBinary("max", (a, b) => Math.Max(a, b), Precedence.UserDefined);
-            Default.RegisterBinary("min", (a, b) => Math.Min(a, b), Precedence.UserDefined);
+            Default.RegisterBinary("^", Math.Pow, Precedence.Power);
+            Default.RegisterBinary("log", Math.Log, Precedence.Logarithmic);
+            Default.RegisterBinary("max", Math.Max, Precedence.UserDefined);
+            Default.RegisterBinary("min", Math.Min, Precedence.UserDefined);
 
             Default.RegisterUnary("-", a => -a);
-            Default.RegisterUnary("!", a => ComputeFactorial(a));
-            Default.RegisterUnary("sqrt", a => Math.Sqrt(a));
-            Default.RegisterUnary("sin", a => Math.Sin(a));
-            Default.RegisterUnary("asin", a => Math.Asin(a));
-            Default.RegisterUnary("cos", a => Math.Cos(a));
-            Default.RegisterUnary("acos", a => Math.Acos(a));
-            Default.RegisterUnary("tan", a => Math.Tan(a));
-            Default.RegisterUnary("atan", a => Math.Atan(a));
-            Default.RegisterUnary("ceil", a => Math.Ceiling(a));
-            Default.RegisterUnary("floor", a => Math.Floor(a));
-            Default.RegisterUnary("round", a => Math.Round(a));
-            Default.RegisterUnary("exp", a => Math.Exp(a));
-            Default.RegisterUnary("abs", a => Math.Abs(a));
+            Default.RegisterUnary("!", ComputeFactorial);
+            Default.RegisterUnary("sqrt", Math.Sqrt);
+            Default.RegisterUnary("sin", Math.Sin);
+            Default.RegisterUnary("asin", Math.Asin);
+            Default.RegisterUnary("cos", Math.Cos);
+            Default.RegisterUnary("acos", Math.Acos);
+            Default.RegisterUnary("tan", Math.Tan);
+            Default.RegisterUnary("atan", Math.Atan);
+            Default.RegisterUnary("ceil", Math.Ceiling);
+            Default.RegisterUnary("floor", Math.Floor);
+            Default.RegisterUnary("round", Math.Round);
+            Default.RegisterUnary("exp", Math.Exp);
+            Default.RegisterUnary("abs", Math.Abs);
             Default.RegisterUnary("rad", a => rad * a);
             Default.RegisterUnary("deg", a => deg * a);
         }
@@ -70,8 +69,8 @@ namespace StringMath
         /// <inheritdoc />
         public Precedence GetBinaryPrecedence(string operatorName)
         {
-            return _binaryPrecedence.ContainsKey(operatorName)
-                ? _binaryPrecedence[operatorName]
+            return _binaryPrecedence.TryGetValue(operatorName, out var value) 
+                ? value 
                 : Parent?.GetBinaryPrecedence(operatorName)
                 ?? throw MathException.MissingBinaryOperator(operatorName);
         }
@@ -84,7 +83,6 @@ namespace StringMath
 
             _binaryEvaluators[operatorName] = operation;
             _binaryPrecedence[operatorName] = precedence ?? Precedence.UserDefined;
-            _operators.Add(operatorName);
         }
 
         /// <inheritdoc />
@@ -94,14 +92,13 @@ namespace StringMath
             operation.EnsureNotNull(nameof(operation));
 
             _unaryEvaluators[operatorName] = operation;
-            _operators.Add(operatorName);
         }
 
         /// <inheritdoc />
         public double EvaluateBinary(string op, double a, double b)
         {
-            double result = _binaryEvaluators.ContainsKey(op)
-                ? _binaryEvaluators[op](a, b)
+            double result = _binaryEvaluators.TryGetValue(op, out var value) 
+                ? value(a, b)
                 : Parent?.EvaluateBinary(op, a, b)
                 ?? throw MathException.MissingBinaryOperator(op);
 
@@ -111,8 +108,8 @@ namespace StringMath
         /// <inheritdoc />
         public double EvaluateUnary(string op, double a)
         {
-            double result = _unaryEvaluators.ContainsKey(op)
-                ? _unaryEvaluators[op](a)
+            double result = _unaryEvaluators.TryGetValue(op, out var value) 
+                ? value(a)
                 : Parent?.EvaluateUnary(op, a)
                 ?? throw MathException.MissingUnaryOperator(op);
 
