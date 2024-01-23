@@ -16,6 +16,7 @@ namespace StringMath
                 ConstantExpression constantExpr => VisitConstantExpr(constantExpr),
                 UnaryExpression unaryExpr => VisitUnaryExpr(unaryExpr),
                 VariableExpression variableExpr => VisitVariableExpr(variableExpr),
+                InvocationExpression invocationExpr => VisitInvocationExpr(invocationExpr),
                 _ => expression
             };
 
@@ -29,5 +30,7 @@ namespace StringMath
         protected virtual IExpression VisitBinaryExpr(BinaryExpression binaryExpr) => binaryExpr;
 
         protected virtual IExpression VisitUnaryExpr(UnaryExpression unaryExpr) => unaryExpr;
+
+        protected virtual IExpression VisitInvocationExpr(InvocationExpression invocationExpr) => invocationExpr;
     }
 }

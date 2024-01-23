@@ -20,6 +20,7 @@ namespace StringMath.Tests
             _context.RegisterLogical(">", (a, b) => a > b, Precedence.Power);
             _context.RegisterLogical("<", (a, b) => a < b, Precedence.Power);
             _context.RegisterLogical("!", (a) => !a);
+            _context.RegisterFunction("if", (args) => args[0] > 0 ? args[1] : args[2]);
         }
 
         [Test]
@@ -55,6 +56,12 @@ namespace StringMath.Tests
         {
             _context.RegisterBinary("+", (a, b) => a + b);
             Assert.IsTrue("(3 + 5) > 7".EvalBoolean(_context));
+        }
+
+        [Test]
+        public void Evaluate_Ternary_Operation()
+        {
+            Assert.IsTrue("if(5 > 2, {true}, {false})".EvalBoolean(_context));
         }
     }
 

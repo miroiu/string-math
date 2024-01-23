@@ -1,5 +1,6 @@
 ﻿using NUnit.Framework;
 using System;
+using System.Linq;
 
 namespace StringMath.Tests
 {
@@ -15,6 +16,9 @@ namespace StringMath.Tests
             MathExpr.AddOperator("<>", (a, b) => double.Parse($"{a}{b}"), Precedence.Prefix);
             MathExpr.AddOperator("e", (a, b) => double.Parse($"{a}e{b}"), Precedence.Power);
             MathExpr.AddOperator("sind", a => Math.Sin(a * (Math.PI / 180)));
+            MathExpr.AddFunction("add", args => args.Sum());
+            MathExpr.AddFunction("sqrt", args => Math.Sqrt(args[0]));
+            MathExpr.AddFunction("if", args => args[0] > 1 ? args[1] : args[2]);
         }
 
         [Test]
@@ -79,6 +83,7 @@ namespace StringMath.Tests
         [TestCase("{a}", new[] { "a" })]
         [TestCase("2 * {a} - {PI}", new[] { "a" })]
         [TestCase("({a} - 5) * 4 + {E}", new[] { "a" })]
+        [TestCase("if({a} - 2, 1, 0) + {E}", new[] { "a" })]
         public void LocalVariables_Should_Exclude_Global_Variables(string input, string[] expected)
         {
             MathExpr expr = input;
@@ -90,6 +95,7 @@ namespace StringMath.Tests
         [TestCase("{a}", new[] { "a" })]
         [TestCase("2 * {a} - {PI}", new[] { "a", "PI" })]
         [TestCase("({a} - 5) * 4 + {E}", new[] { "a", "E" })]
+        [TestCase("if({a} / 2, 1, 0) + {E}", new[] { "a", "E" })]
         public void Variables_Should_Include_Global_Variables(string input, string[] expected)
         {
             MathExpr expr = input;
@@ -184,6 +190,17 @@ namespace StringMath.Tests
         [TestCase("2*{a}+2*{a}", 3, 12)]
         [TestCase("({a})", 3, 3)]
         public void Evaluate(string input, double variable, double expected)
+        {
+            MathExpr expr = input.Substitute("a", variable);
+
+            Assert.AreEqual(expected, expr.Result);
+        }
+
+        [Test]
+        [TestCase("add({a}, 2)", 1, 3)]
+        [TestCase("sqrt({a})", 4, 2)]
+        [TestCase("3 + sqrt({a})", 4, 5)]
+        public void Evaluate_Function(string input, double variable, double expected)
         {
             MathExpr expr = input.Substitute("a", variable);
 
@@ -367,6 +384,16 @@ namespace StringMath.Tests
             double result = fn();
 
             Assert.AreEqual(1 + Math.PI, result);
+        }
+
+        [Test]
+        public void Compile_Resolves_Function()
+        {
+            var expr = "1 + add(2, 3)".ToMathExpr();
+            var fn = expr.Compile();
+            double result = fn();
+
+            Assert.AreEqual(6, result);
         }
     }
 }

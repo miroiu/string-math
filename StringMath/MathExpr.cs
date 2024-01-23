@@ -194,6 +194,17 @@ namespace StringMath
             return this;
         }
 
+        /// <summary>Adds a new function or overwrites and existing one.</summary>
+        /// <param name="name">The name of the function.</param>
+        /// <param name="body">The code to execute for this function.</param>
+        /// <returns>The current math expression.</returns>
+        public MathExpr SetFunction(string name, Func<double[], double> body)
+        {
+            _cachedResult = null;
+            Context.RegisterFunction(name, body);
+            return this;
+        }
+
         /// <summary>Add a new binary operator or overwrite an existing operator implementation.</summary>
         /// <param name="name">The operator's string representation.</param>
         /// <param name="operation">The operation to execute for this operator.</param>
@@ -209,6 +220,12 @@ namespace StringMath
         /// <remarks>Operators will be available in all <see cref="MathExpr"/> expressions. Operators are inherited from <see cref="AddOperator(string, Func{double, double})"/>.</remarks>
         public static void AddOperator(string name, Func<double, double> operation)
             => MathContext.Default.RegisterUnary(name, operation);
+
+        /// <summary>Adds a new function or overwrites and existing one.</summary>
+        /// <param name="name">The name of the function.</param>
+        /// <param name="body">The code to execute for this function.</param>
+        public static void AddFunction(string name, Func<double[], double> body)
+            => MathContext.Default.RegisterFunction(name, body);
 
         /// <inheritdoc cref="Substitute(string, double)"/>
         /// <remarks>Variables will be available in all <see cref="MathExpr"/> expressions.</remarks>

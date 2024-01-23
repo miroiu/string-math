@@ -7,6 +7,7 @@ namespace StringMath
     /// <remarks>Inherits operators from <see cref="Parent"/>.</remarks>
     public sealed class MathContext : IMathContext
     {
+        private readonly Dictionary<string, Func<double[], double>> _functions = new Dictionary<string, Func<double[], double>>(StringComparer.Ordinal);
         private readonly Dictionary<string, Func<double, double, double>> _binaryEvaluators = new Dictionary<string, Func<double, double, double>>(StringComparer.Ordinal);
         private readonly Dictionary<string, Func<double, double>> _unaryEvaluators = new Dictionary<string, Func<double, double>>(StringComparer.Ordinal);
         private readonly Dictionary<string, Precedence> _binaryPrecedence = new Dictionary<string, Precedence>(StringComparer.Ordinal);
@@ -67,6 +68,10 @@ namespace StringMath
             => _binaryEvaluators.ContainsKey(operatorName) || (Parent?.IsBinary(operatorName) ?? false);
 
         /// <inheritdoc />
+        public bool IsFunction(string functionName)
+            => _functions.ContainsKey(functionName) || (Parent?.IsFunction(functionName) ?? false);
+
+        /// <inheritdoc />
         public Precedence GetBinaryPrecedence(string operatorName)
         {
             return _binaryPrecedence.TryGetValue(operatorName, out var value) 
@@ -83,6 +88,15 @@ namespace StringMath
 
             _binaryEvaluators[operatorName] = operation;
             _binaryPrecedence[operatorName] = precedence ?? Precedence.UserDefined;
+        }
+
+        /// <inheritdoc />
+        public void RegisterFunction(string functionName, Func<double[], double> body)
+        {
+            functionName.EnsureNotNull(nameof(functionName));
+            body.EnsureNotNull(nameof(body));
+
+            _functions[functionName] = body;
         }
 
         /// <inheritdoc />
@@ -112,6 +126,17 @@ namespace StringMath
                 ? value(a)
                 : Parent?.EvaluateUnary(op, a)
                 ?? throw MathException.MissingUnaryOperator(op);
+
+            return result;
+        }
+
+        /// <inheritdoc />
+        public double InvokeFunction(string name, params double[] args)
+        {
+            double result = _functions.TryGetValue(name, out var fn)
+                ? fn(args)
+                : Parent?.InvokeFunction(name, args)
+                ?? throw MathException.MissingFunction(name);
 
             return result;
         }

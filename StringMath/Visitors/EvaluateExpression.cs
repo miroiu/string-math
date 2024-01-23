@@ -1,4 +1,5 @@
 ﻿using StringMath.Expressions;
+using System.Linq;
 
 namespace StringMath
 {
@@ -42,6 +43,18 @@ namespace StringMath
             return _variables.TryGetValue(variableExpr.Name, out double value)
                 ? new ConstantExpression(value)
                 : throw MathException.UnassignedVariable(variableExpr);
+        }
+
+        protected override IExpression VisitInvocationExpr(InvocationExpression invocationExpr)
+        {
+            var args = invocationExpr.Arguments
+                .Select(Visit)
+                .Cast<ConstantExpression>()
+                .Select(x => x.Value)
+                .ToArray();
+
+            double result = _context.InvokeFunction(invocationExpr.Name, args);
+            return new ConstantExpression(result);
         }
     }
 }
