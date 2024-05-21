@@ -31,5 +31,15 @@ namespace StringMath
 
             return variableExpr;
         }
+
+        protected override IExpression VisitInvocationExpr(InvocationExpression invocationExpr)
+        {
+            foreach(var arg in invocationExpr.Arguments)
+            {
+                Visit(arg);
+            }
+
+            return invocationExpr;
+        }
     }
 }

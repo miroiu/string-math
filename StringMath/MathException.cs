@@ -19,6 +19,8 @@ namespace StringMath
             UNEXISTING_VARIABLE = 4,
             /// <summary>Readonly variable.</summary>
             READONLY_VARIABLE = 8,
+            /// <summary>Missing function.</summary>
+            UNDEFINED_FUNCTION = 16,
         }
 
         /// <summary>Initializes a new instance of a <see cref="MathException"/>.</summary>
@@ -64,5 +66,8 @@ namespace StringMath
 
         internal static Exception ReadonlyVariable(string name)
             => new MathException(ErrorCode.READONLY_VARIABLE, $"Variable '{name}' is read-only.");
+
+        internal static Exception MissingFunction(string name)
+            => new MathException(ErrorCode.UNDEFINED_FUNCTION, $"Undefined function '{name}'.");
     }
 }

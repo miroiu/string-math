@@ -1,4 +1,5 @@
 ﻿using StringMath.Expressions;
+using System.Collections.Generic;
 
 namespace StringMath
 {
@@ -70,22 +71,36 @@ namespace StringMath
             return left;
         }
 
-        private IExpression ParsePrimaryExpression()
+        private IExpression ParsePrimaryExpression() => _currentToken.Type switch
         {
-            switch (_currentToken.Type)
+            TokenType.Number => new ConstantExpression(Take().Text),
+            TokenType.Operator when _mathContext.IsFunction(_currentToken.Text) => ParseInvocationExpression(),
+            TokenType.Identifier => new VariableExpression(Take().Text),
+            TokenType.OpenParen => ParseGroupingExpression(),
+            _ => throw MathException.UnexpectedToken(_currentToken),
+        };
+
+        private IExpression ParseInvocationExpression()
+        {
+            var fnName = Take().Text;
+
+            Match(TokenType.OpenParen);
+
+            var arguments = new List<IExpression>(2);
+
+            do
             {
-                case TokenType.Number:
-                    return new ConstantExpression(Take().Text);
+                if (_currentToken.Text == ",")
+                    Take();
 
-                case TokenType.Identifier:
-                    return new VariableExpression(Take().Text);
-
-                case TokenType.OpenParen:
-                    return ParseGroupingExpression();
-
-                default:
-                    throw MathException.UnexpectedToken(_currentToken);
+                var argExpr = ParseBinaryExpression();
+                arguments.Add(argExpr);
             }
+            while (_currentToken.Text == ",");
+
+            Match(TokenType.CloseParen);
+
+            return new InvocationExpression(fnName, arguments);
         }
 
         private IExpression ParseGroupingExpression()
@@ -98,12 +113,9 @@ namespace StringMath
             return expr;
         }
 
-        private Token Match(TokenType tokenType)
-        {
-            return _currentToken.Type == tokenType
-                ? Take()
-                : throw MathException.UnexpectedToken(_currentToken, tokenType);
-        }
+        private Token Match(TokenType tokenType) => _currentToken.Type == tokenType
+            ? Take()
+            : throw MathException.UnexpectedToken(_currentToken, tokenType);
 
         private Token Take()
         {
@@ -112,9 +124,7 @@ namespace StringMath
             return previous;
         }
 
-        private bool IsEndOfStatement()
-        {
-            return _currentToken.Type == TokenType.EndOfCode;
-        }
+        private bool IsEndOfStatement() 
+            => _currentToken.Type == TokenType.EndOfCode;
     }
 }

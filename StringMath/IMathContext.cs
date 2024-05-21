@@ -19,6 +19,11 @@ namespace StringMath
         /// <param name="operation">The implementation of the operator.</param>
         void RegisterUnary(string operatorName, Func<double, double> operation);
 
+        /// <summary>Registers a function implementation.</summary>
+        /// <param name="functionName">The name of the function.</param>
+        /// <param name="body">The implementation of the function.</param>
+        void RegisterFunction(string functionName, Func<double[], double> body);
+
         /// <summary>Evaluates a binary operation.</summary>
         /// <param name="op">The operator.</param>
         /// <param name="a">Left value.</param>
@@ -31,6 +36,12 @@ namespace StringMath
         /// <param name="a">The value.</param>
         /// <returns>The result.</returns>
         double EvaluateUnary(string op, double a);
+
+        /// <summary>Invokes a function by name and returns the result.</summary>
+        /// <param name="name">The function name.</param>
+        /// <param name="args">The function arguments.</param>
+        /// <returns>The result.</returns>
+        double InvokeFunction(string name, params double[] args);
 
         /// <summary>Returns the precedence of a binary operator. Unary operators have <see cref="Precedence.Prefix"/> precedence.</summary>
         /// <param name="operatorName">The operator.</param>
@@ -46,5 +57,10 @@ namespace StringMath
         /// <param name="operatorName">The operator.</param>
         /// <returns>True if the operator is unary, false if it does not exist or it is binary.</returns>
         bool IsUnary(string operatorName);
+
+        /// <summary>Tells whether an identifier is a function.</summary>
+        /// <param name="functionName"></param>
+        /// <returns></returns>
+        bool IsFunction(string functionName);
     }
 }

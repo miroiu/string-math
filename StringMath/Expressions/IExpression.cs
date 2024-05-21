@@ -11,6 +11,8 @@
         VariableExpression,
         /// <summary><see cref="Expressions.ConstantExpression"/>.</summary>
         ConstantExpression,
+        /// <summary><see cref="Expressions.InvocationExpression"/>.</summary>
+        Invocation,
     }
 
     /// <summary>Contract for expressions.</summary>
