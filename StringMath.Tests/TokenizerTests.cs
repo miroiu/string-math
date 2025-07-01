@@ -7,15 +7,25 @@ namespace StringMath.Tests
     [TestFixture]
     internal class TokenizerTests
     {
+        private IMathContext _context;
+
+        [OneTimeSetUp]
+        public void Setup()
+        {
+            _context = MathContext.Default;
+        }
+
         [Test]
         [TestCase("-1 * 3.5", new[] { TokenType.Operator, TokenType.Number, TokenType.Operator, TokenType.Number })]
         [TestCase("2 pow 3", new[] { TokenType.Number, TokenType.Operator, TokenType.Number })]
         [TestCase("{a} + 2", new[] { TokenType.Identifier, TokenType.Operator, TokenType.Number })]
         [TestCase("(-1) + 2", new[] { TokenType.OpenParen, TokenType.Operator, TokenType.Number, TokenType.CloseParen, TokenType.Operator, TokenType.Number })]
         [TestCase("5!", new[] { TokenType.Number, TokenType.Exclamation })]
+        [TestCase("1+sin(3)", new[] { TokenType.Number, TokenType.Operator, TokenType.Operator, TokenType.OpenParen, TokenType.Number, TokenType.CloseParen })]
+        [TestCase("1+sin 3", new[] { TokenType.Number, TokenType.Operator, TokenType.Operator, TokenType.Number })]
         public void ReadToken(string input, TokenType[] expected)
         {
-            IEnumerable<TokenType> actualTokens = input.ReadAllTokens()
+            IEnumerable<TokenType> actualTokens = input.ReadAllTokens(_context)
                 .Where(token => token.Type != TokenType.EndOfCode)
                 .Select(t => t.Type);
             Assert.That(actualTokens, Is.EquivalentTo(expected));
@@ -29,7 +39,7 @@ namespace StringMath.Tests
         public void ReadToken_IgnoresWhitespace(string input)
         {
             // Arrange
-            Tokenizer tokenizer = new Tokenizer(input);
+            Tokenizer tokenizer = new Tokenizer(input, _context);
 
             // Act
             Token token1 = tokenizer.ReadToken();
@@ -53,7 +63,7 @@ namespace StringMath.Tests
         public void ReadIdentifier(string input)
         {
             // Arrange
-            Tokenizer tokenizer = new Tokenizer(input);
+            Tokenizer tokenizer = new Tokenizer(input, _context);
 
             // Act
             Token token = tokenizer.ReadToken();
@@ -75,7 +85,7 @@ namespace StringMath.Tests
         public void ReadIdentifier_Exception(string input)
         {
             // Arrange
-            Tokenizer tokenizer = new Tokenizer(input);
+            Tokenizer tokenizer = new Tokenizer(input, _context);
 
             // Act & Assert
             MathException exception = Assert.Throws<MathException>(() => tokenizer.ReadToken());
@@ -91,8 +101,10 @@ namespace StringMath.Tests
         [TestCase("a@a")]
         public void ReadOperator(string input)
         {
+            _context.RegisterBinary("**", (a, b) => a * b, Precedence.Multiplication);
+
             // Arrange
-            Tokenizer tokenizer = new Tokenizer(input);
+            Tokenizer tokenizer = new Tokenizer(input, _context);
 
             // Act
             Token token = tokenizer.ReadToken();
@@ -113,7 +125,7 @@ namespace StringMath.Tests
         public void ReadNumber(string input)
         {
             // Arrange
-            Tokenizer tokenizer = new Tokenizer(input);
+            Tokenizer tokenizer = new Tokenizer(input, _context);
 
             // Act
             Token token = tokenizer.ReadToken();
@@ -133,7 +145,7 @@ namespace StringMath.Tests
         public void ReadNumber_Exception(string input)
         {
             // Arrange
-            Tokenizer tokenizer = new Tokenizer(input);
+            Tokenizer tokenizer = new Tokenizer(input, _context);
 
             // Act & Assert
             MathException exception = Assert.Throws<MathException>(() => tokenizer.ReadToken());

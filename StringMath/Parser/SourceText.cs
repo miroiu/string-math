@@ -6,7 +6,7 @@ namespace StringMath
     internal sealed class SourceText : IEnumerator<char>
     {
         public string Text { get; }
-        public int Position { get; private set; }
+        public int Position { get; set; }
         public char Current => Text[Position];
         object IEnumerator.Current => Current;
 
