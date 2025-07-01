@@ -154,10 +154,11 @@ namespace StringMath.Tests
         [TestCase("1 + sqrt 4", 3)]
         [TestCase("sind(90) + sind 30", 1.5)]
         [TestCase("((1 + 1) + ((1 + 1) + (((1) + 1)) + 1))", 7)]
+        [TestCase("719.04+sin(60)", 718.735d)]
         public void Evaluate(string input, double expected)
         {
             double result = input.Eval();
-            Assert.AreEqual(expected, result);
+            Assert.AreEqual(expected, result, 0.001);
         }
 
         [TestCase("{b}+3*{a}", 3, 2, 11)]

@@ -10,7 +10,9 @@ namespace StringMath.Benchmarks
         [Benchmark]
         public void Tokenize()
         {
-            var tokenizer = new Tokenizer("1.23235456576878798 - ((3 + {b}) max .1) ^ sqrt(-999 / 2 * 3 max 5) + !5 - 0.00000000002 / {ahghghh}");
+            var context = MathContext.Default;
+
+            var tokenizer = new Tokenizer("1.23235456576878798 - ((3 + {b}) max .1) ^ sqrt(-999 / 2 * 3 max 5) + !5 - 0.00000000002 / {ahghghh}", context);
 
             Token token;
 
@@ -24,8 +26,9 @@ namespace StringMath.Benchmarks
         [Benchmark]
         public void Parse()
         {
-            var tokenizer = new Tokenizer("1.23235456576878798 - ((3 + {b}) max .1) ^ sqrt(-999 / 2 * 3 max 5) + !5 - 0.00000000002 / {ahghghh}");
-            var parser = new Parser(tokenizer, MathContext.Default);
+            var context = MathContext.Default;
+            var tokenizer = new Tokenizer("1.23235456576878798 - ((3 + {b}) max .1) ^ sqrt(-999 / 2 * 3 max 5) + !5 - 0.00000000002 / {ahghghh}", context);
+            var parser = new Parser(tokenizer, context);
             _ = parser.Parse();
         }
 

@@ -4,9 +4,9 @@ namespace StringMath.Tests
 {
     static class Extensions
     {
-        public static List<Token> ReadAllTokens(this string input)
+        public static List<Token> ReadAllTokens(this string input, IMathContext context)
         {
-            Tokenizer tokenizer = new Tokenizer(input);
+            Tokenizer tokenizer = new Tokenizer(input, context);
             List<Token> tokens = new List<Token>();
 
             Token t;
