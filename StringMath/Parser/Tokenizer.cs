@@ -7,6 +7,7 @@ namespace StringMath
     internal sealed partial class Tokenizer
     {
         private readonly SourceText _text;
+        private readonly IMathContext _context;
 
         // Excluded characters for custom operators
         private static readonly HashSet<char> _invalidOperatorCharacters = new HashSet<char>
@@ -16,14 +17,17 @@ namespace StringMath
 
         /// <summary>Creates a new instance of the tokenizer.</summary>
         /// <param name="text">The text to tokenize.</param>
-        public Tokenizer(SourceText text)
+        /// <param name="context">The math context.</param>
+        public Tokenizer(SourceText text, IMathContext context)
         {
             _text = text;
+            _context = context;
         }
 
         /// <summary>Creates a new instance of the tokenizer.</summary>
         /// <param name="text">The text to tokenize.</param>
-        public Tokenizer(string text) : this(new SourceText(text))
+        /// <param name="context">The math context.</param>
+        public Tokenizer(string text, IMathContext context) : this(new SourceText(text), context)
         {
         }
 
@@ -139,7 +143,28 @@ namespace StringMath
                 stream.MoveNext();
             }
 
+            string op = builder.ToString();
+            if (IsOperator(op))
+            {
+                return builder.ToString();
+            }
+
+            for (int i = 0; i < op.Length; i++)
+            {
+                var possibleOperator = builder.ToString(0, i);
+                if (IsOperator(possibleOperator))
+                {
+                    stream.Position -= op.Length - i;
+                    return possibleOperator;
+                }
+            }
+
             return builder.ToString();
+        }
+
+        private bool IsOperator(string text)
+        {
+            return _context.IsBinary(text) || _context.IsUnary(text);
         }
 
         private string ReadNumber(SourceText stream)

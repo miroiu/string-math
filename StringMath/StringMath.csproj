@@ -12,8 +12,8 @@ Supports variables and user defined operators.</Description>
     <PackageProjectUrl>https://github.com/miroiu/string-math</PackageProjectUrl>
     <RepositoryUrl>https://github.com/miroiu/string-math</RepositoryUrl>
     <PackageTags>expression-evaluator calculator string-math math string-calculator user-defined-operators operators custom-operators</PackageTags>
-    <Version>4.1.2</Version>
-    <PackageReleaseNotes>Fixed compiled expressions not using variables that are not passed as arguments</PackageReleaseNotes>
+    <Version>4.1.3</Version>
+    <PackageReleaseNotes>Fixed a parsing error for some operators.</PackageReleaseNotes>
     <PackageLicenseFile></PackageLicenseFile>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <Nullable>enable</Nullable>
